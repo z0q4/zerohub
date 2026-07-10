@@ -1,0 +1,88 @@
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  width="1024"
+  height="1024"
+  viewBox="0 0 1024 1024"
+>
+  <defs>
+    <linearGradient
+      id="background"
+      x1="140"
+      y1="100"
+      x2="880"
+      y2="930"
+      gradientUnits="userSpaceOnUse"
+    >
+      <stop offset="0" stop-color="#7886ff"/>
+      <stop offset="0.52" stop-color="#5263f0"/>
+      <stop offset="1" stop-color="#283694"/>
+    </linearGradient>
+
+    <linearGradient
+      id="letter"
+      x1="300"
+      y1="280"
+      x2="735"
+      y2="790"
+      gradientUnits="userSpaceOnUse"
+    >
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#cbd1ff"/>
+    </linearGradient>
+
+    <filter
+      id="shadow"
+      x="-30%"
+      y="-30%"
+      width="160%"
+      height="160%"
+    >
+      <feDropShadow
+        dx="0"
+        dy="34"
+        stdDeviation="36"
+        flood-color="#10174d"
+        flood-opacity="0.55"
+      />
+    </filter>
+  </defs>
+
+  <rect
+    x="92"
+    y="92"
+    width="840"
+    height="840"
+    rx="210"
+    fill="url(#background)"
+    filter="url(#shadow)"
+  />
+
+  <rect
+    x="112"
+    y="112"
+    width="800"
+    height="800"
+    rx="190"
+    fill="none"
+    stroke="#ffffff"
+    stroke-opacity="0.22"
+    stroke-width="8"
+  />
+
+  <path
+    d="
+      M 278 278
+      H 746
+      V 382
+      L 451 710
+      H 746
+      V 814
+      H 278
+      V 710
+      L 573 382
+      H 278
+      Z
+    "
+    fill="url(#letter)"
+  />
+</svg>
