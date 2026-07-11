@@ -1,27 +1,42 @@
 import {
-  decodeBase64Utf8,
-  encodeBase64Utf8,
-} from '../services/base64.service';
-
-import {
   TextTransformTool,
 } from './TextTransformTool';
 
 export function Base64Tool() {
   return (
     <TextTransformTool
-      category="ENCODING"
+      category="ENCODING · PYTHON"
       title="Base64"
-      description="Codifique e decodifique textos UTF-8 localmente."
+      description="Codifique e decodifique textos UTF-8 utilizando o módulo Python."
       placeholders={{
         encode:
           'Digite o texto que será codificado...',
+
         decode:
           'Cole o conteúdo Base64 que será decodificado...',
       }}
       transform={{
-        encode: encodeBase64Utf8,
-        decode: decodeBase64Utf8,
+        encode: (
+          value,
+        ) =>
+          window.zeroHub
+            .encoding
+            .transform({
+              tool: 'base64',
+              mode: 'encode',
+              value,
+            }),
+
+        decode: (
+          value,
+        ) =>
+          window.zeroHub
+            .encoding
+            .transform({
+              tool: 'base64',
+              mode: 'decode',
+              value,
+            }),
       }}
     />
   );

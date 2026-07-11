@@ -8,6 +8,10 @@ import path from 'node:path';
 import started from 'electron-squirrel-startup';
 
 import {
+  registerEncodingIpcHandlers,
+} from './main/ipc/encoding.ipc';
+
+import {
   registerHashIpcHandlers,
 } from './main/ipc/hash.ipc';
 
@@ -22,6 +26,10 @@ import {
 import {
   registerSettingsIpcHandlers,
 } from './main/ipc/settings.ipc';
+
+import {
+  pythonService,
+} from './main/python/python.service';
 
 if (started) {
   app.quit();
@@ -74,6 +82,7 @@ function createWindow(): void {
 }
 
 app.whenReady().then(() => {
+  registerEncodingIpcHandlers();
   registerHashIpcHandlers();
   registerNetworkIpcHandlers();
   registerOsintIpcHandlers();
@@ -91,6 +100,13 @@ app.whenReady().then(() => {
     }
   });
 });
+
+app.on(
+  'before-quit',
+  () => {
+    pythonService.stop();
+  },
+);
 
 app.on(
   'window-all-closed',

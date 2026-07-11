@@ -1,4 +1,8 @@
 import type {
+  EncodingTransformRequest,
+} from '../encoding/encoding.types';
+
+import type {
   HashAlgorithm,
   HashFileResult,
   HashTextRequest,
@@ -42,6 +46,13 @@ type ZeroHubAPI = {
     writeText(
       text: string,
     ): void;
+  };
+
+  encoding: {
+    transform(
+      request:
+        EncodingTransformRequest,
+    ): Promise<string>;
   };
 
   hash: {

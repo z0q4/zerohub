@@ -199,14 +199,14 @@ export function HashTool() {
       <div className="toolPanelHeader">
         <div>
           <span className="toolCategory">
-            UTILITIES
+            UTILITIES · PYTHON
           </span>
 
           <h2>Hash Generator</h2>
 
           <p>
             Gere hashes criptográficos de
-            textos e arquivos locais.
+            textos e arquivos através do módulo Python.
           </p>
         </div>
 

@@ -140,7 +140,7 @@ export function PingTool() {
       <div className="toolPanelHeader">
         <div>
           <span className="toolCategory">
-            NETWORK
+            NETWORK · PYTHON
           </span>
 
           <h2>Ping</h2>
@@ -153,7 +153,7 @@ export function PingTool() {
         </div>
 
         <span className="nativeToolBadge">
-          Native Process
+          Python Module
         </span>
       </div>
 

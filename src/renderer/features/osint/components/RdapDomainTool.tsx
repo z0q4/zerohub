@@ -151,7 +151,7 @@ export function RdapDomainTool() {
       <div className="toolPanelHeader">
         <div>
           <span className="toolCategory">
-            OSINT
+            OSINT · PYTHON
           </span>
 
           <h2>RDAP Domain Lookup</h2>
@@ -164,7 +164,7 @@ export function RdapDomainTool() {
         </div>
 
         <span className="nativeToolBadge">
-          IANA Bootstrap
+          Python Module
         </span>
       </div>
 
