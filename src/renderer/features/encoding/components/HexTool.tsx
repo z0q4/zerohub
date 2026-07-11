@@ -1,27 +1,42 @@
 import {
-  decodeHexUtf8,
-  encodeHexUtf8,
-} from '../services/hex.service';
-
-import {
   TextTransformTool,
 } from './TextTransformTool';
 
 export function HexTool() {
   return (
     <TextTransformTool
-      category="ENCODING"
+      category="ENCODING · PYTHON"
       title="Hexadecimal"
-      description="Converta textos UTF-8 para hexadecimal e faça a operação inversa."
+      description="Conversão entre texto UTF-8 e hexadecimal utilizando o módulo Python."
       placeholders={{
         encode:
           'Digite o texto que será convertido para hexadecimal...',
+
         decode:
           'Cole uma sequência hexadecimal, com ou sem espaços...',
       }}
       transform={{
-        encode: encodeHexUtf8,
-        decode: decodeHexUtf8,
+        encode: (
+          value,
+        ) =>
+          window.zeroHub
+            .encoding
+            .transform({
+              tool: 'hex',
+              mode: 'encode',
+              value,
+            }),
+
+        decode: (
+          value,
+        ) =>
+          window.zeroHub
+            .encoding
+            .transform({
+              tool: 'hex',
+              mode: 'decode',
+              value,
+            }),
       }}
     />
   );

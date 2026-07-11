@@ -3,11 +3,12 @@ import {
 } from 'electron';
 
 import {
-  lookupRdapDomain,
-} from '../services/rdap.service';
+  pythonService,
+} from '../python/python.service';
 
 import type {
   RdapDomainRequest,
+  RdapDomainResult,
 } from '../../shared/osint/rdap.types';
 
 function parseRequest(
@@ -23,8 +24,7 @@ function parseRequest(
   }
 
   const request =
-    value as
-      Partial<RdapDomainRequest>;
+    value as Partial<RdapDomainRequest>;
 
   if (
     typeof request.domain !==
@@ -32,6 +32,15 @@ function parseRequest(
   ) {
     throw new TypeError(
       'O domínio precisa ser um texto.',
+    );
+  }
+
+  if (
+    request.domain.length >
+    2048
+  ) {
+    throw new TypeError(
+      'O domínio excede o limite permitido.',
     );
   }
 
@@ -54,8 +63,13 @@ export function registerOsintIpcHandlers():
           rawRequest,
         );
 
-      return lookupRdapDomain(
-        request.domain,
+      return pythonService.invoke<RdapDomainResult>(
+        'osint.rdap_domain',
+        {
+          domain:
+            request.domain,
+        },
+        30_000,
       );
     },
   );

@@ -3,20 +3,18 @@ import {
 } from 'electron';
 
 import {
-  lookupDns,
-} from '../services/dns.service';
-
-import {
-  runPing,
-} from '../services/ping.service';
+  pythonService,
+} from '../python/python.service';
 
 import type {
   DnsLookupRequest,
+  DnsLookupResult,
   DnsRecordType,
 } from '../../shared/network/dns.types';
 
 import type {
   PingRequest,
+  PingResult,
 } from '../../shared/network/ping.types';
 
 const DNS_RECORD_TYPES:
@@ -33,8 +31,7 @@ function isDnsRecordType(
   value: unknown,
 ): value is DnsRecordType {
   return (
-    typeof value ===
-      'string' &&
+    typeof value === 'string' &&
     DNS_RECORD_TYPES.includes(
       value as DnsRecordType,
     )
@@ -110,7 +107,10 @@ function parsePingRequest(
 
   if (
     typeof request.count !==
-    'number'
+    'number' ||
+    !Number.isInteger(
+      request.count,
+    )
   ) {
     throw new TypeError(
       'A quantidade de pacotes é inválida.',
@@ -119,7 +119,10 @@ function parsePingRequest(
 
   if (
     typeof request.timeoutMs !==
-    'number'
+    'number' ||
+    !Number.isInteger(
+      request.timeoutMs,
+    )
   ) {
     throw new TypeError(
       'O timeout informado é inválido.',
@@ -151,7 +154,17 @@ export function registerNetworkIpcHandlers():
           rawRequest,
         );
 
-      return lookupDns(request);
+      return pythonService.invoke<DnsLookupResult>(
+        'network.dns_lookup',
+        {
+          domain:
+            request.domain,
+
+          recordType:
+            request.recordType,
+        },
+        20_000,
+      );
     },
   );
 
@@ -166,7 +179,29 @@ export function registerNetworkIpcHandlers():
           rawRequest,
         );
 
-      return runPing(request);
+      const operationTimeout =
+        Math.min(
+          70_000,
+
+          request.count *
+            request.timeoutMs +
+            10_000,
+        );
+
+      return pythonService.invoke<PingResult>(
+        'network.ping',
+        {
+          target:
+            request.target,
+
+          count:
+            request.count,
+
+          timeoutMs:
+            request.timeoutMs,
+        },
+        operationTimeout,
+      );
     },
   );
 }

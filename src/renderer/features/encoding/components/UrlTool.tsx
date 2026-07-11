@@ -1,27 +1,42 @@
 import {
-  decodeUrlComponent,
-  encodeUrlComponent,
-} from '../services/url.service';
-
-import {
   TextTransformTool,
 } from './TextTransformTool';
 
 export function UrlTool() {
   return (
     <TextTransformTool
-      category="ENCODING"
+      category="ENCODING · PYTHON"
       title="URL Encoder / Decoder"
-      description="Codificação percentual para componentes e parâmetros de URLs."
+      description="Codificação percentual de componentes de URL processada pelo módulo Python."
       placeholders={{
         encode:
           'Digite o texto que será codificado...',
+
         decode:
           'Cole o conteúdo URL encoded...',
       }}
       transform={{
-        encode: encodeUrlComponent,
-        decode: decodeUrlComponent,
+        encode: (
+          value,
+        ) =>
+          window.zeroHub
+            .encoding
+            .transform({
+              tool: 'url',
+              mode: 'encode',
+              value,
+            }),
+
+        decode: (
+          value,
+        ) =>
+          window.zeroHub
+            .encoding
+            .transform({
+              tool: 'url',
+              mode: 'decode',
+              value,
+            }),
       }}
     />
   );

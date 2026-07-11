@@ -31,6 +31,10 @@ const config: ForgeConfig = {
   packagerConfig: {
     asar: true,
     executableName: 'zerohub',
+
+    extraResource: [
+      './python',
+    ],
   },
 
   rebuildConfig: {},

@@ -136,7 +136,7 @@ export function DnsLookupTool() {
       <div className="toolPanelHeader">
         <div>
           <span className="toolCategory">
-            NETWORK
+            NETWORK · PYTHON
           </span>
 
           <h2>DNS Lookup</h2>
@@ -148,7 +148,7 @@ export function DnsLookupTool() {
         </div>
 
         <span className="nativeToolBadge">
-          Native IPC
+          Python Module
         </span>
       </div>
 

@@ -4,12 +4,12 @@ import {
 } from 'electron';
 
 import {
-  hashFile,
-  hashText,
-} from '../services/hash.service';
+  pythonService,
+} from '../python/python.service';
 
 import type {
   HashAlgorithm,
+  HashFileResult,
   HashTextRequest,
 } from '../../shared/hash/hash.types';
 
@@ -18,6 +18,9 @@ const HASH_ALGORITHMS:
     'sha256',
     'sha512',
   ];
+
+const MAX_TEXT_LENGTH =
+  2_000_000;
 
 function isHashAlgorithm(
   value: unknown,
@@ -45,32 +48,66 @@ function parseTextRequest(
   const request =
     value as Partial<HashTextRequest>;
 
-  if (!isHashAlgorithm(request.algorithm)) {
+  if (
+    !isHashAlgorithm(
+      request.algorithm,
+    )
+  ) {
     throw new TypeError(
       'O algoritmo de hash informado é inválido.',
     );
   }
 
-  if (typeof request.text !== 'string') {
+  if (
+    typeof request.text !==
+    'string'
+  ) {
     throw new TypeError(
       'O conteúdo precisa ser um texto.',
     );
   }
 
+  if (
+    request.text.length >
+    MAX_TEXT_LENGTH
+  ) {
+    throw new TypeError(
+      'O texto excede o limite permitido.',
+    );
+  }
+
   return {
-    algorithm: request.algorithm,
-    text: request.text,
+    algorithm:
+      request.algorithm,
+
+    text:
+      request.text,
   };
 }
 
-export function registerHashIpcHandlers(): void {
+export function registerHashIpcHandlers():
+  void {
   ipcMain.handle(
     'hash:text',
-    (_event, rawRequest: unknown) => {
+    async (
+      _event,
+      rawRequest: unknown,
+    ) => {
       const request =
-        parseTextRequest(rawRequest);
+        parseTextRequest(
+          rawRequest,
+        );
 
-      return hashText(request);
+      return pythonService.invoke<string>(
+        'hash.text',
+        {
+          algorithm:
+            request.algorithm,
+
+          text:
+            request.text,
+        },
+      );
     },
   );
 
@@ -81,7 +118,9 @@ export function registerHashIpcHandlers(): void {
       rawAlgorithm: unknown,
     ) => {
       if (
-        !isHashAlgorithm(rawAlgorithm)
+        !isHashAlgorithm(
+          rawAlgorithm,
+        )
       ) {
         throw new TypeError(
           'O algoritmo de hash informado é inválido.',
@@ -92,7 +131,10 @@ export function registerHashIpcHandlers(): void {
         await dialog.showOpenDialog({
           title:
             'Selecione um arquivo para calcular o hash',
-          properties: ['openFile'],
+
+          properties: [
+            'openFile',
+          ],
         });
 
       if (
@@ -102,9 +144,15 @@ export function registerHashIpcHandlers(): void {
         return null;
       }
 
-      return hashFile(
-        selection.filePaths[0],
-        rawAlgorithm,
+      return pythonService.invoke<HashFileResult>(
+        'hash.file',
+        {
+          algorithm:
+            rawAlgorithm,
+
+          filePath:
+            selection.filePaths[0],
+        },
       );
     },
   );

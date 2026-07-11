@@ -5,6 +5,10 @@ import {
 } from 'electron';
 
 import type {
+  EncodingTransformRequest,
+} from './shared/encoding/encoding.types';
+
+import type {
   HashAlgorithm,
   HashFileResult,
   HashTextRequest,
@@ -61,6 +65,17 @@ const zeroHubAPI = {
 
       clipboard.writeText(text);
     },
+  },
+
+  encoding: {
+    transform: (
+      request:
+        EncodingTransformRequest,
+    ): Promise<string> =>
+      ipcRenderer.invoke(
+        'encoding:transform',
+        request,
+      ),
   },
 
   hash: {

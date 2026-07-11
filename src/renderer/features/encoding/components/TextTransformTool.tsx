@@ -19,7 +19,9 @@ type TextTransformToolProps = {
 
   transform: Record<
     TransformMode,
-    (value: string) => string
+    (
+      value: string,
+    ) => Promise<string>
   >;
 };
 
@@ -30,30 +32,58 @@ export function TextTransformTool({
   placeholders,
   transform,
 }: TextTransformToolProps) {
-  const [mode, setMode] =
-    useState<TransformMode>('encode');
+  const [
+    mode,
+    setMode,
+  ] =
+    useState<TransformMode>(
+      'encode',
+    );
 
-  const [input, setInput] =
-    useState('');
+  const [
+    input,
+    setInput,
+  ] = useState('');
 
-  const [output, setOutput] =
-    useState('');
+  const [
+    output,
+    setOutput,
+  ] = useState('');
 
-  const [error, setError] =
-    useState<string | null>(null);
+  const [
+    error,
+    setError,
+  ] =
+    useState<string | null>(
+      null,
+    );
 
-  const [copied, setCopied] =
-    useState(false);
+  const [
+    copied,
+    setCopied,
+  ] = useState(false);
+
+  const [
+    busy,
+    setBusy,
+  ] = useState(false);
 
   function resetStatus(): void {
     setError(null);
     setCopied(false);
   }
 
-  function processInput(): void {
+  async function processInput():
+    Promise<void> {
+    if (busy) {
+      return;
+    }
+
     resetStatus();
 
-    if (input.length === 0) {
+    if (
+      input.length === 0
+    ) {
       setOutput('');
 
       setError(
@@ -63,23 +93,32 @@ export function TextTransformTool({
       return;
     }
 
+    setBusy(true);
+
     try {
-      const result = transform[mode](input);
+      const result =
+        await transform[mode](
+          input,
+        );
 
       setOutput(result);
     } catch (unknownError) {
       setOutput('');
 
       setError(
-        unknownError instanceof Error
+        unknownError
+          instanceof Error
           ? unknownError.message
           : 'Não foi possível processar o conteúdo.',
       );
+    } finally {
+      setBusy(false);
     }
   }
 
   function changeMode(
-    newMode: TransformMode,
+    newMode:
+      TransformMode,
   ): void {
     setMode(newMode);
     setOutput('');
@@ -113,26 +152,32 @@ export function TextTransformTool({
       return;
     }
 
-    window.zeroHub.clipboard.writeText(
-      output,
-    );
+    window.zeroHub
+      .clipboard
+      .writeText(output);
 
     setCopied(true);
 
-    window.setTimeout(() => {
-      setCopied(false);
-    }, 1500);
+    window.setTimeout(
+      () => {
+        setCopied(false);
+      },
+      1500,
+    );
   }
 
   function handleKeyboard(
-    event: KeyboardEvent<HTMLTextAreaElement>,
+    event:
+      KeyboardEvent<HTMLTextAreaElement>,
   ): void {
     if (
       event.ctrlKey &&
-      event.key === 'Enter'
+      event.key ===
+        'Enter'
     ) {
       event.preventDefault();
-      processInput();
+
+      void processInput();
     }
   }
 
@@ -157,8 +202,11 @@ export function TextTransformTool({
                 : ''
             }
             type="button"
+            disabled={busy}
             onClick={() =>
-              changeMode('encode')
+              changeMode(
+                'encode',
+              )
             }
           >
             Encode
@@ -171,8 +219,11 @@ export function TextTransformTool({
                 : ''
             }
             type="button"
+            disabled={busy}
             onClick={() =>
-              changeMode('decode')
+              changeMode(
+                'decode',
+              )
             }
           >
             Decode
@@ -188,7 +239,8 @@ export function TextTransformTool({
             </label>
 
             <span>
-              {input.length} caracteres
+              {input.length}
+              {' '}caracteres
             </span>
           </div>
 
@@ -196,7 +248,10 @@ export function TextTransformTool({
             id="transform-input"
             value={input}
             spellCheck={false}
-            placeholder={placeholders[mode]}
+            disabled={busy}
+            placeholder={
+              placeholders[mode]
+            }
             onChange={(event) => {
               setInput(
                 event.target.value,
@@ -204,7 +259,9 @@ export function TextTransformTool({
 
               resetStatus();
             }}
-            onKeyDown={handleKeyboard}
+            onKeyDown={
+              handleKeyboard
+            }
           />
         </div>
 
@@ -215,7 +272,8 @@ export function TextTransformTool({
             </label>
 
             <span>
-              {output.length} caracteres
+              {output.length}
+              {' '}caracteres
             </span>
           </div>
 
@@ -224,7 +282,11 @@ export function TextTransformTool({
             value={output}
             readOnly
             spellCheck={false}
-            placeholder="O resultado aparecerá aqui..."
+            placeholder={
+              busy
+                ? 'Processando no módulo Python...'
+                : 'O resultado aparecerá aqui...'
+            }
           />
         </div>
       </div>
@@ -240,6 +302,7 @@ export function TextTransformTool({
 
       <div className="toolFooter">
         <span className="keyboardHint">
+          Python module ·
           Ctrl + Enter para executar
         </span>
 
@@ -247,6 +310,7 @@ export function TextTransformTool({
           <button
             className="secondaryButton"
             type="button"
+            disabled={busy}
             onClick={clearFields}
           >
             Limpar
@@ -255,7 +319,10 @@ export function TextTransformTool({
           <button
             className="secondaryButton"
             type="button"
-            disabled={!output}
+            disabled={
+              busy ||
+              !output
+            }
             onClick={swapFields}
           >
             Inverter
@@ -264,7 +331,10 @@ export function TextTransformTool({
           <button
             className="secondaryButton"
             type="button"
-            disabled={!output}
+            disabled={
+              busy ||
+              !output
+            }
             onClick={copyOutput}
           >
             {copied
@@ -275,11 +345,16 @@ export function TextTransformTool({
           <button
             className="primaryButton"
             type="button"
-            onClick={processInput}
+            disabled={busy}
+            onClick={() => {
+              void processInput();
+            }}
           >
-            {mode === 'encode'
-              ? 'Codificar'
-              : 'Decodificar'}
+            {busy
+              ? 'Processando...'
+              : mode === 'encode'
+                ? 'Codificar'
+                : 'Decodificar'}
           </button>
         </div>
       </div>
