@@ -83,6 +83,61 @@ export const MODULE_REGISTRY: readonly ModuleDefinition[] = [
     showOnDashboard: true,
   },
   {
+    id: 'secret-scanner',
+    name: 'Secret Scanner',
+    description:
+      'Auditoria local de tokens, chaves, senhas e arquivos .env.',
+    icon: 'SS',
+    abbreviation: 'SEC',
+    section: 'workspace',
+    status: 'operational',
+    showOnDashboard: true,
+  },
+  {
+    id: 'file-forensics',
+    name: 'File Forensics',
+    description:
+      'Strings, IOCs, cabeçalhos binários e conteúdo de arquivos ZIP.',
+    icon: 'FF',
+    abbreviation: 'FOR',
+    section: 'workspace',
+    status: 'operational',
+    showOnDashboard: true,
+  },
+  {
+    id: 'log-analysis',
+    name: 'Log Analysis',
+    description:
+      'Analise logs HTTP, SSH, JSON Lines e eventos genéricos.',
+    icon: 'LG',
+    abbreviation: 'LOG',
+    section: 'workspace',
+    status: 'operational',
+    showOnDashboard: true,
+  },
+  {
+    id: 'system-audit',
+    name: 'System Audit',
+    description:
+      'Processos, portas, serviços, inicialização e segurança do Linux.',
+    icon: 'SA',
+    abbreviation: 'SYS',
+    section: 'workspace',
+    status: 'operational',
+    showOnDashboard: true,
+  },
+  {
+    id: 'cryptography',
+    name: 'Cryptography',
+    description:
+      'HMAC, PBKDF2, geração segura, JWT e comparação constante.',
+    icon: 'CR',
+    abbreviation: 'CRY',
+    section: 'workspace',
+    status: 'operational',
+    showOnDashboard: true,
+  },
+  {
     id: 'settings',
     name: 'Settings',
     description:

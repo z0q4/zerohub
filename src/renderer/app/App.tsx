@@ -1,4 +1,20 @@
 import {
+  CryptographyPage,
+} from '../features/cryptography/pages/CryptographyPage';
+
+import {
+  SystemAuditPage,
+} from '../features/system-audit/pages/SystemAuditPage';
+
+import {
+  LogAnalysisPage,
+} from '../features/log-analysis/pages/LogAnalysisPage';
+
+import {
+  FileForensicsPage,
+} from '../features/file-forensics/pages/FileForensicsPage';
+
+import {
   useEffect,
   useState,
 } from 'react';
@@ -30,6 +46,10 @@ import {
 import {
   ThreatIntelligencePage,
 } from '../features/threat-intelligence/pages/ThreatIntelligencePage';
+
+import {
+  SecretScannerPage,
+} from '../features/secret-scanner/pages/SecretScannerPage';
 
 import {
   UtilitiesPage,
@@ -138,6 +158,18 @@ export function App() {
             }
           />
         );
+      case 'cryptography':
+        return <CryptographyPage />;
+
+      case 'system-audit':
+        return <SystemAuditPage />;
+
+      case 'log-analysis':
+        return <LogAnalysisPage />;
+
+      case 'file-forensics':
+        return <FileForensicsPage />;
+
 
       case 'file-analysis':
         return <FileAnalysisPage />;
@@ -150,6 +182,9 @@ export function App() {
 
       case 'encoding':
         return <EncodingPage />;
+
+      case 'secret-scanner':
+        return <SecretScannerPage />;
 
       case 'utilities':
         return <UtilitiesPage />;

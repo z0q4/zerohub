@@ -6,7 +6,12 @@ export type ModuleId =
   | 'utilities'
   | 'settings'
   | 'file-analysis'
-  | 'threat-intelligence';
+  | 'threat-intelligence'
+  | 'secret-scanner'
+  | 'file-forensics'
+  | 'log-analysis'
+  | 'system-audit'
+  | 'cryptography';
 
 export type ModuleStatus =
   | 'operational'

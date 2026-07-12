@@ -3600,3 +3600,1785 @@ textarea:focus-visible {
     flex-direction: column;
   }
 }
+
+/* === ZEROHUB SECRET SCANNER === */
+.secretWorkspace{display:grid;grid-template-columns:210px minmax(0,1fr);gap:14px;max-width:1200px;margin:0 auto}.secretToolbar{display:flex;align-items:center;justify-content:space-between;gap:18px;padding:14px;border:1px solid var(--border);border-radius:10px;background:#0b0e14}.secretToolbar>div{display:flex;align-items:center;gap:8px}.secretToolbar>div:first-child{display:grid;gap:4px}.secretToolbar strong{font-size:12px}.secretToolbar span{color:var(--text-secondary);font-size:10px}.secretEmpty{display:grid;min-height:330px;place-content:center;margin-top:14px;border:1px solid var(--border);border-radius:10px;background:#090c11;text-align:center}.secretEmpty>span{display:grid;width:54px;height:54px;place-items:center;margin:0 auto 14px;border:1px solid color-mix(in srgb,var(--primary) 40%,transparent);border-radius:12px;color:var(--primary);background:var(--primary-soft);font-family:monospace;font-size:10px;font-weight:800}.secretEmpty h3{margin:0 0 7px;font-size:15px}.secretEmpty p{max-width:430px;margin:0;color:var(--text-secondary);font-size:11px;line-height:1.6}.secretResults{display:grid;gap:12px;margin-top:14px}.secretTarget{display:flex;align-items:center;justify-content:space-between;gap:18px;min-width:0;padding:14px;border:1px solid var(--border);border-radius:10px;background:linear-gradient(145deg,#121721,#0b0e14)}.secretTarget code{min-width:0;color:var(--text-secondary);font-size:9px;overflow-wrap:anywhere}.secretTarget strong{flex:0 0 auto;font-family:"JetBrains Mono",monospace;font-size:13px}.secretSummary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}.secretSummary article{display:grid;gap:7px;padding:13px;border:1px solid var(--border);border-radius:9px;background:#0b0e14}.secretSummary span{color:var(--text-muted);font-size:8px;font-weight:800}.secretSummary strong{font-family:monospace;font-size:18px}.secretSummary .critical strong{color:#ff6f7f}.secretSummary .high strong{color:#ff9a74}.secretSummary .medium strong{color:#ffd08a}.secretSummary .low strong{color:#91b8ff}.secretStats{display:flex;flex-wrap:wrap;gap:8px;padding:10px 12px;border:1px solid var(--border);border-radius:8px;color:var(--text-muted);background:#0b0e14;font-size:9px}.secretStats>span{padding-right:8px;border-right:1px solid var(--border)}.secretStats>span:last-child{border-right:0}.secretStats strong{color:var(--text-secondary)}.secretStats .warning{color:#ffd08a}.secretFilters{display:grid;grid-template-columns:minmax(0,1fr) 190px auto;gap:8px}.secretFilters input,.secretFilters select{min-width:0;min-height:38px;padding:9px 11px;border:1px solid var(--border);border-radius:8px;color:var(--text);background:#080b10;font-size:10px}.secretFindings{display:grid;gap:10px}.secretFindingCard{display:grid;gap:12px;min-width:0;padding:14px;border:1px solid var(--border);border-radius:10px;background:#0b0e14}.secretFindingCard>header{display:flex;align-items:center;justify-content:space-between;gap:14px}.secretFindingCard>header>div{display:flex;align-items:center;gap:9px}.secretFindingCard>header strong{font-size:11px}.secretFindingCard>header>code{color:var(--text-muted);font-size:8px;text-align:right;overflow-wrap:anywhere}.secretFindingCard p{margin:0;color:var(--text-secondary);font-size:9px;line-height:1.55}.secretFindingCard p strong{color:var(--text)}.secretSeverity{padding:5px 8px;border:1px solid;border-radius:999px;font-size:8px;font-weight:800;text-transform:uppercase}.secretSeverity.critical{border-color:rgb(255 82 105/30%);color:#ff8290;background:rgb(255 82 105/7%)}.secretSeverity.high{border-color:rgb(255 130 91/30%);color:#ff9a74;background:rgb(255 130 91/7%)}.secretSeverity.medium{border-color:rgb(255 181 71/30%);color:#ffd08a;background:rgb(255 181 71/7%)}.secretSeverity.low{border-color:rgb(105 154 255/30%);color:#91b8ff;background:rgb(105 154 255/7%)}.secretValue{display:grid;gap:6px}.secretValue>span{color:var(--text-muted);font-size:8px;font-weight:800;letter-spacing:.08em}.secretValue>code{padding:9px;border:1px solid #1e242e;border-radius:7px;color:#c9d0df;background:#080b10;font-size:9px;line-height:1.5;overflow-wrap:anywhere}.secretValue>small{color:var(--text-muted);font-family:monospace;font-size:8px}.secretExampleBadge{width:fit-content;padding:5px 8px;border:1px solid var(--border);border-radius:999px;color:var(--text-muted);background:#10141b;font-size:8px}.secretNoFindings{display:grid;place-items:center;gap:5px;min-height:140px;border:1px dashed var(--border);border-radius:10px;color:var(--text-secondary);text-align:center}.secretNoFindings strong{font-size:11px}.secretNoFindings span{font-size:9px}@media(max-width:950px){.secretWorkspace{grid-template-columns:1fr}.secretSummary{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:760px){.secretToolbar,.secretTarget,.secretFindingCard>header{align-items:stretch;flex-direction:column}.secretToolbar>div:last-child{display:grid;grid-template-columns:1fr}.secretSummary,.secretFilters{grid-template-columns:1fr}.secretFindingCard>header>code{text-align:left}}
+
+/* === ZEROHUB FILE FORENSICS === */
+
+.forensicsToolbar {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 14px;
+
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: #0b0e14;
+}
+
+.forensicsToolbar label {
+  display: grid;
+  gap: 6px;
+}
+
+.forensicsToolbar label span {
+  color: var(--text-secondary);
+  font-size: 9px;
+}
+
+.forensicsToolbar input {
+  width: 130px;
+  min-height: 36px;
+  padding: 8px 10px;
+
+  border: 1px solid var(--border);
+  border-radius: 8px;
+
+  color: var(--text);
+  background: #080b10;
+}
+
+.forensicsEmpty {
+  display: grid;
+  min-height: 320px;
+  place-content: center;
+  margin-top: 14px;
+
+  border: 1px solid var(--border);
+  border-radius: 10px;
+
+  background: #090c11;
+  text-align: center;
+}
+
+.forensicsEmpty > span {
+  display: grid;
+  width: 52px;
+  height: 52px;
+  place-items: center;
+  margin: 0 auto 14px;
+
+  border: 1px solid
+    color-mix(
+      in srgb,
+      var(--primary) 40%,
+      transparent
+    );
+
+  border-radius: 12px;
+  color: var(--primary);
+  background: var(--primary-soft);
+
+  font-family: monospace;
+  font-weight: 800;
+}
+
+.forensicsEmpty h3 {
+  margin: 0 0 7px;
+  font-size: 15px;
+}
+
+.forensicsEmpty p {
+  max-width: 400px;
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 11px;
+  line-height: 1.6;
+}
+
+.forensicsResults {
+  display: grid;
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.forensicsHero {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 15px;
+
+  border: 1px solid var(--border);
+  border-radius: 10px;
+
+  background:
+    linear-gradient(
+      145deg,
+      #121721,
+      #0b0e14
+    );
+}
+
+.forensicsHero > div:first-child {
+  min-width: 0;
+}
+
+.forensicsHero span {
+  color: var(--text-muted);
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+}
+
+.forensicsHero h3 {
+  margin: 6px 0;
+  font-size: 16px;
+  overflow-wrap: anywhere;
+}
+
+.forensicsHero code {
+  color: var(--text-secondary);
+  font-size: 9px;
+  overflow-wrap: anywhere;
+}
+
+.forensicsHero > div:last-child {
+  display: grid;
+  gap: 4px;
+  justify-items: end;
+  text-align: right;
+}
+
+.forensicsHero > div:last-child strong {
+  color: var(--primary);
+  font-family: monospace;
+  font-size: 13px;
+}
+
+.forensicsHero small {
+  color: var(--text-muted);
+  font-size: 8px;
+}
+
+.forensicsStats {
+  display: grid;
+  grid-template-columns:
+    repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.forensicsStats article {
+  display: grid;
+  gap: 6px;
+  padding: 13px;
+
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  background: #0b0e14;
+}
+
+.forensicsStats span {
+  color: var(--text-muted);
+  font-size: 8px;
+  font-weight: 800;
+}
+
+.forensicsStats strong {
+  font-family: monospace;
+  font-size: 13px;
+}
+
+.forensicsTabs {
+  display: flex;
+  gap: 6px;
+  padding: 5px;
+
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: #090c11;
+}
+
+.forensicsTabs button {
+  flex: 1;
+  min-height: 34px;
+
+  border: 1px solid transparent;
+  border-radius: 7px;
+
+  color: var(--text-secondary);
+  background: transparent;
+
+  font-size: 9px;
+  cursor: pointer;
+}
+
+.forensicsTabs button.active {
+  border-color:
+    color-mix(
+      in srgb,
+      var(--primary) 40%,
+      transparent
+    );
+
+  color: var(--text);
+  background: var(--primary-soft);
+}
+
+.forensicsTabs button:disabled {
+  cursor: not-allowed;
+  opacity: 0.4;
+}
+
+.forensicsGrid {
+  display: grid;
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.forensicsCard,
+.forensicsStringsPanel,
+.forensicsArchivePanel {
+  min-width: 0;
+  padding: 14px;
+
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: #0b0e14;
+}
+
+.forensicsCard > header,
+.forensicsStringsPanel > header,
+.forensicsArchivePanel > header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.forensicsCard header span,
+.forensicsStringsPanel header span,
+.forensicsArchivePanel header span {
+  color: var(--text-muted);
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+}
+
+.forensicsCard header strong {
+  font-family: monospace;
+  font-size: 10px;
+}
+
+.forensicsCard dl {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+}
+
+.forensicsCard dl > div {
+  display: grid;
+  grid-template-columns:
+    110px minmax(0, 1fr);
+  gap: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #1b2029;
+}
+
+.forensicsCard dl > div:last-child {
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+
+.forensicsCard dt {
+  color: var(--text-muted);
+  font-size: 9px;
+}
+
+.forensicsCard dd {
+  min-width: 0;
+  margin: 0;
+  color: #cbd1dc;
+  font-size: 9px;
+  text-align: right;
+  overflow-wrap: anywhere;
+}
+
+.forensicsCard dd code {
+  font-size: 8px;
+  user-select: text;
+}
+
+.forensicsValueList {
+  display: grid;
+  gap: 6px;
+  max-height: 320px;
+  overflow: auto;
+}
+
+.forensicsValueList button {
+  min-width: 0;
+  padding: 8px;
+
+  border: 1px solid #1e242e;
+  border-radius: 7px;
+
+  color: var(--text-secondary);
+  background: #080b10;
+
+  text-align: left;
+  cursor: pointer;
+}
+
+.forensicsValueList code {
+  font-size: 8px;
+  overflow-wrap: anywhere;
+}
+
+.forensicsEmptyText {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 9px;
+}
+
+.forensicsStringsPanel > header > div {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.forensicsStringsPanel input {
+  min-width: 240px;
+  min-height: 34px;
+  padding: 8px 10px;
+
+  border: 1px solid var(--border);
+  border-radius: 8px;
+
+  color: var(--text);
+  background: #080b10;
+  font-size: 9px;
+}
+
+.forensicsStringList {
+  display: grid;
+  max-height: 520px;
+  overflow: auto;
+
+  border: 1px solid #1c222c;
+  border-radius: 8px;
+}
+
+.forensicsStringList button {
+  display: grid;
+  grid-template-columns:
+    90px 70px minmax(0, 1fr);
+  gap: 10px;
+  align-items: start;
+  padding: 9px 10px;
+
+  border: 0;
+  border-bottom: 1px solid #1b2029;
+
+  color: var(--text);
+  background: #080b10;
+
+  text-align: left;
+  cursor: pointer;
+}
+
+.forensicsStringList button:last-child {
+  border-bottom: 0;
+}
+
+.forensicsStringList button:hover {
+  background: #0d1118;
+}
+
+.forensicsStringList code,
+.forensicsStringList span {
+  color: var(--text-muted);
+  font-size: 8px;
+}
+
+.forensicsStringList p {
+  min-width: 0;
+  margin: 0;
+
+  color: var(--text-secondary);
+  font-family:
+    "JetBrains Mono",
+    monospace;
+
+  font-size: 8px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.forensicsArchivePanel > header > div {
+  display: grid;
+  gap: 4px;
+}
+
+.forensicsArchivePanel > header > div:last-child {
+  justify-items: end;
+}
+
+.forensicsArchivePanel header strong,
+.forensicsArchivePanel header div:last-child span {
+  color: var(--text-secondary);
+  font-size: 9px;
+}
+
+.forensicsArchiveList {
+  display: grid;
+  max-height: 520px;
+  overflow: auto;
+
+  border: 1px solid #1c222c;
+  border-radius: 8px;
+}
+
+.forensicsArchiveList > div {
+  display: grid;
+  grid-template-columns:
+    48px minmax(0, 1fr) 90px 90px;
+  gap: 10px;
+  padding: 9px 10px;
+
+  border-bottom: 1px solid #1b2029;
+  background: #080b10;
+}
+
+.forensicsArchiveList > div:last-child {
+  border-bottom: 0;
+}
+
+.forensicsArchiveList span,
+.forensicsArchiveList small {
+  color: var(--text-muted);
+  font-size: 8px;
+}
+
+.forensicsArchiveList code {
+  min-width: 0;
+  color: var(--text-secondary);
+  font-size: 8px;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 850px) {
+  .forensicsStats,
+  .forensicsGrid {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 650px) {
+  .forensicsToolbar,
+  .forensicsHero,
+  .forensicsArchivePanel > header {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .forensicsStats,
+  .forensicsGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .forensicsTabs {
+    display: grid;
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+
+  .forensicsStringsPanel > header {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .forensicsStringsPanel input {
+    min-width: 0;
+  }
+
+  .forensicsStringList button,
+  .forensicsArchiveList > div {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* === ZEROHUB LOG ANALYSIS === */
+
+.logToolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 14px;
+
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: #0b0e14;
+}
+
+.logToolbar > div {
+  display: grid;
+  gap: 4px;
+}
+
+.logToolbar strong {
+  font-size: 12px;
+}
+
+.logToolbar span {
+  color: var(--text-secondary);
+  font-size: 10px;
+}
+
+.logEmpty {
+  display: grid;
+  min-height: 320px;
+  place-content: center;
+  margin-top: 14px;
+
+  border: 1px solid var(--border);
+  border-radius: 10px;
+
+  background: #090c11;
+  text-align: center;
+}
+
+.logEmpty > span {
+  display: grid;
+  width: 54px;
+  height: 54px;
+  place-items: center;
+  margin: 0 auto 14px;
+
+  border: 1px solid
+    color-mix(
+      in srgb,
+      var(--primary) 40%,
+      transparent
+    );
+
+  border-radius: 12px;
+  color: var(--primary);
+  background: var(--primary-soft);
+
+  font-family: monospace;
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.logEmpty h3 {
+  margin: 0 0 7px;
+  font-size: 15px;
+}
+
+.logEmpty p {
+  max-width: 390px;
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 11px;
+  line-height: 1.6;
+}
+
+.logResults {
+  display: grid;
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.logHero {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 15px;
+
+  border: 1px solid var(--border);
+  border-radius: 10px;
+
+  background:
+    linear-gradient(
+      145deg,
+      #121721,
+      #0b0e14
+    );
+}
+
+.logHero > div:first-child {
+  min-width: 0;
+}
+
+.logHero span {
+  color: var(--text-muted);
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+}
+
+.logHero h3 {
+  margin: 6px 0;
+  font-size: 16px;
+  overflow-wrap: anywhere;
+}
+
+.logHero code {
+  color: var(--text-secondary);
+  font-size: 9px;
+  overflow-wrap: anywhere;
+}
+
+.logHero > div:last-child {
+  display: grid;
+  gap: 5px;
+  justify-items: end;
+  text-align: right;
+}
+
+.logHero > div:last-child strong {
+  color: var(--primary);
+  font-family: monospace;
+  font-size: 12px;
+}
+
+.logHero small {
+  color: var(--text-muted);
+  font-size: 9px;
+}
+
+.logStats {
+  display: grid;
+  grid-template-columns:
+    repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.logStats article {
+  display: grid;
+  gap: 6px;
+  padding: 13px;
+
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  background: #0b0e14;
+}
+
+.logStats span {
+  color: var(--text-muted);
+  font-size: 8px;
+  font-weight: 800;
+}
+
+.logStats strong {
+  font-family: monospace;
+  font-size: 16px;
+}
+
+.logStats .error strong {
+  color: #ff8290;
+}
+
+.logStats .warning strong {
+  color: #ffd08a;
+}
+
+.logTabs {
+  display: flex;
+  gap: 6px;
+  padding: 5px;
+
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: #090c11;
+}
+
+.logTabs button {
+  flex: 1;
+  min-height: 34px;
+
+  border: 1px solid transparent;
+  border-radius: 7px;
+
+  color: var(--text-secondary);
+  background: transparent;
+
+  font-size: 9px;
+  cursor: pointer;
+}
+
+.logTabs button.active {
+  border-color:
+    color-mix(
+      in srgb,
+      var(--primary) 40%,
+      transparent
+    );
+
+  color: var(--text);
+  background: var(--primary-soft);
+}
+
+.logGrid {
+  display: grid;
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.logCard,
+.logEventsPanel {
+  min-width: 0;
+  padding: 14px;
+
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: #0b0e14;
+}
+
+.logCard > header,
+.logEventsPanel > header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.logCard header span,
+.logEventsPanel header span {
+  color: var(--text-muted);
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+}
+
+.logCard header strong,
+.logEventsPanel header strong {
+  font-family: monospace;
+  font-size: 10px;
+}
+
+.logCard dl {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+}
+
+.logCard dl > div {
+  display: grid;
+  grid-template-columns:
+    130px minmax(0, 1fr);
+  gap: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #1b2029;
+}
+
+.logCard dl > div:last-child {
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+
+.logCard dt {
+  color: var(--text-muted);
+  font-size: 9px;
+}
+
+.logCard dd {
+  min-width: 0;
+  margin: 0;
+  color: #cbd1dc;
+  font-size: 9px;
+  text-align: right;
+  overflow-wrap: anywhere;
+}
+
+.logEmptyText {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 9px;
+}
+
+.logCountList {
+  display: grid;
+  gap: 7px;
+  max-height: 410px;
+  overflow: auto;
+}
+
+.logCountList button {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+  padding: 8px;
+
+  border: 1px solid #1e242e;
+  border-radius: 7px;
+
+  color: var(--text);
+  background: #080b10;
+
+  text-align: left;
+  cursor: pointer;
+}
+
+.logCountList button > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.logCountList code {
+  min-width: 0;
+  color: var(--text-secondary);
+  font-size: 8px;
+  overflow-wrap: anywhere;
+}
+
+.logCountList strong {
+  font-family: monospace;
+  font-size: 9px;
+}
+
+.logCountList button > span {
+  display: block;
+  height: 3px;
+
+  border-radius: 999px;
+  background: #191e27;
+  overflow: hidden;
+}
+
+.logCountList i {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--primary);
+}
+
+.logTimeline {
+  display: grid;
+  max-height: 410px;
+  overflow: auto;
+}
+
+.logTimeline > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 0;
+
+  border-bottom: 1px solid #1b2029;
+}
+
+.logTimeline > div:last-child {
+  border-bottom: 0;
+}
+
+.logTimeline code,
+.logTimeline span {
+  font-size: 8px;
+}
+
+.logTimeline code {
+  color: var(--text-secondary);
+}
+
+.logTimeline span {
+  color: var(--text-muted);
+  text-align: right;
+}
+
+.logEventsPanel > header > div {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.logEventsPanel input {
+  min-width: 270px;
+  min-height: 34px;
+  padding: 8px 10px;
+
+  border: 1px solid var(--border);
+  border-radius: 8px;
+
+  color: var(--text);
+  background: #080b10;
+  font-size: 9px;
+}
+
+.logEventList {
+  display: grid;
+  max-height: 560px;
+  overflow: auto;
+
+  border: 1px solid #1c222c;
+  border-radius: 8px;
+}
+
+.logEventList > button {
+  display: grid;
+  gap: 8px;
+  padding: 10px;
+
+  border: 0;
+  border-bottom: 1px solid #1b2029;
+
+  color: var(--text);
+  background: #080b10;
+
+  text-align: left;
+  cursor: pointer;
+}
+
+.logEventList > button:last-child {
+  border-bottom: 0;
+}
+
+.logEventList > button:hover {
+  background: #0d1118;
+}
+
+.logEventList > button.error {
+  box-shadow:
+    inset 2px 0 #ff6074;
+}
+
+.logEventList > button.warning {
+  box-shadow:
+    inset 2px 0 #ffb547;
+}
+
+.logEventList > button > div,
+.logEventList footer {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.logEventList > button > div code,
+.logEventList > button > div span,
+.logEventList > button > div small,
+.logEventList footer span,
+.logEventList footer code,
+.logEventList footer strong {
+  font-size: 8px;
+}
+
+.logEventList > button > div code,
+.logEventList > button > div small,
+.logEventList footer span {
+  color: var(--text-muted);
+}
+
+.logEventList > button > div span {
+  color: var(--primary);
+  text-transform: uppercase;
+}
+
+.logEventList p {
+  margin: 0;
+  color: var(--text-secondary);
+
+  font-family:
+    "JetBrains Mono",
+    monospace;
+
+  font-size: 8px;
+  line-height: 1.55;
+  overflow-wrap: anywhere;
+}
+
+.logEventList footer {
+  flex-wrap: wrap;
+}
+
+.logEventList footer code {
+  color: #9ec7ff;
+}
+
+.logEventList footer strong {
+  color: #ffd08a;
+}
+
+@media (max-width: 850px) {
+  .logStats,
+  .logGrid {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 650px) {
+  .logToolbar,
+  .logHero,
+  .logEventsPanel > header {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .logStats,
+  .logGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .logTabs {
+    display: grid;
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+
+  .logEventsPanel input {
+    min-width: 0;
+  }
+
+  .logTimeline > div {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .logTimeline span {
+    text-align: left;
+  }
+}
+
+/* === ZEROHUB SYSTEM AUDIT === */
+
+.auditToolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 14px;
+
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: #0b0e14;
+}
+
+.auditToolbar > div {
+  display: grid;
+  gap: 4px;
+}
+
+.auditToolbar strong {
+  font-size: 12px;
+}
+
+.auditToolbar span {
+  color: var(--text-secondary);
+  font-size: 10px;
+}
+
+.auditEmpty {
+  display: grid;
+  min-height: 320px;
+  place-content: center;
+  margin-top: 14px;
+
+  border: 1px solid var(--border);
+  border-radius: 10px;
+
+  background: #090c11;
+  text-align: center;
+}
+
+.auditEmpty > span {
+  display: grid;
+  width: 54px;
+  height: 54px;
+  place-items: center;
+  margin: 0 auto 14px;
+
+  border: 1px solid
+    color-mix(
+      in srgb,
+      var(--primary) 40%,
+      transparent
+    );
+
+  border-radius: 12px;
+  color: var(--primary);
+  background: var(--primary-soft);
+
+  font-family: monospace;
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.auditEmpty h3 {
+  margin: 0 0 7px;
+  font-size: 15px;
+}
+
+.auditEmpty p {
+  max-width: 390px;
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 11px;
+  line-height: 1.6;
+}
+
+.auditResults {
+  display: grid;
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.auditHero {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 15px;
+
+  border: 1px solid var(--border);
+  border-radius: 10px;
+
+  background:
+    linear-gradient(
+      145deg,
+      #121721,
+      #0b0e14
+    );
+}
+
+.auditHero > div:first-child {
+  min-width: 0;
+}
+
+.auditHero span {
+  color: var(--text-muted);
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+}
+
+.auditHero h3 {
+  margin: 6px 0;
+  font-size: 16px;
+}
+
+.auditHero code {
+  color: var(--text-secondary);
+  font-size: 9px;
+  overflow-wrap: anywhere;
+}
+
+.auditHero > div:last-child {
+  display: grid;
+  gap: 5px;
+  justify-items: end;
+  text-align: right;
+}
+
+.auditHero > div:last-child strong {
+  color: var(--primary);
+  font-family: monospace;
+  font-size: 12px;
+}
+
+.auditHero small {
+  color: var(--text-muted);
+  font-size: 9px;
+}
+
+.auditStats {
+  display: grid;
+  grid-template-columns:
+    repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.auditStats article {
+  display: grid;
+  gap: 6px;
+  padding: 13px;
+
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  background: #0b0e14;
+}
+
+.auditStats span {
+  color: var(--text-muted);
+  font-size: 8px;
+  font-weight: 800;
+}
+
+.auditStats strong {
+  font-family: monospace;
+  font-size: 16px;
+}
+
+.auditStats .warning strong {
+  color: #ffd08a;
+}
+
+.auditTabs {
+  display: grid;
+  grid-template-columns:
+    repeat(6, minmax(0, 1fr));
+  gap: 6px;
+  padding: 5px;
+
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: #090c11;
+}
+
+.auditTabs button {
+  min-height: 34px;
+
+  border: 1px solid transparent;
+  border-radius: 7px;
+
+  color: var(--text-secondary);
+  background: transparent;
+
+  font-size: 9px;
+  cursor: pointer;
+}
+
+.auditTabs button.active {
+  border-color:
+    color-mix(
+      in srgb,
+      var(--primary) 40%,
+      transparent
+    );
+
+  color: var(--text);
+  background: var(--primary-soft);
+}
+
+.auditGrid {
+  display: grid;
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.auditCard,
+.auditTablePanel,
+.auditRiskPanel {
+  min-width: 0;
+  padding: 14px;
+
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: #0b0e14;
+}
+
+.auditCard > header,
+.auditTablePanel > header,
+.auditRiskPanel > header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.auditCard header span,
+.auditTablePanel header span,
+.auditRiskPanel header span {
+  color: var(--text-muted);
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+}
+
+.auditCard dl {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+}
+
+.auditCard dl > div {
+  display: grid;
+  grid-template-columns:
+    130px minmax(0, 1fr);
+  gap: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #1b2029;
+}
+
+.auditCard dl > div:last-child {
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+
+.auditCard dt {
+  color: var(--text-muted);
+  font-size: 9px;
+}
+
+.auditCard dd {
+  min-width: 0;
+  margin: 0;
+  color: #cbd1dc;
+  font-size: 9px;
+  text-align: right;
+  overflow-wrap: anywhere;
+}
+
+.auditTablePanel > header > div {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.auditTablePanel input {
+  min-width: 260px;
+  min-height: 34px;
+  padding: 8px 10px;
+
+  border: 1px solid var(--border);
+  border-radius: 8px;
+
+  color: var(--text);
+  background: #080b10;
+  font-size: 9px;
+}
+
+.auditTable {
+  display: grid;
+  max-height: 560px;
+  overflow: auto;
+
+  border: 1px solid #1c222c;
+  border-radius: 8px;
+}
+
+.auditTable > div {
+  display: grid;
+  grid-template-columns:
+    100px minmax(0, 1fr) 80px 150px 80px;
+  gap: 10px;
+  padding: 9px 10px;
+
+  border-bottom: 1px solid #1b2029;
+  background: #080b10;
+}
+
+.auditTable.processes > div {
+  grid-template-columns:
+    80px minmax(0, 1fr) 140px 110px 80px;
+}
+
+.auditTable > div:last-child {
+  border-bottom: 0;
+}
+
+.auditTableHeader {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+
+  color: var(--text-muted);
+  background: #10151d !important;
+
+  font-size: 8px;
+  font-weight: 800;
+}
+
+.auditTable code,
+.auditTable span,
+.auditTable strong {
+  min-width: 0;
+  font-size: 8px;
+  overflow-wrap: anywhere;
+}
+
+.auditTable code,
+.auditTable span {
+  color: var(--text-secondary);
+}
+
+.auditServiceList,
+.auditStartupList {
+  display: grid;
+  max-height: 560px;
+  overflow: auto;
+
+  border: 1px solid #1c222c;
+  border-radius: 8px;
+}
+
+.auditServiceList > div {
+  display: grid;
+  grid-template-columns:
+    220px minmax(0, 1fr) 80px;
+  gap: 12px;
+  padding: 10px;
+
+  border-bottom: 1px solid #1b2029;
+  background: #080b10;
+}
+
+.auditServiceList > div:last-child,
+.auditStartupList > div:last-child {
+  border-bottom: 0;
+}
+
+.auditServiceList code,
+.auditServiceList span,
+.auditServiceList strong {
+  min-width: 0;
+  font-size: 8px;
+  overflow-wrap: anywhere;
+}
+
+.auditServiceList code,
+.auditServiceList span {
+  color: var(--text-secondary);
+}
+
+.auditStartupList > div {
+  display: grid;
+  gap: 7px;
+  padding: 10px;
+
+  border-bottom: 1px solid #1b2029;
+  background: #080b10;
+}
+
+.auditStartupList > div > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.auditStartupList strong {
+  font-size: 9px;
+}
+
+.auditStartupList span,
+.auditStartupList code,
+.auditStartupList small {
+  color: var(--text-muted);
+  font-size: 8px;
+  overflow-wrap: anywhere;
+}
+
+.auditRiskPanel {
+  grid-column: 1 / -1;
+}
+
+.auditRiskPanel > header strong {
+  font-family: monospace;
+  font-size: 10px;
+}
+
+.auditRiskPanel > p {
+  margin: 0;
+  color: #8ce7ad;
+  font-size: 9px;
+}
+
+.auditRiskPanel > div {
+  display: grid;
+  gap: 8px;
+}
+
+.auditRiskPanel article {
+  display: grid;
+  gap: 6px;
+  padding: 10px;
+
+  border: 1px solid;
+  border-radius: 8px;
+}
+
+.auditRiskPanel article.medium {
+  border-color:
+    rgb(255 181 71 / 25%);
+
+  background:
+    rgb(255 181 71 / 6%);
+}
+
+.auditRiskPanel article.high {
+  border-color:
+    rgb(255 90 110 / 30%);
+
+  background:
+    rgb(255 90 110 / 7%);
+}
+
+.auditRiskPanel article > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.auditRiskPanel article strong,
+.auditRiskPanel article code,
+.auditRiskPanel article p,
+.auditRiskPanel article small {
+  font-size: 8px;
+}
+
+.auditRiskPanel article p {
+  margin: 0;
+  color: var(--text-secondary);
+}
+
+.auditRiskPanel article small {
+  color: var(--text-muted);
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 900px) {
+  .auditTabs {
+    grid-template-columns:
+      repeat(3, minmax(0, 1fr));
+  }
+
+  .auditStats,
+  .auditGrid {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 680px) {
+  .auditToolbar,
+  .auditHero,
+  .auditTablePanel > header {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .auditTabs {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+
+  .auditStats,
+  .auditGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .auditTablePanel input {
+    min-width: 0;
+  }
+
+  .auditTable > div,
+  .auditTable.processes > div,
+  .auditServiceList > div {
+    grid-template-columns: 1fr;
+  }
+
+  .auditTableHeader {
+    display: none !important;
+  }
+}
+
+/* === ZEROHUB CRYPTOGRAPHY === */
+
+.cryptoTabs {
+  display: grid;
+  grid-template-columns:
+    repeat(5, minmax(0, 1fr));
+  gap: 6px;
+  padding: 5px;
+
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: #090c11;
+}
+
+.cryptoTabs button {
+  min-height: 34px;
+  border: 1px solid transparent;
+  border-radius: 7px;
+
+  color: var(--text-secondary);
+  background: transparent;
+
+  font-size: 9px;
+  cursor: pointer;
+}
+
+.cryptoTabs button.active {
+  border-color:
+    color-mix(
+      in srgb,
+      var(--primary) 40%,
+      transparent
+    );
+
+  color: var(--text);
+  background: var(--primary-soft);
+}
+
+.cryptoGrid {
+  display: grid;
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.cryptoCard {
+  display: grid;
+  align-content: start;
+  gap: 12px;
+  min-width: 0;
+  padding: 14px;
+
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: #0b0e14;
+}
+
+.cryptoCard > header {
+  color: var(--text-muted);
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+}
+
+.cryptoCard label {
+  display: grid;
+  gap: 6px;
+}
+
+.cryptoCard label span {
+  color: var(--text-secondary);
+  font-size: 9px;
+}
+
+.cryptoCard input,
+.cryptoCard textarea,
+.cryptoCard select {
+  min-width: 0;
+  padding: 9px 10px;
+
+  border: 1px solid var(--border);
+  border-radius: 8px;
+
+  color: var(--text);
+  background: #080b10;
+
+  font-family:
+    "JetBrains Mono",
+    monospace;
+
+  font-size: 9px;
+}
+
+.cryptoCard textarea {
+  resize: vertical;
+  line-height: 1.5;
+}
+
+.cryptoFields {
+  display: grid;
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.cryptoFields.triple {
+  grid-template-columns:
+    repeat(3, minmax(0, 1fr));
+}
+
+.cryptoCard > p {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 10px;
+}
+
+.cryptoOutput {
+  max-height: 480px;
+  margin: 0;
+  padding: 11px;
+  overflow: auto;
+
+  border: 1px solid #1e242e;
+  border-radius: 8px;
+
+  color: #b9c2ff;
+  background: #080b10;
+
+  font-family:
+    "JetBrains Mono",
+    monospace;
+
+  font-size: 8px;
+  line-height: 1.55;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  user-select: text;
+}
+
+.cryptoWarning {
+  padding: 9px;
+
+  border: 1px solid
+    rgb(255 181 71 / 25%);
+
+  border-radius: 8px;
+
+  color: #ffd08a;
+  background:
+    rgb(255 181 71 / 6%);
+
+  font-size: 9px;
+}
+
+.cryptoCompare {
+  display: grid;
+  gap: 8px;
+  padding: 16px;
+
+  border: 1px solid;
+  border-radius: 10px;
+}
+
+.cryptoCompare.equal {
+  border-color:
+    rgb(81 221 135 / 25%);
+
+  color: #8ce7ad;
+  background:
+    rgb(81 221 135 / 7%);
+}
+
+.cryptoCompare.different {
+  border-color:
+    rgb(255 90 110 / 30%);
+
+  color: #ff9aa5;
+  background:
+    rgb(255 90 110 / 7%);
+}
+
+.cryptoCompare strong {
+  font-size: 14px;
+}
+
+.cryptoCompare span {
+  font-size: 9px;
+}
+
+@media (max-width: 850px) {
+  .cryptoGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 650px) {
+  .cryptoTabs {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+
+  .cryptoFields,
+  .cryptoFields.triple {
+    grid-template-columns: 1fr;
+  }
+}
