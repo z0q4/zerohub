@@ -2505,3 +2505,1098 @@ textarea:focus-visible {
       1fr;
   }
 }
+
+
+/* === ZEROHUB FILE ANALYSIS === */
+
+.fileAnalysisWorkspace {
+  display: grid;
+  grid-template-columns:
+    210px minmax(0, 1fr);
+  gap: 14px;
+
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.fileAnalysisToolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+
+  padding: 14px;
+
+  border: 1px solid var(--border);
+  border-radius: 10px;
+
+  background: #0b0e14;
+}
+
+.fileAnalysisToolbar > div {
+  display: grid;
+  gap: 4px;
+}
+
+.fileAnalysisToolbar strong {
+  font-size: 12px;
+}
+
+.fileAnalysisToolbar span {
+  color: var(--text-secondary);
+  font-size: 10px;
+}
+
+.fileAnalysisEmpty {
+  display: grid;
+  min-height: 330px;
+  place-content: center;
+  margin-top: 14px;
+
+  border: 1px solid var(--border);
+  border-radius: 10px;
+
+  background: #090c11;
+  text-align: center;
+}
+
+.fileAnalysisEmpty > span {
+  display: grid;
+  width: 52px;
+  height: 52px;
+  place-items: center;
+  margin: 0 auto 14px;
+
+  border: 1px solid
+    color-mix(
+      in srgb,
+      var(--primary) 40%,
+      transparent
+    );
+
+  border-radius: 12px;
+
+  color: var(--primary);
+  background: var(--primary-soft);
+
+  font-family: monospace;
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.fileAnalysisEmpty h3 {
+  margin: 0 0 7px;
+  font-size: 15px;
+}
+
+.fileAnalysisEmpty p {
+  max-width: 400px;
+  margin: 0;
+
+  color: var(--text-secondary);
+  font-size: 11px;
+  line-height: 1.6;
+}
+
+.fileAnalysisResults {
+  display: grid;
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.fileAnalysisHero {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+
+  min-width: 0;
+  padding: 15px;
+
+  border: 1px solid var(--border);
+  border-radius: 10px;
+
+  background:
+    linear-gradient(
+      145deg,
+      #121721,
+      #0b0e14
+    );
+}
+
+.fileAnalysisHero > div {
+  min-width: 0;
+}
+
+.fileAnalysisHero span {
+  color: var(--text-muted);
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+}
+
+.fileAnalysisHero h3 {
+  margin: 6px 0;
+  font-size: 16px;
+  overflow-wrap: anywhere;
+}
+
+.fileAnalysisHero code {
+  color: var(--text-secondary);
+  font-size: 9px;
+  overflow-wrap: anywhere;
+}
+
+.fileKindBadge {
+  flex: 0 0 auto;
+  padding: 7px 10px;
+
+  border: 1px solid;
+  border-radius: 999px;
+
+  font-family: monospace;
+  font-size: 9px;
+}
+
+.fileKindBadge.text {
+  border-color:
+    rgb(81 221 135 / 25%);
+
+  color: #8ce7ad;
+  background:
+    rgb(81 221 135 / 7%);
+}
+
+.fileKindBadge.binary {
+  border-color:
+    rgb(255 181 71 / 25%);
+
+  color: #ffd08a;
+  background:
+    rgb(255 181 71 / 7%);
+}
+
+.fileAnalysisSummary {
+  display: grid;
+  grid-template-columns:
+    repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.fileAnalysisSummary article {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+  padding: 13px;
+
+  border: 1px solid var(--border);
+  border-radius: 9px;
+
+  background: #0b0e14;
+}
+
+.fileAnalysisSummary span {
+  color: var(--text-muted);
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+}
+
+.fileAnalysisSummary strong {
+  font-family:
+    "JetBrains Mono",
+    monospace;
+
+  font-size: 10px;
+  overflow-wrap: anywhere;
+}
+
+.fileAnalysisGrid {
+  display: grid;
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.fileAnalysisCard {
+  min-width: 0;
+  padding: 14px;
+
+  border: 1px solid var(--border);
+  border-radius: 10px;
+
+  background: #0b0e14;
+}
+
+.fileAnalysisCard > header {
+  margin-bottom: 12px;
+}
+
+.fileAnalysisCard > header span {
+  color: var(--text-muted);
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+}
+
+.fileAnalysisCard dl {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+}
+
+.fileAnalysisCard dl > div {
+  display: grid;
+  grid-template-columns:
+    130px minmax(0, 1fr);
+  gap: 12px;
+
+  padding-bottom: 8px;
+
+  border-bottom:
+    1px solid #1b2029;
+}
+
+.fileAnalysisCard dl > div:last-child {
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+
+.fileAnalysisCard dt {
+  color: var(--text-muted);
+  font-size: 9px;
+}
+
+.fileAnalysisCard dd {
+  min-width: 0;
+  margin: 0;
+
+  color: #cbd1dc;
+  font-size: 9px;
+  text-align: right;
+  overflow-wrap: anywhere;
+}
+
+.fileAnalysisCard dd code {
+  font-size: 8px;
+}
+
+.hashInformation {
+  display: grid;
+  gap: 10px;
+}
+
+.hashInformation label {
+  display: grid;
+  gap: 5px;
+}
+
+.hashInformation span {
+  color: var(--text-muted);
+  font-size: 8px;
+}
+
+.hashInformation code {
+  padding: 9px;
+
+  border: 1px solid #1e242e;
+  border-radius: 7px;
+
+  color: #b9c2ff;
+  background: #080b10;
+
+  font-size: 8px;
+  line-height: 1.5;
+
+  overflow-wrap: anywhere;
+  user-select: text;
+}
+
+@media (max-width: 1050px) {
+  .fileAnalysisSummary {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 950px) {
+  .fileAnalysisWorkspace {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 750px) {
+  .fileAnalysisToolbar {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .fileAnalysisSummary,
+  .fileAnalysisGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .fileAnalysisHero {
+    display: grid;
+  }
+}
+
+/* === ZEROHUB THREAT INTELLIGENCE === */
+
+.threatWorkspace {
+  display: grid;
+  grid-template-columns:
+    210px minmax(0, 1fr);
+  gap: 14px;
+
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.vtConfiguration,
+.vtLookupToolbar {
+  padding: 14px;
+
+  border: 1px solid var(--border);
+  border-radius: 10px;
+
+  background: #0b0e14;
+}
+
+.vtConfiguration {
+  display: grid;
+  gap: 12px;
+}
+
+.vtConfigurationHeader,
+.vtLookupToolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.vtConfigurationHeader > div,
+.vtLookupToolbar > div {
+  display: grid;
+  gap: 4px;
+}
+
+.vtConfigurationHeader strong,
+.vtLookupToolbar strong {
+  font-size: 12px;
+}
+
+.vtConfigurationHeader span,
+.vtLookupToolbar span {
+  color: var(--text-secondary);
+  font-size: 10px;
+}
+
+.vtApiStatus {
+  padding: 6px 9px;
+
+  border: 1px solid #343a46;
+  border-radius: 999px;
+
+  color: var(--text-muted);
+  background: #11151c;
+
+  font-family: monospace;
+  font-size: 9px;
+}
+
+.vtApiStatus.configured {
+  border-color:
+    rgb(81 221 135 / 25%);
+
+  color: #8ce7ad;
+  background:
+    rgb(81 221 135 / 7%);
+}
+
+.vtKeyRow {
+  display: grid;
+  grid-template-columns:
+    minmax(0, 1fr) auto auto;
+  gap: 8px;
+}
+
+.vtKeyRow input {
+  min-height: 38px;
+  padding: 9px 11px;
+
+  border: 1px solid var(--border);
+  border-radius: 8px;
+
+  color: var(--text);
+  background: #080b10;
+
+  font-family:
+    "JetBrains Mono",
+    monospace;
+
+  font-size: 10px;
+}
+
+.vtStorageStatus {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+
+  color: var(--text-muted);
+  font-size: 9px;
+}
+
+.vtStorageStatus code {
+  color: var(--text-secondary);
+}
+
+.vtStorageStatus .protected {
+  color: #8ce7ad;
+}
+
+.vtStorageStatus .warning {
+  color: #ffd08a;
+}
+
+.vtLookupToolbar {
+  margin-top: 12px;
+}
+
+.vtEmptyState {
+  display: grid;
+  min-height: 300px;
+  place-content: center;
+  margin-top: 14px;
+
+  border: 1px solid var(--border);
+  border-radius: 10px;
+
+  background: #090c11;
+  text-align: center;
+}
+
+.vtEmptyState > span {
+  display: grid;
+  width: 52px;
+  height: 52px;
+  place-items: center;
+  margin: 0 auto 14px;
+
+  border: 1px solid
+    color-mix(
+      in srgb,
+      var(--primary) 40%,
+      transparent
+    );
+
+  border-radius: 12px;
+
+  color: var(--primary);
+  background: var(--primary-soft);
+
+  font-family: monospace;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.vtEmptyState h3 {
+  margin: 0 0 7px;
+  font-size: 15px;
+}
+
+.vtEmptyState p {
+  max-width: 390px;
+  margin: 0;
+
+  color: var(--text-secondary);
+  font-size: 11px;
+  line-height: 1.6;
+}
+
+.vtResults {
+  display: grid;
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.vtVerdict {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+
+  padding: 16px;
+
+  border: 1px solid;
+  border-radius: 10px;
+}
+
+.vtVerdict.malicious {
+  border-color:
+    rgb(255 90 110 / 30%);
+
+  background:
+    rgb(255 90 110 / 7%);
+}
+
+.vtVerdict.suspicious {
+  border-color:
+    rgb(255 181 71 / 30%);
+
+  background:
+    rgb(255 181 71 / 7%);
+}
+
+.vtVerdict.no-detections {
+  border-color:
+    rgb(81 221 135 / 25%);
+
+  background:
+    rgb(81 221 135 / 6%);
+}
+
+.vtVerdict span {
+  color: var(--text-muted);
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+}
+
+.vtVerdict h3 {
+  margin: 5px 0;
+  font-size: 16px;
+}
+
+.vtVerdict p {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 10px;
+}
+
+.vtVerdict > strong {
+  font-family:
+    "JetBrains Mono",
+    monospace;
+
+  font-size: 20px;
+}
+
+.vtStatsGrid {
+  display: grid;
+  grid-template-columns:
+    repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.vtStatsGrid article {
+  display: grid;
+  gap: 7px;
+  padding: 13px;
+
+  border: 1px solid var(--border);
+  border-radius: 9px;
+
+  background: #0b0e14;
+}
+
+.vtStatsGrid span {
+  color: var(--text-muted);
+  font-size: 8px;
+  font-weight: 800;
+}
+
+.vtStatsGrid strong {
+  font-family: monospace;
+  font-size: 18px;
+}
+
+.vtStatsGrid .malicious strong {
+  color: #ff8290;
+}
+
+.vtStatsGrid .suspicious strong {
+  color: #ffd08a;
+}
+
+.vtInformationGrid {
+  display: grid;
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.vtCard,
+.vtHashCard,
+.vtTagsCard,
+.vtEnginesCard {
+  min-width: 0;
+  padding: 14px;
+
+  border: 1px solid var(--border);
+  border-radius: 10px;
+
+  background: #0b0e14;
+}
+
+.vtCard > header,
+.vtHashCard > header,
+.vtTagsCard > header,
+.vtEnginesCard > header {
+  margin-bottom: 12px;
+}
+
+.vtCard header span,
+.vtHashCard header span,
+.vtTagsCard header span,
+.vtEnginesCard header span {
+  color: var(--text-muted);
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+}
+
+.vtCard dl {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+}
+
+.vtCard dl > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+
+  padding-bottom: 8px;
+  border-bottom: 1px solid #1b2029;
+}
+
+.vtCard dl > div:last-child {
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+
+.vtCard dt {
+  color: var(--text-muted);
+  font-size: 9px;
+}
+
+.vtCard dd {
+  margin: 0;
+  color: #cbd1dc;
+  font-size: 9px;
+  text-align: right;
+  overflow-wrap: anywhere;
+}
+
+.vtHashCard > header,
+.vtEnginesCard > header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.vtHashCard > code {
+  display: block;
+  padding: 10px;
+
+  border: 1px solid #1e242e;
+  border-radius: 7px;
+
+  color: #b9c2ff;
+  background: #080b10;
+
+  font-size: 9px;
+  overflow-wrap: anywhere;
+}
+
+.vtTagsCard > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.vtTagsCard > div > span {
+  padding: 5px 8px;
+
+  border: 1px solid var(--border);
+  border-radius: 999px;
+
+  color: var(--text-secondary);
+  background: #10141b;
+
+  font-size: 8px;
+}
+
+.vtEnginesCard header h3 {
+  margin: 4px 0 0;
+  font-size: 12px;
+}
+
+.vtEnginesCard header > strong {
+  display: grid;
+  min-width: 28px;
+  height: 28px;
+  place-items: center;
+
+  border: 1px solid var(--border);
+  border-radius: 999px;
+
+  font-family: monospace;
+  font-size: 9px;
+}
+
+.vtEngineList {
+  display: grid;
+}
+
+.vtEngineList > div {
+  display: grid;
+  grid-template-columns:
+    150px minmax(0, 1fr) 90px;
+  gap: 12px;
+
+  padding: 10px 0;
+  border-bottom: 1px solid #1b2029;
+}
+
+.vtEngineList > div:last-child {
+  border-bottom: 0;
+}
+
+.vtEngineList strong {
+  font-size: 9px;
+}
+
+.vtEngineList span {
+  color: #ff9aa5;
+  font-size: 9px;
+  overflow-wrap: anywhere;
+}
+
+.vtEngineList code {
+  color: var(--text-muted);
+  font-size: 8px;
+  text-align: right;
+}
+
+.vtNoDetections {
+  margin: 0;
+
+  color: var(--text-secondary);
+  font-size: 10px;
+  line-height: 1.6;
+}
+
+.toolMessage.success {
+  margin-top: 12px;
+
+  border-color:
+    rgb(81 221 135 / 25%);
+
+  color: #8ce7ad;
+  background:
+    rgb(81 221 135 / 7%);
+}
+
+@media (max-width: 950px) {
+  .threatWorkspace {
+    grid-template-columns: 1fr;
+  }
+
+  .vtStatsGrid {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 760px) {
+  .vtKeyRow,
+  .vtStatsGrid,
+  .vtInformationGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .vtConfigurationHeader,
+  .vtLookupToolbar,
+  .vtVerdict {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .vtEngineList > div {
+    grid-template-columns: 1fr;
+  }
+
+  .vtEngineList code {
+    text-align: left;
+  }
+}
+
+/* === ZEROHUB VIRUSTOTAL FULL SCANNER === */
+
+.vtModeTabs {
+  display: flex;
+  gap: 6px;
+  margin-top: 12px;
+  padding: 5px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: #090c11;
+}
+
+.vtModeTabs button {
+  flex: 1;
+  min-height: 34px;
+  border: 1px solid transparent;
+  border-radius: 7px;
+  color: var(--text-secondary);
+  background: transparent;
+  font-size: 10px;
+  cursor: pointer;
+}
+
+.vtModeTabs button.active {
+  border-color: color-mix(in srgb, var(--primary) 40%, transparent);
+  color: var(--text);
+  background: var(--primary-soft);
+}
+
+.vtUrlPanel {
+  display: grid;
+  gap: 12px;
+  margin-top: 12px;
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: #0b0e14;
+}
+
+.vtUrlPanel > div:first-child {
+  display: grid;
+  gap: 4px;
+}
+
+.vtUrlPanel strong {
+  font-size: 12px;
+}
+
+.vtUrlPanel span {
+  color: var(--text-secondary);
+  font-size: 10px;
+}
+
+.vtUrlRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  gap: 8px;
+}
+
+.vtUrlRow input {
+  min-width: 0;
+  min-height: 38px;
+  padding: 9px 11px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text);
+  background: #080b10;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 10px;
+}
+
+.vtPendingActions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 14px;
+  border: 1px solid rgb(255 181 71 / 25%);
+  border-radius: 10px;
+  background: rgb(255 181 71 / 6%);
+}
+
+.vtPendingActions > div:first-child {
+  display: grid;
+  gap: 5px;
+}
+
+.vtPendingActions strong {
+  font-size: 11px;
+}
+
+.vtPendingActions span {
+  color: var(--text-secondary);
+  font-size: 9px;
+  line-height: 1.5;
+}
+
+.vtReportActions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  background: #0b0e14;
+}
+
+.vtReportActions code {
+  min-width: 0;
+  color: var(--text-secondary);
+  font-size: 8px;
+  overflow-wrap: anywhere;
+}
+
+.vtVerdict.missing,
+.vtVerdict.processing {
+  border-color: rgb(255 181 71 / 30%);
+  background: rgb(255 181 71 / 7%);
+}
+
+@media (max-width: 760px) {
+  .vtUrlRow {
+    grid-template-columns: 1fr;
+  }
+
+  .vtPendingActions,
+  .vtReportActions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+}
+
+/* === ZEROHUB VIRUSTOTAL FULL SCANNER === */
+
+.vtModeTabs {
+  display: flex;
+  gap: 6px;
+  margin-top: 12px;
+  padding: 5px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: #090c11;
+}
+
+.vtModeTabs button {
+  flex: 1;
+  min-height: 34px;
+  border: 1px solid transparent;
+  border-radius: 7px;
+  color: var(--text-secondary);
+  background: transparent;
+  font-size: 10px;
+  cursor: pointer;
+}
+
+.vtModeTabs button.active {
+  border-color: color-mix(in srgb, var(--primary) 40%, transparent);
+  color: var(--text);
+  background: var(--primary-soft);
+}
+
+.vtUrlPanel {
+  display: grid;
+  gap: 12px;
+  margin-top: 12px;
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: #0b0e14;
+}
+
+.vtUrlPanel > div:first-child {
+  display: grid;
+  gap: 4px;
+}
+
+.vtUrlPanel strong {
+  font-size: 12px;
+}
+
+.vtUrlPanel span {
+  color: var(--text-secondary);
+  font-size: 10px;
+}
+
+.vtUrlRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  gap: 8px;
+}
+
+.vtUrlRow input {
+  min-width: 0;
+  min-height: 38px;
+  padding: 9px 11px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text);
+  background: #080b10;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 10px;
+}
+
+.vtPendingActions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 14px;
+  border: 1px solid rgb(255 181 71 / 25%);
+  border-radius: 10px;
+  background: rgb(255 181 71 / 6%);
+}
+
+.vtPendingActions > div:first-child {
+  display: grid;
+  gap: 5px;
+}
+
+.vtPendingActions strong {
+  font-size: 11px;
+}
+
+.vtPendingActions span {
+  color: var(--text-secondary);
+  font-size: 9px;
+  line-height: 1.5;
+}
+
+.vtReportActions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  background: #0b0e14;
+}
+
+.vtReportActions code {
+  min-width: 0;
+  color: var(--text-secondary);
+  font-size: 8px;
+  overflow-wrap: anywhere;
+}
+
+.vtVerdict.missing,
+.vtVerdict.processing {
+  border-color: rgb(255 181 71 / 30%);
+  background: rgb(255 181 71 / 7%);
+}
+
+@media (max-width: 760px) {
+  .vtUrlRow {
+    grid-template-columns: 1fr;
+  }
+
+  .vtPendingActions,
+  .vtReportActions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+}

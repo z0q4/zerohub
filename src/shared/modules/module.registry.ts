@@ -61,6 +61,28 @@ export const MODULE_REGISTRY: readonly ModuleDefinition[] = [
     showOnDashboard: true,
   },
   {
+    id: 'file-analysis',
+    name: 'File Analysis',
+    description:
+      'Inspeção de arquivos, hashes, entropia e metadados locais.',
+    icon: 'FI',
+    abbreviation: 'FIL',
+    section: 'workspace',
+    status: 'operational',
+    showOnDashboard: true,
+  },
+  {
+    id: 'threat-intelligence',
+    name: 'Threat Intelligence',
+    description:
+      'Consulta reputação e detecções de arquivos por hash.',
+    icon: 'TI',
+    abbreviation: 'THR',
+    section: 'workspace',
+    status: 'operational',
+    showOnDashboard: true,
+  },
+  {
     id: 'settings',
     name: 'Settings',
     description:

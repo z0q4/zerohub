@@ -12,6 +12,10 @@ import {
 } from './main/ipc/encoding.ipc';
 
 import {
+  registerFileAnalysisIpcHandlers,
+} from './main/ipc/file-analysis.ipc';
+
+import {
   registerHashIpcHandlers,
 } from './main/ipc/hash.ipc';
 
@@ -26,6 +30,10 @@ import {
 import {
   registerSettingsIpcHandlers,
 } from './main/ipc/settings.ipc';
+
+import {
+  registerThreatIntelligenceIpcHandlers,
+} from './main/ipc/threat-intelligence.ipc';
 
 import {
   pythonService,
@@ -83,10 +91,12 @@ function createWindow(): void {
 
 app.whenReady().then(() => {
   registerEncodingIpcHandlers();
+  registerFileAnalysisIpcHandlers();
   registerHashIpcHandlers();
   registerNetworkIpcHandlers();
   registerOsintIpcHandlers();
   registerSettingsIpcHandlers();
+  registerThreatIntelligenceIpcHandlers();
 
   createWindow();
 
