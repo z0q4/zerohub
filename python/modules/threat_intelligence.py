@@ -136,7 +136,7 @@ def normalize_url(raw: str) -> str:
         raise InvalidRequestError("A URL excede o limite permitido.")
     parsed = urlsplit(value)
     if parsed.scheme not in {"http", "https"} or not parsed.hostname:
-        raise InvalidRequestError("Informe uma URL completa iniciada por http:// ou https://.")
+        value = "https://" + value
     if parsed.username or parsed.password:
         raise InvalidRequestError("URLs contendo usuário ou senha não são aceitas.")
     return value
