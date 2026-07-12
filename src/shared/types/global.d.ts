@@ -97,6 +97,11 @@ import type {
   VirusTotalTargetResult,
 } from '../threat-intelligence/threat-intelligence.types';
 
+import type {
+  FileCrackRequest,
+  FileCrackResult,
+} from '../file-cracker/file-cracker.types';
+
 export {};
 
 type RuntimeInfo = {
@@ -368,19 +373,23 @@ type ZeroHubAPI = {
       reportUrl: string,
     ): Promise<void>;
   };
-
   secretScanner: {
     scanFile(): Promise<SecretScannerResult | null>;
     scanFolder(): Promise<SecretScannerResult | null>;
   };
+  fileCracker: {
+    selectZip(): Promise<string | null>;
 
+    selectWordlist(): Promise<string | null>;
+
+    crack(
+      request: FileCrackRequest,
+    ): Promise<FileCrackResult>;
+  };
   settings: {
-    get():
-      Promise<AppSettings>;
-
+    get(): Promise<AppSettings>;
     save(
-      settings:
-        AppSettings,
+      settings: AppSettings,
     ): Promise<AppSettings>;
   };
 };

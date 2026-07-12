@@ -7,6 +7,10 @@ import {
 } from '../../../components/layout/ModuleWorkspaceHeader';
 
 import {
+  FileCrackerTool,
+} from '../components/FileCrackerTool';
+
+import {
   HashTool,
 } from '../components/HashTool';
 
@@ -31,6 +35,8 @@ export function UtilitiesPage() {
     switch (activeTool) {
       case 'hash':
         return <HashTool />;
+      case 'file-cracker':
+        return <FileCrackerTool />;
     }
   }
 

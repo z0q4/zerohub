@@ -52,6 +52,10 @@ import {
 } from './main/ipc/file-analysis.ipc';
 
 import {
+  registerFileCrackerIpcHandlers,
+} from './main/ipc/file-cracker.ipc';
+
+import {
   registerHashIpcHandlers,
 } from './main/ipc/hash.ipc';
 
@@ -128,7 +132,6 @@ function createWindow(): void {
     );
   }
 }
-
 app.whenReady().then(() => {
   registerEncodingIpcHandlers();
   registerIocIntelligenceIpcHandlers();
@@ -141,6 +144,7 @@ app.whenReady().then(() => {
   registerFileAnalysisIpcHandlers();
   registerFileForensicsIpcHandlers();
   registerLogAnalysisIpcHandlers();
+  registerFileCrackerIpcHandlers();
   registerHashIpcHandlers();
   registerNetworkIpcHandlers();
   registerOsintIpcHandlers();
@@ -149,7 +153,6 @@ app.whenReady().then(() => {
   registerThreatIntelligenceIpcHandlers();
 
   createWindow();
-
   app.on('activate', () => {
     if (
       BrowserWindow

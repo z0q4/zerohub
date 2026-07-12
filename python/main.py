@@ -9,6 +9,7 @@ from core.errors import UnknownActionError, ZeroHubError
 from core.protocol import parse_request, write_error, write_success
 from modules.encoding import transform_text
 from modules.file_analysis import inspect_file
+from modules.file_cracker import crack_zip
 from modules.hash_tools import hash_file, hash_text
 from modules.network import dns_lookup, ping_host
 from modules.osint import rdap_domain_lookup
@@ -165,6 +166,7 @@ ACTIONS: dict[str, Handler] = {
 
     "encoding.transform": transform_text,
     "file_analysis.inspect": inspect_file,
+    "file_cracker.crack_zip": crack_zip,
     "hash.text": hash_text,
     "hash.file": hash_file,
     "network.dns_lookup": dns_lookup,

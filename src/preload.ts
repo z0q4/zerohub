@@ -103,6 +103,11 @@ import type {
   VirusTotalTargetResult,
 } from './shared/threat-intelligence/threat-intelligence.types';
 
+import type {
+  FileCrackRequest,
+  FileCrackResult,
+} from './shared/file-cracker/file-cracker.types';
+
 const zeroHubAPI = {
   system: {
     getRuntimeInfo: () => ({
@@ -556,7 +561,6 @@ const zeroHubAPI = {
         reportUrl,
       ),
   },
-
   secretScanner: {
     scanFile: (): Promise<SecretScannerResult | null> =>
       ipcRenderer.invoke('secret-scanner:scan-file'),
@@ -564,7 +568,25 @@ const zeroHubAPI = {
     scanFolder: (): Promise<SecretScannerResult | null> =>
       ipcRenderer.invoke('secret-scanner:scan-folder'),
   },
+  fileCracker: {
+    selectZip: (): Promise<string | null> =>
+      ipcRenderer.invoke(
+        'file-cracker:select-zip',
+      ),
 
+    selectWordlist: (): Promise<string | null> =>
+      ipcRenderer.invoke(
+        'file-cracker:select-wordlist',
+      ),
+
+    crack: (
+      request: FileCrackRequest,
+    ): Promise<FileCrackResult> =>
+      ipcRenderer.invoke(
+        'file-cracker:crack',
+        request,
+      ),
+  },
   settings: {
     get: ():
       Promise<AppSettings> =>
@@ -573,8 +595,7 @@ const zeroHubAPI = {
       ),
 
     save: (
-      settings:
-        AppSettings,
+      settings: AppSettings,
     ): Promise<AppSettings> =>
       ipcRenderer.invoke(
         'settings:save',
