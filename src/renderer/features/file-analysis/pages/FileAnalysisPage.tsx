@@ -3,6 +3,10 @@ import {
 } from 'react';
 
 import {
+  ModuleWorkspaceHeader,
+} from '../../../components/layout/ModuleWorkspaceHeader';
+
+import {
   FileInspectorTool,
 } from '../components/FileInspectorTool';
 
@@ -31,74 +35,111 @@ export function FileAnalysisPage() {
   }
 
   return (
-    <>
-      <header className="pageHeader">
-        <div>
-          <span className="eyebrow">
-            ZEROHUB MODULE
-          </span>
+    <div
+      className="moduleWorkspace moduleWorkspaceFileAnalysis"
+      data-module="file-analysis"
+    >
+      <ModuleWorkspaceHeader
+        abbreviation="FIL"
+        badge="Static inspector"
+        section="Analysis"
+        title="File Analysis"
+        description="Inspecione propriedades, integridade, codificação, entropia e metadados de arquivos locais."
+        privacy="Local and streaming"
+        capabilities={[
+          'MIME',
+          'Hashes',
+          'Entropy',
+          'Encoding',
+          'Permissions',
+        ]}
+        workflow={[
+          'Select file',
+          'Stream analysis',
+          'Review metadata',
+          'Copy evidence',
+        ]}
+      />
 
-          <h1>File Analysis</h1>
+      <section className="moduleWorkspaceBody">
+        <div className="moduleWorkspaceContext">
+          <span>FILE INSPECTION</span>
+
+          <strong>
+            Build a technical identity for
+            a local artifact.
+          </strong>
 
           <p>
-            Inspeção local de arquivos,
-            integridade e metadados.
+            A leitura em fluxo reduz uso de
+            memória e mantém o conteúdo no
+            dispositivo durante toda a
+            inspeção.
           </p>
+
+          <div>
+            <span>
+              Read
+              <strong>Streaming</strong>
+            </span>
+
+            <span>
+              Mutation
+              <strong>None</strong>
+            </span>
+
+            <span>
+              Evidence
+              <strong>Hashes</strong>
+            </span>
+          </div>
         </div>
 
-        <span className="operationalBadge">
-          {
-            FILE_ANALYSIS_TOOL_REGISTRY
-              .length
-          }
-          {' '}ferramenta
-        </span>
-      </header>
+        <div className="fileAnalysisWorkspace moduleSelectorWorkspace">
+          <aside className="toolSelector">
+            <span className="toolSelectorLabel">
+              INSPECTORS
+            </span>
 
-      <div className="fileAnalysisWorkspace">
-        <aside className="toolSelector">
-          <span className="toolSelectorLabel">
-            FERRAMENTAS
-          </span>
+            {FILE_ANALYSIS_TOOL_REGISTRY.map(
+              (tool) => (
+                <button
+                  className={`toolSelectorButton ${
+                    activeTool === tool.id
+                      ? 'active'
+                      : ''
+                  }`}
+                  key={tool.id}
+                  type="button"
+                  onClick={() => {
+                    setActiveTool(
+                      tool.id,
+                    );
+                  }}
+                >
+                  <span className="toolSelectorIcon">
+                    {tool.abbreviation}
+                  </span>
 
-          {FILE_ANALYSIS_TOOL_REGISTRY.map(
-            (tool) => (
-              <button
-                className={`toolSelectorButton ${
-                  activeTool === tool.id
-                    ? 'active'
-                    : ''
-                }`}
-                key={tool.id}
-                type="button"
-                onClick={() =>
-                  setActiveTool(
-                    tool.id,
-                  )
-                }
-              >
-                <span className="toolSelectorIcon">
-                  {tool.abbreviation}
-                </span>
+                  <span>
+                    <strong>
+                      {tool.name}
+                    </strong>
 
-                <span>
-                  <strong>
-                    {tool.name}
-                  </strong>
+                    <small>
+                      {tool.description}
+                    </small>
+                  </span>
+                </button>
+              ),
+            )}
+          </aside>
 
-                  <small>
-                    {tool.description}
-                  </small>
-                </span>
-              </button>
-            ),
-          )}
-        </aside>
-
-        <div className="activeToolContent">
-          {renderTool()}
+          <div className="activeToolContent">
+            {renderTool()}
+          </div>
         </div>
-      </div>
-    </>
+      </section>
+    </div>
   );
 }

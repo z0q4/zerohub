@@ -1,0 +1,889 @@
+/* ==========================================================================
+   ZEROHUB INTERFACE V4
+   Real shell rework: reworked sidebar, studio settings and dashboard.
+   ========================================================================== */
+
+.applicationV4 {
+  min-height: 100vh;
+}
+
+.contentShellV4 {
+  position: relative;
+  min-width: 0;
+}
+
+.sidebarV4 {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.brandV4 {
+  position: relative;
+}
+
+.sidebarMiniToolbar {
+  display: grid;
+  grid-template-columns:
+    repeat(3, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.sidebarMiniToolbar button,
+.sidebarFooterDock button,
+.topbarSubbar button {
+  padding: 8px 9px;
+
+  border: 1px solid var(--border);
+  border-radius: 8px;
+
+  color: var(--text-secondary);
+  background:
+    rgb(255 255 255 / 2.5%);
+
+  font-size: 8px;
+  font-weight: 600;
+  cursor: pointer;
+
+  transition:
+    border-color 140ms ease,
+    background 140ms ease,
+    color 140ms ease,
+    transform 140ms ease;
+}
+
+.sidebarMiniToolbar button:hover,
+.sidebarFooterDock button:hover,
+.topbarSubbar button:hover {
+  border-color:
+    color-mix(
+      in srgb,
+      var(--primary) 38%,
+      transparent
+    );
+
+  color: var(--primary);
+  background: var(--primary-soft);
+
+  transform:
+    translateY(-1px);
+}
+
+.sidebarHighlights {
+  display: grid;
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.sidebarHighlightCard {
+  padding: 11px;
+
+  border: 1px solid var(--border);
+  border-radius: 11px;
+
+  background:
+    linear-gradient(
+      145deg,
+      color-mix(
+        in srgb,
+        var(--primary) 8%,
+        transparent
+      ),
+      transparent 45%
+    ),
+    rgb(255 255 255 / 2%);
+}
+
+.sidebarHighlightCard span,
+.sidebarHighlightCard small {
+  display: block;
+}
+
+.sidebarHighlightCard span {
+  color: var(--text-muted);
+  font-size: 7px;
+  font-weight: 800;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+}
+
+.sidebarHighlightCard strong {
+  display: block;
+  margin: 4px 0 2px;
+
+  color: var(--text);
+  font-size: 16px;
+  letter-spacing: -0.04em;
+}
+
+.sidebarHighlightCard small {
+  color: var(--text-muted);
+  font-size: 8px;
+}
+
+.navigationItemText small {
+  display: block;
+  margin-top: 2px;
+
+  overflow: hidden;
+
+  color: var(--text-muted);
+  font-size: 7px;
+  line-height: 1.35;
+
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sidebarFooter {
+  display: grid;
+  gap: 10px;
+  margin-top: auto;
+}
+
+.sidebarFooterDock {
+  display: grid;
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.sidebar.collapsed .sidebarFooterDock,
+.sidebar.collapsed .sidebarHighlights,
+.sidebar.collapsed .sidebarMiniToolbar {
+  display: none;
+}
+
+/* topbar rework */
+
+.appTopbarV4 {
+  display: grid;
+  grid-template-columns:
+    auto minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: center;
+}
+
+.topbarCenter {
+  min-width: 0;
+  display: flex;
+  justify-content: center;
+}
+
+.topbarCounters {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.topbarCounters span {
+  padding: 6px 8px;
+
+  border: 1px solid var(--border);
+  border-radius: 999px;
+
+  color: var(--text-secondary);
+  background:
+    rgb(255 255 255 / 3.5%);
+
+  font-size: 8px;
+  font-weight: 700;
+}
+
+.topbarSubbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+
+  margin:
+    -4px 0 14px;
+  padding:
+    11px 14px;
+
+  border: 1px solid var(--border);
+  border-radius: 11px;
+
+  color: var(--text-secondary);
+  background:
+    linear-gradient(
+      145deg,
+      color-mix(
+        in srgb,
+        var(--primary) 5%,
+        transparent
+      ),
+      transparent 58%
+    ),
+    rgb(255 255 255 / 2.2%);
+
+  font-size: 9px;
+}
+
+.topbarSubbar > div {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.topbarSubbar small {
+  color: var(--text-muted);
+}
+
+/* command palette enhancements */
+
+.commandPaletteV4 {
+  max-width: 760px;
+}
+
+.commandPaletteBanner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding:
+    10px 15px;
+
+  border-bottom:
+    1px solid var(--border);
+
+  color: var(--text-secondary);
+  background:
+    linear-gradient(
+      90deg,
+      color-mix(
+        in srgb,
+        var(--primary) 8%,
+        transparent
+      ),
+      transparent 70%
+    );
+
+  font-size: 8px;
+}
+
+.commandPaletteBanner > div {
+  display: flex;
+  gap: 8px;
+}
+
+.commandPaletteBanner small {
+  padding: 4px 7px;
+
+  border: 1px solid
+    color-mix(
+      in srgb,
+      var(--primary) 25%,
+      transparent
+    );
+
+  border-radius: 999px;
+
+  color: var(--primary);
+  background: var(--primary-soft);
+}
+
+.commandPaletteMeta em {
+  color: var(--text-muted);
+  font-style: normal;
+  font-weight: 700;
+}
+
+/* dashboard v4 */
+
+.dashboardPageV4 {
+  display: grid;
+  gap: 18px;
+}
+
+.dashboardHeroV4 {
+  grid-template-columns:
+    minmax(0, 1.1fr)
+    minmax(280px, 0.9fr);
+}
+
+.dashboardHeroBoard {
+  display: grid;
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.heroStatCard {
+  padding: 14px;
+
+  border: 1px solid var(--border);
+  border-radius: 14px;
+
+  background:
+    linear-gradient(
+      145deg,
+      color-mix(
+        in srgb,
+        var(--primary) 8%,
+        transparent
+      ),
+      transparent 45%
+    ),
+    rgb(255 255 255 / 2.5%);
+}
+
+.heroStatCard span {
+  display: block;
+  color: var(--text-muted);
+  font-size: 7px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.heroStatCard strong {
+  display: block;
+  margin-top: 7px;
+
+  color: var(--text);
+  font-size: 21px;
+  letter-spacing: -0.04em;
+}
+
+.dashboardWorkbench {
+  display: grid;
+  grid-template-columns:
+    minmax(0, 1.2fr)
+    minmax(310px, 0.8fr);
+  gap: 14px;
+}
+
+.dashboardSpotlight,
+.dashboardPanel,
+.dashboardOverviewStrip article,
+.settingsPreviewPanel,
+.settingsMainPanel {
+  border: 1px solid var(--border);
+  border-radius: 14px;
+
+  background:
+    linear-gradient(
+      145deg,
+      color-mix(
+        in srgb,
+        var(--primary) 7%,
+        transparent
+      ),
+      transparent 55%
+    ),
+    var(--surface);
+
+  box-shadow:
+    0 14px 36px rgb(0 0 0 / 14%);
+}
+
+.dashboardSpotlight,
+.dashboardPanel {
+  padding: 16px;
+}
+
+.dashboardSpotlight > header span,
+.dashboardPanel > header span,
+.settingsPreviewPanel > header span {
+  color: var(--primary);
+  font-size: 7px;
+  font-weight: 800;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+}
+
+.dashboardSpotlight h2,
+.settingsPreviewPanel h2 {
+  margin: 5px 0 0;
+  font-size: 17px;
+  letter-spacing: -0.03em;
+}
+
+.dashboardSidePanels {
+  display: grid;
+  gap: 14px;
+}
+
+.spotlightCard {
+  display: grid;
+  gap: 14px;
+  margin-top: 14px;
+}
+
+.spotlightTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.spotlightIcon {
+  display: grid;
+  width: 50px;
+  height: 50px;
+  place-items: center;
+
+  border: 1px solid
+    color-mix(
+      in srgb,
+      var(--primary) 32%,
+      transparent
+    );
+
+  border-radius: 14px;
+
+  color: var(--primary);
+  background: var(--primary-soft);
+
+  font-family:
+    "JetBrains Mono",
+    monospace;
+
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.spotlightBadge {
+  padding: 6px 10px;
+
+  border: 1px solid
+    color-mix(
+      in srgb,
+      var(--primary) 24%,
+      transparent
+    );
+
+  border-radius: 999px;
+
+  color: var(--text-secondary);
+  background:
+    rgb(255 255 255 / 3%);
+
+  font-size: 8px;
+  text-transform: capitalize;
+}
+
+.spotlightContent h3 {
+  margin: 0;
+  font-size: 22px;
+  letter-spacing: -0.04em;
+}
+
+.spotlightContent p {
+  margin: 9px 0 0;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+.spotlightActions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.dashboardPanel > header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.dashboardPanel > header strong {
+  font-size: 14px;
+  letter-spacing: -0.02em;
+}
+
+.dashboardPanelList {
+  display: grid;
+  gap: 8px;
+}
+
+.dashboardMiniItem {
+  display: grid;
+  grid-template-columns:
+    32px minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: center;
+
+  min-width: 0;
+  padding: 10px;
+
+  border: 1px solid var(--border);
+  border-radius: 10px;
+
+  color: var(--text);
+  background:
+    rgb(255 255 255 / 2.5%);
+
+  text-align: left;
+  cursor: pointer;
+
+  transition:
+    border-color 140ms ease,
+    background 140ms ease,
+    transform 140ms ease;
+}
+
+.dashboardMiniItem:hover {
+  border-color:
+    color-mix(
+      in srgb,
+      var(--primary) 36%,
+      transparent
+    );
+
+  background: var(--primary-soft);
+
+  transform:
+    translateY(-1px);
+}
+
+.dashboardMiniItem > span:first-child {
+  display: grid;
+  width: 32px;
+  height: 32px;
+  place-items: center;
+
+  border: 1px solid
+    color-mix(
+      in srgb,
+      var(--primary) 28%,
+      transparent
+    );
+
+  border-radius: 9px;
+
+  color: var(--primary);
+  background:
+    color-mix(
+      in srgb,
+      var(--primary) 10%,
+      transparent
+    );
+
+  font-size: 8px;
+  font-weight: 800;
+}
+
+.dashboardMiniItem strong,
+.dashboardMiniItem small {
+  display: block;
+}
+
+.dashboardMiniItem strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 9px;
+}
+
+.dashboardMiniItem small {
+  margin-top: 2px;
+  color: var(--text-muted);
+  font-size: 7px;
+  text-transform: capitalize;
+}
+
+.dashboardMiniItem i {
+  color: var(--primary);
+  font-style: normal;
+}
+
+.dashboardEmptyState {
+  padding: 18px;
+
+  border: 1px dashed
+    color-mix(
+      in srgb,
+      var(--primary) 20%,
+      var(--border)
+    );
+
+  border-radius: 10px;
+
+  color: var(--text-muted);
+  font-size: 9px;
+  line-height: 1.6;
+}
+
+.dashboardOverviewStrip {
+  display: grid;
+  grid-template-columns:
+    repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.dashboardOverviewStrip article {
+  padding: 14px;
+}
+
+.dashboardOverviewStrip span {
+  display: block;
+  color: var(--text-muted);
+  font-size: 7px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+}
+
+.dashboardOverviewStrip strong {
+  display: block;
+  margin-top: 6px;
+  font-size: 20px;
+  letter-spacing: -0.04em;
+}
+
+/* settings studio */
+
+.settingsStudio {
+  display: grid;
+  grid-template-columns:
+    minmax(0, 1.1fr)
+    minmax(300px, 0.9fr);
+  gap: 16px;
+}
+
+.settingsMainPanel {
+  padding: 0;
+}
+
+.settingsPreviewPanel {
+  align-self: start;
+  padding: 16px;
+}
+
+.settingsPreviewPanel p {
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+.settingsPreviewCard {
+  display: grid;
+  gap: 12px;
+  margin-top: 14px;
+  padding: 14px;
+
+  border: 1px solid var(--border);
+  border-radius: 14px;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgb(255 255 255 / 4%),
+      transparent 50%
+    ),
+    rgb(0 0 0 / 18%);
+}
+
+.settingsPreviewSidebar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.settingsPreviewLogo {
+  display: grid;
+  width: 34px;
+  height: 34px;
+  place-items: center;
+
+  border-radius: 10px;
+
+  background:
+    color-mix(
+      in srgb,
+      var(--primary) 16%,
+      transparent
+    );
+
+  color: var(--primary);
+  font-weight: 800;
+}
+
+.settingsPreviewSidebar strong,
+.settingsPreviewSidebar small {
+  display: block;
+}
+
+.settingsPreviewSidebar small {
+  color: var(--text-muted);
+  font-size: 8px;
+}
+
+.settingsPreviewHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.settingsPreviewHeader span {
+  color: var(--text-muted);
+  font-size: 8px;
+  text-transform: uppercase;
+}
+
+.settingsPreviewHeader strong {
+  color: var(--text);
+  font-size: 12px;
+}
+
+.settingsPreviewHero {
+  padding: 12px;
+
+  border: 1px solid var(--border);
+  border-radius: 12px;
+
+  background:
+    color-mix(
+      in srgb,
+      var(--primary) 8%,
+      transparent
+    );
+}
+
+.settingsPreviewHero span {
+  display: block;
+  color: var(--text-muted);
+  font-size: 7px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.settingsPreviewHero strong {
+  display: block;
+  margin-top: 7px;
+
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.settingsPreviewMiniGrid {
+  display: grid;
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.settingsPreviewMiniGrid article {
+  padding: 11px;
+
+  border: 1px solid var(--border);
+  border-radius: 11px;
+
+  background:
+    rgb(255 255 255 / 2.5%);
+}
+
+.settingsPreviewMiniGrid span {
+  display: block;
+  color: var(--text-muted);
+  font-size: 7px;
+  text-transform: uppercase;
+}
+
+.settingsPreviewMiniGrid strong {
+  display: block;
+  margin-top: 5px;
+  font-size: 11px;
+}
+
+.settingsPreviewFooter {
+  display: flex;
+  gap: 8px;
+}
+
+.previewPrimary,
+.previewSecondary {
+  height: 34px;
+  padding: 0 14px;
+
+  border-radius: 9px;
+  font-size: 8px;
+  font-weight: 700;
+}
+
+.previewPrimary {
+  border: 1px solid
+    color-mix(
+      in srgb,
+      var(--primary) 48%,
+      transparent
+    );
+
+  color: white;
+  background:
+    linear-gradient(
+      180deg,
+      color-mix(
+        in srgb,
+        var(--primary) 84%,
+        white 8%
+      ),
+      var(--primary)
+    );
+}
+
+.previewSecondary {
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  background:
+    rgb(255 255 255 / 3%);
+}
+
+@media (max-width: 1180px) {
+  .dashboardWorkbench,
+  .settingsStudio {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 980px) {
+  .dashboardHeroV4 {
+    grid-template-columns: 1fr;
+  }
+
+  .dashboardOverviewStrip {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+
+  .appTopbarV4 {
+    grid-template-columns:
+      1fr;
+    align-items: stretch;
+  }
+
+  .topbarCenter {
+    justify-content: stretch;
+  }
+
+  .topbarCommand {
+    width: 100%;
+  }
+}
+
+@media (max-width: 760px) {
+  .sidebarHighlights {
+    grid-template-columns: 1fr;
+  }
+
+  .topbarSubbar {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .topbarSubbar > div {
+    justify-content: space-between;
+  }
+
+  .dashboardHeroBoard,
+  .dashboardOverviewStrip,
+  .settingsPreviewMiniGrid {
+    grid-template-columns: 1fr;
+  }
+}
+

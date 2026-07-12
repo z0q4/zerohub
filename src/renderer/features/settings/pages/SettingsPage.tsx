@@ -1,5 +1,6 @@
 import {
   useEffect,
+  useMemo,
   useState,
 } from 'react';
 
@@ -32,25 +33,25 @@ const ACCENT_OPTIONS:
       id: 'blue',
       label: 'Blue',
       description:
-        'Azul técnico padrão.',
+        'Azul técnico e corporativo.',
     },
     {
       id: 'violet',
       label: 'Violet',
       description:
-        'Violeta intenso.',
+        'Violeta premium e expressivo.',
     },
     {
       id: 'cyan',
       label: 'Cyan',
       description:
-        'Ciano moderno.',
+        'Ciano frio, moderno e limpo.',
     },
     {
       id: 'green',
       label: 'Green',
       description:
-        'Verde operacional.',
+        'Verde operacional com pegada security.',
     },
   ];
 
@@ -85,6 +86,17 @@ export function SettingsPage({
   ] =
     useState<string | null>(
       null,
+    );
+
+  const currentAccent =
+    useMemo(
+      () =>
+        ACCENT_OPTIONS.find(
+          (option) =>
+            option.id ===
+            draft.accentColor,
+        ) ?? ACCENT_OPTIONS[0],
+      [draft.accentColor],
     );
 
   useEffect(() => {
@@ -134,233 +146,338 @@ export function SettingsPage({
       <header className="pageHeader">
         <div>
           <span className="eyebrow">
-            ZEROHUB SYSTEM
+            ZEROHUB INTERFACE LAB
           </span>
 
           <h1>Settings</h1>
 
           <p>
-            Aparência e comportamento
-            local do aplicativo.
+            Refine aparência, densidade e
+            comportamento local do
+            aplicativo.
           </p>
         </div>
 
         <span className="operationalBadge">
-          Local persistence
+          Live theme controls
         </span>
       </header>
 
-      <section className="settingsPanel">
-        <div className="settingsSection">
-          <div className="settingsSectionHeader">
-            <div>
-              <span>APPEARANCE</span>
+      <div className="settingsStudio">
+        <section className="settingsPanel settingsMainPanel">
+          <div className="settingsSection">
+            <div className="settingsSectionHeader">
+              <div>
+                <span>VISUAL IDENTITY</span>
 
-              <h2>Cor de destaque</h2>
+                <h2>Accent color</h2>
 
-              <p>
-                Escolha a identidade visual
-                principal do ZeroHub.
-              </p>
+                <p>
+                  Controle a cor principal
+                  da interface inteira.
+                </p>
+              </div>
+            </div>
+
+            <div className="accentGrid accentGridV4">
+              {ACCENT_OPTIONS.map(
+                (option) => (
+                  <button
+                    className={`accentOption ${
+                      draft.accentColor ===
+                      option.id
+                        ? 'active'
+                        : ''
+                    }`}
+                    key={option.id}
+                    type="button"
+                    onClick={() => {
+                      setDraft(
+                        (
+                          current,
+                        ) => ({
+                          ...current,
+                          accentColor:
+                            option.id,
+                        }),
+                      );
+
+                      setMessage(null);
+                    }}
+                  >
+                    <span
+                      className={`accentPreview accent-${option.id}`}
+                    />
+
+                    <span>
+                      <strong>
+                        {option.label}
+                      </strong>
+
+                      <small>
+                        {
+                          option.description
+                        }
+                      </small>
+                    </span>
+                  </button>
+                ),
+              )}
             </div>
           </div>
 
-          <div className="accentGrid">
-            {ACCENT_OPTIONS.map(
-              (option) => (
-                <button
-                  className={`accentOption ${
-                    draft.accentColor ===
-                    option.id
-                      ? 'active'
-                      : ''
-                  }`}
-                  key={option.id}
-                  type="button"
-                  onClick={() => {
-                    setDraft(
-                      (
-                        current,
-                      ) => ({
-                        ...current,
+          <div className="settingsSection">
+            <div className="settingsSectionHeader">
+              <div>
+                <span>LAYOUT</span>
 
-                        accentColor:
-                          option.id,
-                      }),
-                    );
+                <h2>Workspace behavior</h2>
 
-                    setMessage(null);
-                  }}
-                >
-                  <span
-                    className={`accentPreview accent-${option.id}`}
-                  />
+                <p>
+                  Ajuste densidade e as
+                  informações exibidas na
+                  shell.
+                </p>
+              </div>
+            </div>
 
+            <label className="settingToggle">
+              <div>
+                <strong>
+                  Modo compacto
+                </strong>
+
+                <span>
+                  Reduz espaçamentos e
+                  deixa a shell mais densa.
+                </span>
+              </div>
+
+              <input
+                type="checkbox"
+                checked={
+                  draft.compactMode
+                }
+                onChange={(event) => {
+                  setDraft(
+                    (
+                      current,
+                    ) => ({
+                      ...current,
+                      compactMode:
+                        event.target
+                          .checked,
+                    }),
+                  );
+
+                  setMessage(null);
+                }}
+              />
+
+              <span className="toggleTrack">
+                <span />
+              </span>
+            </label>
+
+            <label className="settingToggle">
+              <div>
+                <strong>
+                  Informações de runtime
+                </strong>
+
+                <span>
+                  Exibe Electron, Node e
+                  sistema operacional na
+                  sidebar.
+                </span>
+              </div>
+
+              <input
+                type="checkbox"
+                checked={
+                  draft.showRuntimeInfo
+                }
+                onChange={(event) => {
+                  setDraft(
+                    (
+                      current,
+                    ) => ({
+                      ...current,
+                      showRuntimeInfo:
+                        event.target
+                          .checked,
+                    }),
+                  );
+
+                  setMessage(null);
+                }}
+              />
+
+              <span className="toggleTrack">
+                <span />
+              </span>
+            </label>
+          </div>
+
+          {message && (
+            <div
+              className="settingsMessage success"
+              role="status"
+            >
+              {message}
+            </div>
+          )}
+
+          {error && (
+            <div
+              className="settingsMessage error"
+              role="alert"
+            >
+              {error}
+            </div>
+          )}
+
+          <footer className="settingsFooter">
+            <span>
+              {hasChanges
+                ? 'Existem alterações não salvas.'
+                : 'Todas as alterações estão salvas.'}
+            </span>
+
+            <div>
+              <button
+                className="secondaryButton"
+                type="button"
+                disabled={saving}
+                onClick={
+                  restoreDefaults
+                }
+              >
+                Restaurar padrão
+              </button>
+
+              <button
+                className="primaryButton"
+                type="button"
+                disabled={
+                  saving ||
+                  !hasChanges
+                }
+                onClick={() => {
+                  void saveChanges();
+                }}
+              >
+                {saving
+                  ? 'Salvando...'
+                  : 'Salvar alterações'}
+              </button>
+            </div>
+          </footer>
+        </section>
+
+        <aside className="settingsPreviewPanel">
+          <header>
+            <span>LIVE PREVIEW</span>
+
+            <h2>
+              Theme Studio
+            </h2>
+
+            <p>
+              Prévia do estilo atual da
+              interface.
+            </p>
+          </header>
+
+          <div
+            className={`settingsPreviewCard accent-${currentAccent.id}`}
+          >
+            <div className="settingsPreviewSidebar">
+              <span className="settingsPreviewLogo">
+                Z
+              </span>
+
+              <div>
+                <strong>
+                  ZeroHub
+                </strong>
+
+                <small>
+                  {
+                    currentAccent.label
+                  }
+                </small>
+              </div>
+            </div>
+
+            <div className="settingsPreviewHeader">
+              <span>
+                Active Theme
+              </span>
+
+              <strong>
+                {currentAccent.label}
+              </strong>
+            </div>
+
+            <div className="settingsPreviewBody">
+              <div className="settingsPreviewHero">
+                <span>
+                  Accent
+                </span>
+
+                <strong>
+                  {
+                    currentAccent.description
+                  }
+                </strong>
+              </div>
+
+              <div className="settingsPreviewMiniGrid">
+                <article>
                   <span>
-                    <strong>
-                      {option.label}
-                    </strong>
-
-                    <small>
-                      {
-                        option.description
-                      }
-                    </small>
+                    Density
                   </span>
+
+                  <strong>
+                    {draft.compactMode
+                      ? 'Compact'
+                      : 'Comfort'}
+                  </strong>
+                </article>
+
+                <article>
+                  <span>
+                    Runtime
+                  </span>
+
+                  <strong>
+                    {draft.showRuntimeInfo
+                      ? 'Visible'
+                      : 'Hidden'}
+                  </strong>
+                </article>
+              </div>
+
+              <div className="settingsPreviewFooter">
+                <button
+                  className="previewPrimary"
+                  type="button"
+                >
+                  Primary
                 </button>
-              ),
-            )}
-          </div>
-        </div>
 
-        <div className="settingsSection">
-          <div className="settingsSectionHeader">
-            <div>
-              <span>INTERFACE</span>
-
-              <h2>Layout</h2>
-
-              <p>
-                Ajuste a densidade e as
-                informações exibidas.
-              </p>
+                <button
+                  className="previewSecondary"
+                  type="button"
+                >
+                  Secondary
+                </button>
+              </div>
             </div>
           </div>
-
-          <label className="settingToggle">
-            <div>
-              <strong>
-                Modo compacto
-              </strong>
-
-              <span>
-                Reduz espaçamentos e o
-                tamanho dos painéis.
-              </span>
-            </div>
-
-            <input
-              type="checkbox"
-              checked={
-                draft.compactMode
-              }
-              onChange={(event) => {
-                setDraft(
-                  (
-                    current,
-                  ) => ({
-                    ...current,
-
-                    compactMode:
-                      event.target
-                        .checked,
-                  }),
-                );
-
-                setMessage(null);
-              }}
-            />
-
-            <span className="toggleTrack">
-              <span />
-            </span>
-          </label>
-
-          <label className="settingToggle">
-            <div>
-              <strong>
-                Informações de runtime
-              </strong>
-
-              <span>
-                Exibe Electron, Node e
-                plataforma na sidebar.
-              </span>
-            </div>
-
-            <input
-              type="checkbox"
-              checked={
-                draft.showRuntimeInfo
-              }
-              onChange={(event) => {
-                setDraft(
-                  (
-                    current,
-                  ) => ({
-                    ...current,
-
-                    showRuntimeInfo:
-                      event.target
-                        .checked,
-                  }),
-                );
-
-                setMessage(null);
-              }}
-            />
-
-            <span className="toggleTrack">
-              <span />
-            </span>
-          </label>
-        </div>
-
-        {message && (
-          <div
-            className="settingsMessage success"
-            role="status"
-          >
-            {message}
-          </div>
-        )}
-
-        {error && (
-          <div
-            className="settingsMessage error"
-            role="alert"
-          >
-            {error}
-          </div>
-        )}
-
-        <footer className="settingsFooter">
-          <span>
-            {hasChanges
-              ? 'Existem alterações não salvas.'
-              : 'Todas as alterações estão salvas.'}
-          </span>
-
-          <div>
-            <button
-              className="secondaryButton"
-              type="button"
-              disabled={saving}
-              onClick={
-                restoreDefaults
-              }
-            >
-              Restaurar padrão
-            </button>
-
-            <button
-              className="primaryButton"
-              type="button"
-              disabled={
-                saving ||
-                !hasChanges
-              }
-              onClick={() => {
-                void saveChanges();
-              }}
-            >
-              {saving
-                ? 'Salvando...'
-                : 'Salvar alterações'}
-            </button>
-          </div>
-        </footer>
-      </section>
+        </aside>
+      </div>
     </>
   );
 }

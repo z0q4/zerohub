@@ -1,0 +1,1121 @@
+/* ==========================================================================
+   ZEROHUB INTERFACE V3
+   Command palette, favorites, recents and collapsible navigation.
+   ========================================================================== */
+
+:root {
+  --sidebar-collapsed-width: 78px;
+}
+
+.application {
+  transition:
+    grid-template-columns 180ms ease;
+}
+
+.application.sidebarCollapsed {
+  grid-template-columns:
+    var(--sidebar-collapsed-width)
+    minmax(0, 1fr);
+}
+
+.sidebar {
+  transition:
+    width 180ms ease,
+    padding 180ms ease;
+}
+
+.brandLogo {
+  border: 1px solid
+    color-mix(
+      in srgb,
+      var(--primary) 64%,
+      white 5%
+    );
+
+  cursor: pointer;
+}
+
+.sidebarCollapseButton {
+  display: grid;
+  width: 28px;
+  height: 28px;
+  flex: 0 0 auto;
+  place-items: center;
+  margin-left: auto;
+
+  border: 1px solid var(--border);
+  border-radius: 8px;
+
+  color: var(--text-secondary);
+  background:
+    rgb(255 255 255 / 2.5%);
+
+  font-size: 15px;
+  cursor: pointer;
+
+  transition:
+    border-color 140ms ease,
+    color 140ms ease,
+    background 140ms ease;
+}
+
+.sidebarCollapseButton:hover {
+  border-color:
+    color-mix(
+      in srgb,
+      var(--primary) 42%,
+      transparent
+    );
+
+  color: var(--primary);
+  background: var(--primary-soft);
+}
+
+.sidebarQuickButton {
+  display: grid;
+  width: 42px;
+  height: 38px;
+  place-items: center;
+  margin: 0 auto 11px;
+
+  border: 1px solid var(--border);
+  border-radius: 10px;
+
+  color: var(--text-secondary);
+  background:
+    rgb(0 0 0 / 16%);
+
+  font-size: 15px;
+  cursor: pointer;
+}
+
+.sidebarQuickButton:hover {
+  border-color:
+    color-mix(
+      in srgb,
+      var(--primary) 42%,
+      transparent
+    );
+
+  color: var(--primary);
+  background: var(--primary-soft);
+}
+
+.navigationGroupHeader.static {
+  cursor: default;
+}
+
+.favoriteNavigationGroup {
+  margin-bottom: 9px;
+  padding-bottom: 8px;
+
+  border-bottom:
+    1px solid
+    color-mix(
+      in srgb,
+      white 6%,
+      transparent
+    );
+}
+
+.navigationItemRow {
+  display: grid;
+  grid-template-columns:
+    minmax(0, 1fr) 27px;
+  gap: 3px;
+  align-items: center;
+}
+
+.navigationPin {
+  display: grid;
+  width: 27px;
+  height: 30px;
+  place-items: center;
+
+  border: 1px solid transparent;
+  border-radius: 7px;
+
+  color: var(--text-muted);
+  background: transparent;
+
+  font-size: 11px;
+  opacity: 0;
+  cursor: pointer;
+
+  transition:
+    opacity 140ms ease,
+    border-color 140ms ease,
+    color 140ms ease,
+    background 140ms ease;
+}
+
+.navigationItemRow:hover
+.navigationPin,
+.navigationPin.active,
+.navigationPin:focus-visible {
+  opacity: 1;
+}
+
+.navigationPin:hover,
+.navigationPin.active {
+  border-color:
+    color-mix(
+      in srgb,
+      var(--primary) 34%,
+      transparent
+    );
+
+  color:
+    color-mix(
+      in srgb,
+      var(--primary) 62%,
+      white
+    );
+
+  background: var(--primary-soft);
+}
+
+.sidebar.collapsed {
+  padding:
+    16px 8px 10px;
+}
+
+.sidebar.collapsed .brand {
+  justify-content: center;
+  padding:
+    4px 0 15px;
+}
+
+.sidebar.collapsed .brandText,
+.sidebar.collapsed .brandPulse {
+  display: none;
+}
+
+.sidebar.collapsed
+.sidebarCollapseButton {
+  position: absolute;
+  top: 61px;
+  left: 50%;
+
+  width: 24px;
+  height: 22px;
+
+  transform:
+    translateX(-50%);
+}
+
+.sidebar.collapsed
+.sidebarNavigation {
+  margin-top: 12px;
+  padding-right: 0;
+}
+
+.sidebar.collapsed
+.navigationGroup {
+  margin-bottom: 8px;
+}
+
+.sidebar.collapsed
+.navigationGroupHeader {
+  display: flex;
+  justify-content: center;
+  min-height: 25px;
+  padding: 3px;
+}
+
+.sidebar.collapsed
+.navigationGroupHeader >
+span:not(.navigationGroupMark),
+.sidebar.collapsed
+.navigationGroupHeader small {
+  display: none;
+}
+
+.sidebar.collapsed
+.navigationGroupMark {
+  border-color: transparent;
+  color: var(--text-muted);
+  background: transparent;
+}
+
+.sidebar.collapsed
+.navigation {
+  gap: 4px;
+  padding:
+    1px 0 5px;
+}
+
+.sidebar.collapsed
+.navigationItemRow {
+  display: block;
+}
+
+.sidebar.collapsed
+.navigationItem {
+  display: grid;
+  width: 44px;
+  min-height: 40px;
+  margin: 0 auto;
+  grid-template-columns: 1fr;
+  place-items: center;
+  padding: 5px;
+}
+
+.sidebar.collapsed
+.navigationItem:hover {
+  transform:
+    translateY(-1px);
+}
+
+.sidebar.collapsed
+.navigationIcon {
+  width: 27px;
+  height: 27px;
+}
+
+.sidebar.collapsed
+.navigationItemText,
+.sidebar.collapsed
+.availableDot,
+.sidebar.collapsed
+.navigationPin {
+  display: none;
+}
+
+.sidebar.collapsed
+.runtimeCard {
+  display: grid;
+  width: 44px;
+  min-height: 44px;
+  place-items: center;
+  margin:
+    10px auto 0;
+  padding: 0;
+}
+
+.sidebar.collapsed
+.runtimeCard > div:not(
+  .runtimeStatus
+) {
+  display: none;
+}
+
+.sidebar.collapsed
+.runtimeStatus strong {
+  display: none;
+}
+
+.sidebar.collapsed
+.runtimeStatus {
+  display: grid;
+  place-items: center;
+}
+
+/* Topbar */
+
+.topbarLeft {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  gap: 12px;
+}
+
+.topbarSidebarToggle {
+  display: grid;
+  width: 34px;
+  height: 34px;
+  flex: 0 0 auto;
+  place-items: center;
+
+  border: 1px solid var(--border);
+  border-radius: 9px;
+
+  color: var(--text-secondary);
+  background:
+    rgb(255 255 255 / 2.5%);
+
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.topbarSidebarToggle:hover {
+  border-color:
+    color-mix(
+      in srgb,
+      var(--primary) 38%,
+      transparent
+    );
+
+  color: var(--primary);
+  background: var(--primary-soft);
+}
+
+.topbarCommand {
+  display: grid;
+  grid-template-columns:
+    auto minmax(0, 1fr) auto;
+  gap: 8px;
+  align-items: center;
+
+  min-width: 210px;
+  height: 34px;
+  padding: 0 8px 0 10px;
+
+  border: 1px solid var(--border);
+  border-radius: 9px;
+
+  color: var(--text-muted);
+  background:
+    rgb(255 255 255 / 2.5%);
+
+  text-align: left;
+  cursor: pointer;
+
+  transition:
+    border-color 140ms ease,
+    color 140ms ease,
+    background 140ms ease;
+}
+
+.topbarCommand:hover {
+  border-color:
+    color-mix(
+      in srgb,
+      var(--primary) 38%,
+      transparent
+    );
+
+  color: var(--text-secondary);
+  background: var(--primary-soft);
+}
+
+.topbarCommand > span {
+  font-size: 12px;
+}
+
+.topbarCommand strong {
+  color: var(--text-secondary);
+  font-size: 9px;
+  font-weight: 560;
+}
+
+.topbarCommand kbd,
+.dashboardHeroActions kbd,
+.dashboardQuickAccess kbd,
+.commandPalette kbd {
+  padding: 3px 5px;
+
+  border: 1px solid
+    color-mix(
+      in srgb,
+      white 10%,
+      transparent
+    );
+
+  border-radius: 5px;
+
+  color: var(--text-muted);
+  background:
+    rgb(0 0 0 / 18%);
+
+  font-family:
+    "JetBrains Mono",
+    monospace;
+
+  font-size: 7px;
+  font-weight: 600;
+}
+
+/* Page transition */
+
+.pageTransition {
+  min-width: 0;
+
+  animation:
+    zeroHubPageEnter
+    190ms ease both;
+}
+
+@keyframes zeroHubPageEnter {
+  from {
+    opacity: 0;
+    transform:
+      translateY(5px);
+  }
+
+  to {
+    opacity: 1;
+    transform:
+      translateY(0);
+  }
+}
+
+/* Command palette */
+
+.commandPaletteBackdrop {
+  position: fixed;
+  z-index: 1000;
+  inset: 0;
+
+  display: grid;
+  place-items: start center;
+  padding-top:
+    min(14vh, 128px);
+
+  background:
+    rgb(2 4 8 / 68%);
+
+  backdrop-filter:
+    blur(9px)
+    saturate(110%);
+
+  animation:
+    commandPaletteBackdropIn
+    140ms ease both;
+}
+
+.commandPalette {
+  width:
+    min(720px, calc(100vw - 40px));
+  max-height:
+    min(690px, calc(100vh - 150px));
+
+  border:
+    1px solid
+    color-mix(
+      in srgb,
+      var(--primary) 28%,
+      var(--border)
+    );
+
+  border-radius: 15px;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgb(255 255 255 / 4%),
+      transparent 44%
+    ),
+    #10141c;
+
+  box-shadow:
+    0 32px 100px
+      rgb(0 0 0 / 58%),
+    0 0 0 1px
+      rgb(255 255 255 / 2%),
+    0 0 70px
+      color-mix(
+        in srgb,
+        var(--primary) 11%,
+        transparent
+      );
+
+  overflow: hidden;
+
+  animation:
+    commandPaletteIn
+    170ms ease both;
+}
+
+@keyframes commandPaletteBackdropIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes commandPaletteIn {
+  from {
+    opacity: 0;
+    transform:
+      translateY(-8px)
+      scale(0.985);
+  }
+
+  to {
+    opacity: 1;
+    transform:
+      translateY(0)
+      scale(1);
+  }
+}
+
+.commandPaletteSearch {
+  display: grid;
+  grid-template-columns:
+    auto minmax(0, 1fr) auto;
+  gap: 11px;
+  align-items: center;
+  padding:
+    14px 15px;
+
+  border-bottom:
+    1px solid var(--border);
+
+  background:
+    rgb(0 0 0 / 14%);
+}
+
+.commandPaletteSearch > span {
+  color: var(--primary);
+  font-size: 16px;
+}
+
+.commandPaletteSearch input {
+  height: 36px;
+  padding: 0;
+
+  border: 0 !important;
+  color: var(--text);
+  background:
+    transparent !important;
+
+  font-size: 13px;
+}
+
+.commandPaletteSearch input:focus {
+  box-shadow:
+    none !important;
+}
+
+.commandPaletteResults {
+  display: grid;
+  gap: 3px;
+  max-height: 520px;
+  padding: 8px;
+  overflow-y: auto;
+}
+
+.commandPaletteItem {
+  display: grid;
+  grid-template-columns:
+    minmax(0, 1fr) 38px;
+  gap: 4px;
+  align-items: center;
+
+  border: 1px solid transparent;
+  border-radius: 9px;
+
+  transition:
+    border-color 120ms ease,
+    background 120ms ease;
+}
+
+.commandPaletteItem.selected {
+  border-color:
+    color-mix(
+      in srgb,
+      var(--primary) 33%,
+      transparent
+    );
+
+  background:
+    linear-gradient(
+      90deg,
+      var(--primary-soft),
+      transparent
+    );
+}
+
+.commandPaletteMain {
+  display: grid;
+  grid-template-columns:
+    36px minmax(0, 1fr) auto;
+  gap: 11px;
+  align-items: center;
+
+  min-width: 0;
+  padding: 9px 10px;
+
+  border: 0;
+  color: var(--text);
+  background: transparent;
+
+  text-align: left;
+  cursor: pointer;
+}
+
+.commandPaletteIcon {
+  display: grid;
+  width: 34px;
+  height: 34px;
+  place-items: center;
+
+  border: 1px solid
+    color-mix(
+      in srgb,
+      var(--primary) 34%,
+      transparent
+    );
+
+  border-radius: 9px;
+
+  color:
+    color-mix(
+      in srgb,
+      var(--primary) 68%,
+      white
+    );
+
+  background:
+    var(--primary-soft);
+
+  font-family:
+    "JetBrains Mono",
+    monospace;
+
+  font-size: 8px;
+  font-weight: 800;
+}
+
+.commandPaletteText {
+  min-width: 0;
+}
+
+.commandPaletteText strong,
+.commandPaletteText small {
+  display: block;
+}
+
+.commandPaletteText strong {
+  color: var(--text);
+  font-size: 10px;
+  font-weight: 660;
+}
+
+.commandPaletteText small {
+  margin-top: 3px;
+  overflow: hidden;
+
+  color: var(--text-muted);
+  font-size: 8px;
+
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.commandPaletteMeta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+
+  color: var(--text-muted);
+  font-size: 7px;
+  text-transform: uppercase;
+}
+
+.commandPaletteMeta i {
+  padding: 3px 5px;
+
+  border-radius: 999px;
+  color: var(--primary);
+  background: var(--primary-soft);
+
+  font-style: normal;
+  font-weight: 700;
+}
+
+.commandPaletteFavorite {
+  display: grid;
+  width: 32px;
+  height: 32px;
+  place-items: center;
+
+  border: 1px solid transparent;
+  border-radius: 8px;
+
+  color: var(--text-muted);
+  background: transparent;
+
+  cursor: pointer;
+}
+
+.commandPaletteFavorite:hover,
+.commandPaletteFavorite.active {
+  border-color:
+    color-mix(
+      in srgb,
+      var(--primary) 32%,
+      transparent
+    );
+
+  color: var(--primary);
+  background: var(--primary-soft);
+}
+
+.commandPaletteEmpty {
+  padding: 40px 18px;
+
+  color: var(--text-muted);
+  font-size: 10px;
+  text-align: center;
+}
+
+.commandPaletteFooter {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding:
+    10px 14px;
+
+  border-top:
+    1px solid var(--border);
+
+  color: var(--text-muted);
+  background:
+    rgb(0 0 0 / 12%);
+
+  font-size: 8px;
+}
+
+.commandPaletteFooter span {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+/* Dashboard quick access */
+
+.dashboardHeroActions
+.primaryButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.dashboardHeroActions
+.primaryButton kbd {
+  color:
+    color-mix(
+      in srgb,
+      white 78%,
+      transparent
+    );
+
+  background:
+    rgb(0 0 0 / 16%);
+}
+
+.dashboardQuickAccess {
+  display: grid;
+  gap: 13px;
+  padding: 16px;
+
+  border: 1px solid var(--border);
+  border-radius: 13px;
+
+  background:
+    linear-gradient(
+      145deg,
+      color-mix(
+        in srgb,
+        var(--primary) 7%,
+        transparent
+      ),
+      transparent 44%
+    ),
+    var(--surface);
+
+  box-shadow:
+    0 12px 34px
+      rgb(0 0 0 / 13%);
+}
+
+.dashboardQuickAccess > header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.dashboardQuickAccess
+header > div > span {
+  color: var(--primary);
+  font-size: 7px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+}
+
+.dashboardQuickAccess h2 {
+  margin: 4px 0 0;
+
+  font-size: 15px;
+  letter-spacing: -0.025em;
+}
+
+.dashboardQuickAccess
+header > button {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+
+  padding: 7px 9px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+
+  color: var(--text-secondary);
+  background:
+    rgb(255 255 255 / 2.5%);
+
+  font-size: 8px;
+  cursor: pointer;
+}
+
+.dashboardQuickColumns {
+  display: grid;
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.dashboardQuickColumns h3 {
+  margin: 0 0 7px;
+
+  color: var(--text-muted);
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.quickModuleGrid {
+  display: grid;
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+  gap: 7px;
+}
+
+.quickModuleCard {
+  display: grid;
+  grid-template-columns:
+    31px minmax(0, 1fr) auto;
+  gap: 9px;
+  align-items: center;
+
+  min-width: 0;
+  padding: 9px;
+
+  border: 1px solid var(--border);
+  border-radius: 9px;
+
+  color: var(--text);
+  background:
+    rgb(0 0 0 / 13%);
+
+  text-align: left;
+  cursor: pointer;
+
+  transition:
+    border-color 140ms ease,
+    background 140ms ease,
+    transform 140ms ease;
+}
+
+.quickModuleCard:hover {
+  border-color:
+    color-mix(
+      in srgb,
+      var(--primary) 36%,
+      transparent
+    );
+
+  background: var(--primary-soft);
+
+  transform:
+    translateY(-1px);
+}
+
+.quickModuleIcon {
+  display: grid;
+  width: 31px;
+  height: 31px;
+  place-items: center;
+
+  border: 1px solid
+    color-mix(
+      in srgb,
+      var(--primary) 30%,
+      transparent
+    );
+
+  border-radius: 8px;
+
+  color: var(--primary);
+  background: var(--primary-soft);
+
+  font-family:
+    "JetBrains Mono",
+    monospace;
+
+  font-size: 7px;
+  font-weight: 800;
+}
+
+.quickModuleCard > span:nth-child(2) {
+  min-width: 0;
+}
+
+.quickModuleCard strong,
+.quickModuleCard small {
+  display: block;
+}
+
+.quickModuleCard strong {
+  overflow: hidden;
+
+  font-size: 9px;
+
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.quickModuleCard small {
+  margin-top: 2px;
+  color: var(--text-muted);
+  font-size: 7px;
+}
+
+.quickModuleCard i {
+  color: var(--primary);
+  font-style: normal;
+}
+
+/* Dashboard module cards now support a separate favorite action. */
+
+.moduleCard {
+  position: relative;
+  display: block;
+  min-width: 0;
+  padding: 0 !important;
+  overflow: hidden;
+
+  text-align: left;
+}
+
+.moduleCardAction {
+  display: grid;
+  align-content: space-between;
+  width: 100%;
+  min-height: 100%;
+  padding: 16px;
+
+  border: 0;
+  color: inherit;
+  background: transparent;
+
+  text-align: left;
+  cursor: pointer;
+}
+
+.moduleCardAction:disabled {
+  cursor: not-allowed;
+}
+
+.moduleFavoriteButton {
+  position: absolute;
+  top: 14px;
+  right: 75px;
+  z-index: 3;
+
+  display: grid;
+  width: 27px;
+  height: 27px;
+  place-items: center;
+
+  border: 1px solid transparent;
+  border-radius: 7px;
+
+  color: var(--text-muted);
+  background:
+    rgb(0 0 0 / 12%);
+
+  opacity: 0;
+  cursor: pointer;
+
+  transition:
+    opacity 140ms ease,
+    border-color 140ms ease,
+    color 140ms ease,
+    background 140ms ease;
+}
+
+.moduleCard:hover
+.moduleFavoriteButton,
+.moduleFavoriteButton.active,
+.moduleFavoriteButton:focus-visible {
+  opacity: 1;
+}
+
+.moduleFavoriteButton:hover,
+.moduleFavoriteButton.active {
+  border-color:
+    color-mix(
+      in srgb,
+      var(--primary) 34%,
+      transparent
+    );
+
+  color: var(--primary);
+  background: var(--primary-soft);
+}
+
+@media (max-width: 1020px) {
+  .topbarCommand {
+    min-width: 170px;
+  }
+
+  .topbarCommand strong {
+    display: none;
+  }
+
+  .dashboardQuickColumns {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 760px) {
+  .topbarStatus {
+    display: none;
+  }
+
+  .topbarCommand {
+    min-width: 42px;
+    grid-template-columns: 1fr;
+    place-items: center;
+    padding: 0;
+  }
+
+  .topbarCommand strong,
+  .topbarCommand kbd {
+    display: none;
+  }
+
+  .quickModuleGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .commandPalette {
+    width:
+      calc(100vw - 22px);
+  }
+
+  .commandPaletteBackdrop {
+    padding-top: 70px;
+  }
+
+  .commandPaletteMeta {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pageTransition,
+  .commandPaletteBackdrop,
+  .commandPalette {
+    animation: none !important;
+  }
+}
+

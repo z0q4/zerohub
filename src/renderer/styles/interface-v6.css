@@ -1,0 +1,1679 @@
+/* ==========================================================================
+   ZEROHUB INTERFACE V6
+   Module workspaces and professional inner-tool design.
+   ========================================================================== */
+
+.moduleWorkspace {
+  display: grid;
+  gap: 16px;
+  min-width: 0;
+
+  --module-panel:
+    color-mix(
+      in srgb,
+      var(--surface) 96%,
+      black
+    );
+}
+
+.moduleWorkspaceHeader {
+  position: relative;
+  isolation: isolate;
+
+  display: grid;
+  gap: 0;
+
+  border: 1px solid
+    color-mix(
+      in srgb,
+      var(--primary) 23%,
+      var(--border)
+    );
+
+  border-radius: 18px;
+
+  background:
+    radial-gradient(
+      circle at 87% 8%,
+      color-mix(
+        in srgb,
+        var(--primary) 16%,
+        transparent
+      ),
+      transparent 28%
+    ),
+    linear-gradient(
+      135deg,
+      rgb(255 255 255 / 5%),
+      transparent 42%
+    ),
+    color-mix(
+      in srgb,
+      var(--surface) 96%,
+      black
+    );
+
+  box-shadow:
+    0 22px 65px
+      rgb(0 0 0 / 22%),
+    inset 0 1px 0
+      rgb(255 255 255 / 5%);
+
+  overflow: hidden;
+}
+
+.moduleWorkspaceHeader::before {
+  position: absolute;
+  z-index: -1;
+  top: -60px;
+  right: -45px;
+
+  width: 280px;
+  height: 280px;
+
+  border: 1px solid
+    color-mix(
+      in srgb,
+      var(--primary) 10%,
+      transparent
+    );
+
+  border-radius: 50%;
+
+  box-shadow:
+    0 0 0 38px
+      color-mix(
+        in srgb,
+        var(--primary) 3%,
+        transparent
+      ),
+    0 0 0 76px
+      color-mix(
+        in srgb,
+        var(--primary) 2%,
+        transparent
+      );
+
+  content: "";
+}
+
+.moduleWorkspaceHeader::after {
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+
+  background-image:
+    linear-gradient(
+      rgb(255 255 255 / 1.3%) 1px,
+      transparent 1px
+    ),
+    linear-gradient(
+      90deg,
+      rgb(255 255 255 / 1.3%) 1px,
+      transparent 1px
+    );
+
+  background-size: 28px 28px;
+  mask-image:
+    linear-gradient(
+      90deg,
+      rgb(0 0 0 / 42%),
+      transparent 64%
+    );
+
+  pointer-events: none;
+  content: "";
+}
+
+.moduleWorkspaceHeaderMain {
+  display: grid;
+  grid-template-columns:
+    minmax(0, 1fr)
+    minmax(240px, 0.46fr);
+  gap: 24px;
+  align-items: center;
+  padding: 24px;
+}
+
+.moduleWorkspaceIdentity {
+  min-width: 0;
+}
+
+.moduleWorkspaceEyebrow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  color: var(--primary);
+  font-size: 8px;
+  font-weight: 850;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.moduleWorkspaceEyebrow > span {
+  width: 22px;
+  height: 1px;
+
+  background:
+    linear-gradient(
+      90deg,
+      var(--primary),
+      transparent
+    );
+}
+
+.moduleWorkspaceEyebrow i {
+  color: var(--text-muted);
+  font-style: normal;
+}
+
+.moduleWorkspaceIdentity h1 {
+  max-width: 850px;
+  margin: 11px 0 8px;
+
+  color: var(--text);
+  font-size:
+    clamp(
+      28px,
+      4vw,
+      46px
+    );
+
+  font-weight: 760;
+  letter-spacing: -0.055em;
+  line-height: 0.98;
+}
+
+.moduleWorkspaceIdentity > p {
+  max-width: 720px;
+  margin: 0;
+
+  color: var(--text-secondary);
+  font-size: 11px;
+  line-height: 1.65;
+}
+
+.moduleWorkspaceChips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-top: 16px;
+}
+
+.moduleWorkspaceChips span {
+  padding: 6px 9px;
+
+  border: 1px solid
+    color-mix(
+      in srgb,
+      var(--primary) 22%,
+      var(--border)
+    );
+
+  border-radius: 999px;
+
+  color:
+    color-mix(
+      in srgb,
+      var(--primary) 52%,
+      var(--text-secondary)
+    );
+
+  background:
+    color-mix(
+      in srgb,
+      var(--primary) 6%,
+      transparent
+    );
+
+  font-size: 7px;
+  font-weight: 720;
+}
+
+.moduleWorkspaceHeaderVisual {
+  display: grid;
+  grid-template-columns:
+    116px minmax(0, 1fr);
+  gap: 15px;
+  align-items: center;
+  justify-self: stretch;
+}
+
+.moduleWorkspaceRadar {
+  position: relative;
+
+  display: grid;
+  width: 116px;
+  height: 116px;
+  place-items: center;
+
+  border: 1px solid
+    color-mix(
+      in srgb,
+      var(--primary) 25%,
+      transparent
+    );
+
+  border-radius: 50%;
+
+  background:
+    radial-gradient(
+      circle,
+      color-mix(
+        in srgb,
+        var(--primary) 14%,
+        transparent
+      ),
+      transparent 63%
+    );
+
+  box-shadow:
+    inset 0 0 35px
+      rgb(0 0 0 / 32%);
+}
+
+.moduleWorkspaceRadar::before,
+.moduleWorkspaceRadar::after {
+  position: absolute;
+  inset: 15px;
+
+  border: 1px solid
+    color-mix(
+      in srgb,
+      var(--primary) 17%,
+      transparent
+    );
+
+  border-radius: 50%;
+
+  content: "";
+}
+
+.moduleWorkspaceRadar::after {
+  inset: 35px;
+}
+
+.moduleWorkspaceRadar > span {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+
+  width: 48%;
+  height: 1px;
+
+  background:
+    linear-gradient(
+      90deg,
+      var(--primary),
+      transparent
+    );
+
+  transform-origin: left center;
+
+  animation:
+    moduleRadarSweep
+    5s linear infinite;
+}
+
+.moduleWorkspaceRadar > span:nth-child(2) {
+  transform:
+    rotate(120deg);
+  animation-delay: -1.65s;
+}
+
+.moduleWorkspaceRadar > span:nth-child(3) {
+  transform:
+    rotate(240deg);
+  animation-delay: -3.3s;
+}
+
+.moduleWorkspaceRadar strong {
+  position: relative;
+  z-index: 2;
+
+  color: var(--primary);
+  font-family:
+    "JetBrains Mono",
+    monospace;
+
+  font-size: 16px;
+  letter-spacing: -0.04em;
+
+  text-shadow:
+    0 0 22px
+      color-mix(
+        in srgb,
+        var(--primary) 58%,
+        transparent
+      );
+}
+
+@keyframes moduleRadarSweep {
+  from {
+    transform:
+      rotate(0deg);
+  }
+
+  to {
+    transform:
+      rotate(360deg);
+  }
+}
+
+.moduleWorkspaceHeaderStatus {
+  display: grid;
+  gap: 5px;
+  min-width: 0;
+}
+
+.moduleWorkspaceHeaderStatus span {
+  width: fit-content;
+  padding: 5px 8px;
+
+  border: 1px solid
+    color-mix(
+      in srgb,
+      var(--primary) 25%,
+      transparent
+    );
+
+  border-radius: 999px;
+
+  color: var(--primary);
+  background: var(--primary-soft);
+
+  font-size: 7px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.moduleWorkspaceHeaderStatus strong {
+  color: var(--text);
+  font-size: 14px;
+  letter-spacing: -0.025em;
+}
+
+.moduleWorkspaceHeaderStatus small {
+  color: var(--text-muted);
+  font-size: 8px;
+  line-height: 1.5;
+}
+
+.moduleWorkspaceCommandStrip {
+  display: grid;
+  grid-template-columns:
+    minmax(0, 1fr) auto;
+  gap: 14px;
+  align-items: stretch;
+
+  padding: 11px 13px;
+
+  border-top:
+    1px solid var(--border);
+
+  background:
+    color-mix(
+      in srgb,
+      black 13%,
+      transparent
+    );
+}
+
+.moduleWorkspaceWorkflow {
+  display: grid;
+  grid-template-columns:
+    repeat(4, minmax(0, 1fr));
+  gap: 7px;
+}
+
+.moduleWorkspaceWorkflow > div {
+  display: grid;
+  grid-template-columns:
+    25px minmax(0, 1fr);
+  gap: 8px;
+  align-items: center;
+
+  min-width: 0;
+  padding: 7px 9px;
+
+  border: 1px solid
+    rgb(255 255 255 / 4%);
+
+  border-radius: 8px;
+
+  background:
+    rgb(255 255 255 / 1.8%);
+}
+
+.moduleWorkspaceWorkflow span {
+  display: grid;
+  width: 25px;
+  height: 25px;
+  place-items: center;
+
+  border: 1px solid
+    color-mix(
+      in srgb,
+      var(--primary) 25%,
+      transparent
+    );
+
+  border-radius: 7px;
+
+  color: var(--primary);
+  background:
+    color-mix(
+      in srgb,
+      var(--primary) 7%,
+      transparent
+    );
+
+  font-family:
+    "JetBrains Mono",
+    monospace;
+
+  font-size: 7px;
+  font-weight: 800;
+}
+
+.moduleWorkspaceWorkflow strong {
+  min-width: 0;
+  overflow: hidden;
+
+  color: var(--text-secondary);
+  font-size: 7px;
+  font-weight: 650;
+
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.moduleWorkspaceCommandStrip > button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+
+  min-width: 132px;
+  padding: 0 13px;
+
+  border: 1px solid
+    color-mix(
+      in srgb,
+      var(--primary) 42%,
+      transparent
+    );
+
+  border-radius: 9px;
+
+  color: white;
+
+  background:
+    linear-gradient(
+      180deg,
+      color-mix(
+        in srgb,
+        var(--primary) 84%,
+        white 9%
+      ),
+      var(--primary)
+    );
+
+  box-shadow:
+    0 8px 24px
+      color-mix(
+        in srgb,
+        var(--primary) 18%,
+        transparent
+      );
+
+  font-size: 8px;
+  font-weight: 750;
+  cursor: pointer;
+
+  transition:
+    filter 140ms ease,
+    transform 140ms ease;
+}
+
+.moduleWorkspaceCommandStrip
+> button:hover {
+  filter: brightness(1.06);
+  transform:
+    translateY(-1px);
+}
+
+.moduleWorkspaceCommandStrip
+> button span {
+  font-size: 11px;
+}
+
+/* Page context */
+
+.moduleWorkspaceBody {
+  display: grid;
+  grid-template-columns:
+    minmax(0, 1fr);
+  gap: 10px;
+  min-width: 0;
+}
+
+.moduleWorkspaceContext {
+  display: grid;
+  grid-template-columns:
+    minmax(220px, 0.8fr)
+    minmax(320px, 1.25fr)
+    minmax(0, 1.2fr);
+  gap: 16px;
+  align-items: center;
+
+  padding: 13px 15px;
+
+  border: 1px solid var(--border);
+  border-radius: 12px;
+
+  background:
+    linear-gradient(
+      90deg,
+      color-mix(
+        in srgb,
+        var(--primary) 6%,
+        transparent
+      ),
+      transparent 46%
+    ),
+    rgb(255 255 255 / 2%);
+
+  box-shadow:
+    inset 0 1px 0
+      rgb(255 255 255 / 2%);
+}
+
+.moduleWorkspaceContext
+> span {
+  color: var(--primary);
+  font-size: 7px;
+  font-weight: 850;
+  letter-spacing: 0.14em;
+}
+
+.moduleWorkspaceContext
+> strong {
+  color: var(--text);
+  font-size: 11px;
+  letter-spacing: -0.018em;
+  line-height: 1.45;
+}
+
+.moduleWorkspaceContext
+> p {
+  margin: 0;
+
+  color: var(--text-muted);
+  font-size: 8px;
+  line-height: 1.55;
+}
+
+.moduleWorkspaceContext
+> div {
+  display: none;
+  grid-template-columns:
+    repeat(3, minmax(0, 1fr));
+  gap: 7px;
+}
+
+.moduleWorkspaceContext
+> div span {
+  display: grid;
+  gap: 4px;
+  padding: 8px;
+
+  border: 1px solid var(--border);
+  border-radius: 8px;
+
+  color: var(--text-muted);
+  background:
+    rgb(0 0 0 / 11%);
+
+  font-size: 6px;
+  text-transform: uppercase;
+}
+
+.moduleWorkspaceContext
+> div strong {
+  color: var(--text-secondary);
+  font-size: 8px;
+  text-transform: none;
+}
+
+/* Common module tool shell */
+
+.moduleWorkspace
+.activeToolContent {
+  min-width: 0;
+}
+
+.moduleWorkspace
+.activeToolContent
+.toolPanel {
+  position: relative;
+
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+
+  border: 1px solid
+    color-mix(
+      in srgb,
+      var(--primary) 18%,
+      var(--border)
+    );
+
+  border-radius: 17px;
+
+  background:
+    linear-gradient(
+      180deg,
+      rgb(255 255 255 / 2.8%),
+      transparent 180px
+    ),
+    var(--module-panel);
+
+  box-shadow:
+    0 20px 54px
+      rgb(0 0 0 / 20%);
+
+  overflow: hidden;
+}
+
+.moduleWorkspace
+.toolPanelHeader {
+  position: relative;
+
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+
+  padding: 18px 20px;
+
+  border-bottom:
+    1px solid var(--border);
+
+  background:
+    linear-gradient(
+      90deg,
+      color-mix(
+        in srgb,
+        var(--primary) 7%,
+        transparent
+      ),
+      transparent 42%
+    );
+}
+
+.moduleWorkspace
+.toolPanelHeader::before {
+  position: absolute;
+  top: 0;
+  left: 20px;
+  right: 20px;
+
+  height: 1px;
+
+  background:
+    linear-gradient(
+      90deg,
+      transparent,
+      var(--primary),
+      transparent
+    );
+
+  opacity: 0.48;
+  content: "";
+}
+
+.moduleWorkspace
+.toolPanelHeader h2 {
+  margin: 5px 0 6px;
+
+  color: var(--text);
+  font-size: 18px;
+  letter-spacing: -0.035em;
+}
+
+.moduleWorkspace
+.toolPanelHeader p {
+  max-width: 760px;
+  margin: 0;
+
+  color: var(--text-secondary);
+  font-size: 9px;
+  line-height: 1.55;
+}
+
+.moduleWorkspace
+.toolCategory {
+  color: var(--primary);
+  font-size: 7px;
+  font-weight: 850;
+  letter-spacing: 0.13em;
+}
+
+.moduleWorkspace
+.nativeToolBadge {
+  flex: 0 0 auto;
+  padding: 6px 9px;
+
+  border: 1px solid
+    color-mix(
+      in srgb,
+      var(--primary) 25%,
+      transparent
+    );
+
+  border-radius: 999px;
+
+  color: var(--primary);
+  background: var(--primary-soft);
+
+  font-size: 7px;
+  font-weight: 750;
+}
+
+.moduleWorkspace
+.toolMessage {
+  margin: 12px 18px 0;
+  border-radius: 9px;
+}
+
+/* Shared tab bars */
+
+.moduleWorkspace
+:is(
+  .forensicsTabs,
+  .auditTabs,
+  .networkToolkitTabs,
+  .developerToolsTabs
+) {
+  position: relative;
+
+  display: flex;
+  gap: 5px;
+  align-items: center;
+
+  margin: 0;
+  padding: 8px 12px;
+
+  border-top:
+    1px solid
+      rgb(255 255 255 / 2%);
+  border-bottom:
+    1px solid var(--border);
+
+  border-radius: 0;
+
+  background:
+    rgb(0 0 0 / 13%);
+
+  overflow-x: auto;
+}
+
+.moduleWorkspace
+:is(
+  .forensicsTabs,
+  .auditTabs,
+  .networkToolkitTabs,
+  .developerToolsTabs
+)
+button {
+  min-width: max-content;
+  padding: 8px 11px;
+
+  border: 1px solid transparent;
+  border-radius: 8px;
+
+  color: var(--text-muted);
+  background: transparent;
+
+  font-size: 8px;
+  font-weight: 650;
+  cursor: pointer;
+
+  transition:
+    border-color 130ms ease,
+    color 130ms ease,
+    background 130ms ease;
+}
+
+.moduleWorkspace
+:is(
+  .forensicsTabs,
+  .auditTabs,
+  .networkToolkitTabs,
+  .developerToolsTabs
+)
+button:hover {
+  color: var(--text-secondary);
+  background:
+    rgb(255 255 255 / 3%);
+}
+
+.moduleWorkspace
+:is(
+  .forensicsTabs,
+  .auditTabs,
+  .networkToolkitTabs,
+  .developerToolsTabs
+)
+button.active {
+  border-color:
+    color-mix(
+      in srgb,
+      var(--primary) 32%,
+      transparent
+    );
+
+  color:
+    color-mix(
+      in srgb,
+      var(--primary) 68%,
+      white
+    );
+
+  background:
+    linear-gradient(
+      180deg,
+      var(--primary-soft),
+      color-mix(
+        in srgb,
+        var(--primary) 4%,
+        transparent
+      )
+    );
+
+  box-shadow:
+    inset 0 1px 0
+      rgb(255 255 255 / 5%);
+}
+
+/* Tool command bars */
+
+.moduleWorkspace
+:is(
+  .forensicsToolbar,
+  .auditToolbar,
+  .networkToolkitActionBar,
+  .developerActions
+) {
+  padding: 13px 18px;
+
+  border-bottom:
+    1px solid var(--border);
+
+  background:
+    color-mix(
+      in srgb,
+      black 8%,
+      transparent
+    );
+}
+
+/* IOC */
+
+.moduleWorkspaceIoc
+.iocNotice {
+  margin: 14px 18px 0;
+  padding: 11px 13px;
+
+  border:
+    1px solid
+      color-mix(
+        in srgb,
+        var(--primary) 24%,
+        var(--border)
+      );
+
+  border-radius: 10px;
+
+  color: var(--text-secondary);
+  background:
+    linear-gradient(
+      90deg,
+      color-mix(
+        in srgb,
+        var(--primary) 9%,
+        transparent
+      ),
+      transparent
+    );
+
+  font-size: 8px;
+  line-height: 1.55;
+}
+
+.moduleWorkspaceIoc
+.iocLayout {
+  display: grid;
+  grid-template-columns:
+    minmax(0, 1.35fr)
+    minmax(290px, 0.65fr);
+  gap: 12px;
+  padding: 12px 18px 18px;
+}
+
+.moduleWorkspaceIoc
+:is(
+  .iocInputPanel,
+  .iocKeyPanel
+) {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+
+  background:
+    rgb(0 0 0 / 12%);
+
+  box-shadow:
+    inset 0 1px 0
+      rgb(255 255 255 / 2%);
+}
+
+.moduleWorkspaceIoc
+:is(
+  .iocInputPanel,
+  .iocKeyPanel
+)
+> header {
+  padding: 12px 13px;
+  border-bottom:
+    1px solid var(--border);
+}
+
+.moduleWorkspaceIoc
+.iocInputPanel textarea {
+  min-height: 180px;
+  border-radius: 9px;
+
+  font-family:
+    "JetBrains Mono",
+    monospace;
+
+  line-height: 1.6;
+}
+
+.moduleWorkspaceIoc
+.iocProviderGrid {
+  display: grid;
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+  gap: 7px;
+}
+
+.moduleWorkspaceIoc
+.iocProviderGrid label {
+  min-width: 0;
+  padding: 9px;
+
+  border: 1px solid var(--border);
+  border-radius: 9px;
+
+  background:
+    rgb(255 255 255 / 2%);
+}
+
+.moduleWorkspaceIoc
+.iocResults {
+  display: grid;
+  gap: 12px;
+  padding: 0 18px 18px;
+}
+
+.moduleWorkspaceIoc
+.iocStats {
+  display: grid;
+  grid-template-columns:
+    repeat(
+      4,
+      minmax(0, 1fr)
+    );
+  gap: 8px;
+}
+
+.moduleWorkspaceIoc
+.iocStats article {
+  min-height: 86px;
+  padding: 13px;
+
+  border: 1px solid var(--border);
+  border-radius: 11px;
+
+  background:
+    linear-gradient(
+      145deg,
+      color-mix(
+        in srgb,
+        var(--primary) 5%,
+        transparent
+      ),
+      transparent
+    ),
+    rgb(0 0 0 / 13%);
+}
+
+.moduleWorkspaceIoc
+.iocResultList {
+  display: grid;
+  gap: 9px;
+}
+
+.moduleWorkspaceIoc
+.iocResultList
+> article {
+  border: 1px solid var(--border);
+  border-left:
+    3px solid var(--primary);
+  border-radius: 10px;
+
+  background:
+    rgb(0 0 0 / 11%);
+}
+
+/* Forensics */
+
+.moduleWorkspaceForensics
+.forensicsToolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.moduleWorkspaceForensics
+.forensicsEmpty {
+  margin: 16px 18px 18px;
+  min-height: 260px;
+
+  border: 1px dashed
+    color-mix(
+      in srgb,
+      var(--primary) 25%,
+      var(--border)
+    );
+
+  border-radius: 13px;
+
+  background:
+    radial-gradient(
+      circle at 50% 20%,
+      color-mix(
+        in srgb,
+        var(--primary) 8%,
+        transparent
+      ),
+      transparent 42%
+    ),
+    rgb(0 0 0 / 10%);
+}
+
+.moduleWorkspaceForensics
+.forensicsResults {
+  gap: 12px;
+  padding: 14px 18px 18px;
+}
+
+.moduleWorkspaceForensics
+.forensicsHero {
+  border: 1px solid var(--border);
+  border-radius: 13px;
+
+  background:
+    linear-gradient(
+      110deg,
+      color-mix(
+        in srgb,
+        var(--primary) 8%,
+        transparent
+      ),
+      transparent 48%
+    ),
+    rgb(0 0 0 / 12%);
+}
+
+.moduleWorkspaceForensics
+.forensicsStats {
+  display: grid;
+  grid-template-columns:
+    repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.moduleWorkspaceForensics
+.forensicsStats article {
+  padding: 13px;
+
+  border: 1px solid var(--border);
+  border-radius: 10px;
+
+  background:
+    rgb(255 255 255 / 2.3%);
+}
+
+.moduleWorkspaceForensics
+.forensicsGrid {
+  gap: 10px;
+}
+
+.moduleWorkspaceForensics
+:is(
+  .forensicsCard,
+  .forensicsStringsPanel,
+  .forensicsArchivePanel
+) {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+
+  background:
+    rgb(0 0 0 / 11%);
+
+  overflow: hidden;
+}
+
+.moduleWorkspaceForensics
+:is(
+  .forensicsCard,
+  .forensicsStringsPanel,
+  .forensicsArchivePanel
+)
+> header {
+  padding: 11px 12px;
+
+  border-bottom:
+    1px solid var(--border);
+
+  background:
+    rgb(255 255 255 / 2%);
+}
+
+/* Network */
+
+.moduleWorkspaceNetwork
+.networkToolkitTabs {
+  display: grid;
+  grid-template-columns:
+    repeat(6, minmax(0, 1fr));
+}
+
+.moduleWorkspaceNetwork
+.networkToolkitTabs button {
+  min-width: 0;
+}
+
+.moduleWorkspaceNetwork
+.networkToolkitWorkspace {
+  display: grid;
+  grid-template-columns:
+    minmax(270px, 0.76fr)
+    minmax(0, 1.24fr);
+  gap: 12px;
+
+  padding: 14px 18px 18px;
+}
+
+.moduleWorkspaceNetwork
+:is(
+  .networkToolkitForm,
+  .networkToolkitResult,
+  .networkToolkitSingle
+) {
+  min-width: 0;
+
+  border: 1px solid var(--border);
+  border-radius: 12px;
+
+  background:
+    rgb(0 0 0 / 11%);
+
+  overflow: hidden;
+}
+
+.moduleWorkspaceNetwork
+:is(
+  .networkToolkitForm,
+  .networkToolkitResult
+)
+> header {
+  padding: 11px 12px;
+
+  border-bottom:
+    1px solid var(--border);
+
+  background:
+    linear-gradient(
+      90deg,
+      color-mix(
+        in srgb,
+        var(--primary) 6%,
+        transparent
+      ),
+      transparent
+    );
+}
+
+.moduleWorkspaceNetwork
+.networkToolkitForm {
+  padding-bottom: 12px;
+}
+
+.moduleWorkspaceNetwork
+.networkToolkitJson {
+  min-height: 260px;
+  margin: 0;
+  padding: 13px;
+
+  border: 0;
+  border-radius: 0;
+
+  background:
+    color-mix(
+      in srgb,
+      black 21%,
+      transparent
+    );
+
+  font-family:
+    "JetBrains Mono",
+    monospace;
+
+  font-size: 8px;
+  line-height: 1.6;
+}
+
+.moduleWorkspaceNetwork
+:is(
+  .networkHopList,
+  .networkDnsList,
+  .networkInterfaceGrid,
+  .networkRouteTable
+) {
+  border-color: var(--border);
+}
+
+/* Developer */
+
+.moduleWorkspaceDeveloper
+.developerToolsTabs {
+  display: grid;
+  grid-template-columns:
+    repeat(7, minmax(0, 1fr));
+}
+
+.moduleWorkspaceDeveloper
+.developerToolsTabs button {
+  min-width: 0;
+}
+
+.moduleWorkspaceDeveloper
+:is(
+  .developerWorkspace,
+  .developerDiffWorkspace
+) {
+  display: grid;
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  padding: 14px 18px 18px;
+}
+
+.moduleWorkspaceDeveloper
+.developerPanel {
+  min-width: 0;
+
+  border: 1px solid var(--border);
+  border-radius: 12px;
+
+  background:
+    rgb(0 0 0 / 11%);
+
+  overflow: hidden;
+}
+
+.moduleWorkspaceDeveloper
+.developerPanel
+> header {
+  padding: 10px 12px;
+
+  border-bottom:
+    1px solid var(--border);
+
+  background:
+    linear-gradient(
+      90deg,
+      color-mix(
+        in srgb,
+        var(--primary) 6%,
+        transparent
+      ),
+      transparent
+    );
+}
+
+.moduleWorkspaceDeveloper
+.developerPanel
+:is(
+  textarea,
+  pre
+) {
+  min-height: 250px;
+
+  border-radius: 8px;
+
+  font-family:
+    "JetBrains Mono",
+    monospace;
+
+  font-size: 8px;
+  line-height: 1.65;
+}
+
+.moduleWorkspaceDeveloper
+.developerPanel pre {
+  border-color: var(--border);
+  background:
+    color-mix(
+      in srgb,
+      black 22%,
+      transparent
+    );
+}
+
+.moduleWorkspaceDeveloper
+.developerNotice {
+  margin: 0 18px 14px;
+  border-radius: 9px;
+}
+
+/* Audit */
+
+.moduleWorkspaceAudit
+.auditToolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.moduleWorkspaceAudit
+.auditEmpty {
+  margin: 16px 18px 18px;
+  min-height: 260px;
+
+  border: 1px dashed
+    color-mix(
+      in srgb,
+      var(--primary) 25%,
+      var(--border)
+    );
+
+  border-radius: 13px;
+
+  background:
+    radial-gradient(
+      circle at 50% 20%,
+      color-mix(
+        in srgb,
+        var(--primary) 8%,
+        transparent
+      ),
+      transparent 42%
+    ),
+    rgb(0 0 0 / 10%);
+}
+
+.moduleWorkspaceAudit
+.auditResults {
+  gap: 12px;
+  padding: 14px 18px 18px;
+}
+
+.moduleWorkspaceAudit
+.auditHero {
+  border: 1px solid var(--border);
+  border-radius: 13px;
+
+  background:
+    linear-gradient(
+      110deg,
+      color-mix(
+        in srgb,
+        var(--primary) 8%,
+        transparent
+      ),
+      transparent 48%
+    ),
+    rgb(0 0 0 / 12%);
+}
+
+.moduleWorkspaceAudit
+.auditStats {
+  display: grid;
+  grid-template-columns:
+    repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.moduleWorkspaceAudit
+.auditStats article {
+  padding: 13px;
+
+  border: 1px solid var(--border);
+  border-radius: 10px;
+
+  background:
+    rgb(255 255 255 / 2.3%);
+}
+
+.moduleWorkspaceAudit
+:is(
+  .auditCard,
+  .auditTablePanel,
+  .auditRiskPanel
+) {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+
+  background:
+    rgb(0 0 0 / 11%);
+
+  overflow: hidden;
+}
+
+.moduleWorkspaceAudit
+:is(
+  .auditCard,
+  .auditTablePanel,
+  .auditRiskPanel
+)
+> header {
+  padding: 11px 12px;
+
+  border-bottom:
+    1px solid var(--border);
+
+  background:
+    rgb(255 255 255 / 2%);
+}
+
+.moduleWorkspaceAudit
+.auditTable {
+  font-family:
+    "JetBrains Mono",
+    monospace;
+}
+
+.moduleWorkspaceAudit
+.auditRiskPanel article {
+  border-radius: 9px;
+}
+
+/* Compact mode */
+
+html.compact-ui
+.moduleWorkspaceHeaderMain {
+  padding: 18px;
+}
+
+html.compact-ui
+.moduleWorkspaceIdentity h1 {
+  font-size:
+    clamp(
+      25px,
+      3vw,
+      38px
+    );
+}
+
+html.compact-ui
+.moduleWorkspace
+.toolPanelHeader {
+  padding: 14px 16px;
+}
+
+html.compact-ui
+.moduleWorkspaceContext {
+  padding: 10px 12px;
+}
+
+/* Responsive */
+
+@media (min-width: 1450px) {
+  .moduleWorkspaceContext {
+    grid-template-columns:
+      minmax(180px, 0.5fr)
+      minmax(270px, 0.8fr)
+      minmax(300px, 1fr)
+      minmax(360px, 1.2fr);
+  }
+
+  .moduleWorkspaceContext
+  > div {
+    display: grid;
+  }
+}
+
+@media (max-width: 1180px) {
+  .moduleWorkspaceHeaderMain {
+    grid-template-columns:
+      minmax(0, 1fr)
+      230px;
+  }
+
+  .moduleWorkspaceHeaderVisual {
+    grid-template-columns:
+      92px minmax(0, 1fr);
+  }
+
+  .moduleWorkspaceRadar {
+    width: 92px;
+    height: 92px;
+  }
+
+  .moduleWorkspaceWorkflow {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+
+  .moduleWorkspaceIoc
+  .iocLayout,
+  .moduleWorkspaceNetwork
+  .networkToolkitWorkspace {
+    grid-template-columns: 1fr;
+  }
+
+  .moduleWorkspaceDeveloper
+  :is(
+    .developerWorkspace,
+    .developerDiffWorkspace
+  ) {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 850px) {
+  .moduleWorkspaceHeaderMain {
+    grid-template-columns: 1fr;
+  }
+
+  .moduleWorkspaceHeaderVisual {
+    justify-self: start;
+  }
+
+  .moduleWorkspaceCommandStrip {
+    grid-template-columns: 1fr;
+  }
+
+  .moduleWorkspaceCommandStrip
+  > button {
+    min-height: 38px;
+  }
+
+  .moduleWorkspaceContext {
+    grid-template-columns: 1fr;
+  }
+
+  .moduleWorkspaceNetwork
+  .networkToolkitTabs,
+  .moduleWorkspaceDeveloper
+  .developerToolsTabs {
+    display: flex;
+  }
+
+  .moduleWorkspaceIoc
+  .iocStats,
+  .moduleWorkspaceForensics
+  .forensicsStats,
+  .moduleWorkspaceAudit
+  .auditStats {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 620px) {
+  .moduleWorkspaceHeaderMain {
+    padding: 18px;
+  }
+
+  .moduleWorkspaceHeaderVisual {
+    grid-template-columns:
+      78px minmax(0, 1fr);
+  }
+
+  .moduleWorkspaceRadar {
+    width: 78px;
+    height: 78px;
+  }
+
+  .moduleWorkspaceWorkflow {
+    grid-template-columns: 1fr;
+  }
+
+  .moduleWorkspaceIoc
+  .iocProviderGrid,
+  .moduleWorkspaceIoc
+  .iocStats,
+  .moduleWorkspaceForensics
+  .forensicsStats,
+  .moduleWorkspaceAudit
+  .auditStats {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .moduleWorkspaceRadar
+  > span {
+    animation: none !important;
+  }
+}
+

@@ -49,9 +49,93 @@ from modules.cryptography_tools import (
     verify_hmac,
 )
 
+
+from modules.web_recon import (
+    inspect_web_target,
+)
+
+
+from modules.email_security import (
+    inspect_email_security,
+)
+
+
+from modules.network_toolkit import (
+    calculate_subnet,
+    check_port,
+    dns_explore,
+    list_interfaces,
+    list_routes,
+    trace_route,
+)
+
+
+from modules.developer_tools import (
+    diff_text,
+    json_format,
+    regex_test,
+    timestamp_convert,
+    toml_convert,
+    uuid_generate,
+    yaml_convert,
+)
+
+
+from modules.ioc_intelligence import (
+    query_ioc_intelligence,
+)
+
 Handler = Callable[[dict[str, Any]], Any]
 
 ACTIONS: dict[str, Handler] = {
+    "ioc_intelligence.query":
+        query_ioc_intelligence,
+
+    "developer_tools.json":
+        json_format,
+
+    "developer_tools.yaml":
+        yaml_convert,
+
+    "developer_tools.toml":
+        toml_convert,
+
+    "developer_tools.regex":
+        regex_test,
+
+    "developer_tools.uuid":
+        uuid_generate,
+
+    "developer_tools.timestamp":
+        timestamp_convert,
+
+    "developer_tools.diff":
+        diff_text,
+
+    "network_toolkit.port_check":
+        check_port,
+
+    "network_toolkit.traceroute":
+        trace_route,
+
+    "network_toolkit.subnet":
+        calculate_subnet,
+
+    "network_toolkit.dns":
+        dns_explore,
+
+    "network_toolkit.interfaces":
+        list_interfaces,
+
+    "network_toolkit.routes":
+        list_routes,
+
+    "email_security.inspect":
+        inspect_email_security,
+
+    "web_recon.inspect":
+        inspect_web_target,
+
     "cryptography.hmac_create":
         create_hmac,
 

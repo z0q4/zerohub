@@ -3,6 +3,10 @@ import {
 } from 'react';
 
 import {
+  ModuleWorkspaceHeader,
+} from '../../../components/layout/ModuleWorkspaceHeader';
+
+import {
   VirusTotalFileTool,
 } from '../components/VirusTotalFileTool';
 
@@ -26,84 +30,116 @@ export function ThreatIntelligencePage() {
   function renderTool() {
     switch (activeTool) {
       case 'virustotal-file':
-        return (
-          <VirusTotalFileTool />
-        );
+        return <VirusTotalFileTool />;
     }
   }
 
   return (
-    <>
-      <header className="pageHeader">
-        <div>
-          <span className="eyebrow">
-            ZEROHUB MODULE
-          </span>
+    <div
+      className="moduleWorkspace moduleWorkspaceThreat"
+      data-module="threat-intelligence"
+    >
+      <ModuleWorkspaceHeader
+        abbreviation="THR"
+        badge="VirusTotal"
+        section="Intelligence"
+        title="Threat Intelligence"
+        description="Consulte reputação, detecções e relatórios externos para arquivos, hashes e URLs."
+        privacy="External lookups; uploads explicit"
+        capabilities={[
+          'Hash lookup',
+          'File reports',
+          'URL reports',
+          'Engine detections',
+          'Explicit upload',
+        ]}
+        workflow={[
+          'Choose mode',
+          'Provide indicator',
+          'Query report',
+          'Review detections',
+        ]}
+      />
 
-          <h1>
-            Threat Intelligence
-          </h1>
+      <section className="moduleWorkspaceBody">
+        <div className="moduleWorkspaceContext">
+          <span>EXTERNAL REPUTATION</span>
+
+          <strong>
+            Correlate an artifact with
+            multi-engine intelligence.
+          </strong>
 
           <p>
-            Reputação, detecções e
-            inteligência externa sobre
-            arquivos.
+            Consultas por hash e URL são
+            separadas de uploads. Arquivos
+            só devem ser enviados após uma
+            decisão explícita.
           </p>
+
+          <div>
+            <span>
+              Provider
+              <strong>VirusTotal</strong>
+            </span>
+
+            <span>
+              Upload
+              <strong>Explicit</strong>
+            </span>
+
+            <span>
+              Key
+              <strong>Encrypted</strong>
+            </span>
+          </div>
         </div>
 
-        <span className="operationalBadge">
-          {
-            THREAT_INTELLIGENCE_TOOL_REGISTRY
-              .length
-          }
-          {' '}ferramenta
-        </span>
-      </header>
+        <div className="threatWorkspace moduleSelectorWorkspace">
+          <aside className="toolSelector">
+            <span className="toolSelectorLabel">
+              PROVIDERS
+            </span>
 
-      <div className="threatWorkspace">
-        <aside className="toolSelector">
-          <span className="toolSelectorLabel">
-            FERRAMENTAS
-          </span>
+            {THREAT_INTELLIGENCE_TOOL_REGISTRY.map(
+              (tool) => (
+                <button
+                  className={`toolSelectorButton ${
+                    activeTool === tool.id
+                      ? 'active'
+                      : ''
+                  }`}
+                  key={tool.id}
+                  type="button"
+                  onClick={() => {
+                    setActiveTool(
+                      tool.id,
+                    );
+                  }}
+                >
+                  <span className="toolSelectorIcon">
+                    {tool.abbreviation}
+                  </span>
 
-          {THREAT_INTELLIGENCE_TOOL_REGISTRY.map(
-            (tool) => (
-              <button
-                className={`toolSelectorButton ${
-                  activeTool === tool.id
-                    ? 'active'
-                    : ''
-                }`}
-                key={tool.id}
-                type="button"
-                onClick={() =>
-                  setActiveTool(
-                    tool.id,
-                  )
-                }
-              >
-                <span className="toolSelectorIcon">
-                  {tool.abbreviation}
-                </span>
+                  <span>
+                    <strong>
+                      {tool.name}
+                    </strong>
 
-                <span>
-                  <strong>
-                    {tool.name}
-                  </strong>
+                    <small>
+                      {tool.description}
+                    </small>
+                  </span>
+                </button>
+              ),
+            )}
+          </aside>
 
-                  <small>
-                    {tool.description}
-                  </small>
-                </span>
-              </button>
-            ),
-          )}
-        </aside>
-
-        <div className="activeToolContent">
-          {renderTool()}
+          <div className="activeToolContent">
+            {renderTool()}
+          </div>
         </div>
-      </div>
-    </>
+      </section>
+    </div>
   );
 }

@@ -1,0 +1,1474 @@
+/* ==========================================================================
+   ZEROHUB INTERFACE V7
+   Full-platform module rework and advanced internal workbenches.
+   ========================================================================== */
+
+/* Universal module selector rail */
+
+.moduleWorkspace
+.moduleSelectorWorkspace {
+  display: grid;
+  grid-template-columns:
+    224px minmax(0, 1fr);
+  gap: 12px;
+  align-items: start;
+  min-width: 0;
+}
+
+.moduleWorkspace
+.toolSelector {
+  position: sticky;
+  top: 0;
+
+  display: grid;
+  align-content: start;
+  gap: 6px;
+
+  min-width: 0;
+  padding: 10px;
+
+  border: 1px solid var(--border);
+  border-radius: 13px;
+
+  background:
+    linear-gradient(
+      145deg,
+      color-mix(
+        in srgb,
+        var(--primary) 7%,
+        transparent
+      ),
+      transparent 44%
+    ),
+    color-mix(
+      in srgb,
+      var(--surface) 97%,
+      black
+    );
+
+  box-shadow:
+    0 14px 36px
+      rgb(0 0 0 / 15%);
+
+  overflow: hidden;
+}
+
+.moduleWorkspace
+.toolSelector::before {
+  height: 1px;
+  margin:
+    -10px -10px 4px;
+
+  background:
+    linear-gradient(
+      90deg,
+      transparent,
+      var(--primary),
+      transparent
+    );
+
+  opacity: 0.45;
+  content: "";
+}
+
+.moduleWorkspace
+.toolSelectorLabel {
+  padding:
+    4px 7px 8px;
+
+  color: var(--primary);
+  font-size: 7px;
+  font-weight: 850;
+  letter-spacing: 0.14em;
+}
+
+.moduleWorkspace
+.toolSelectorButton {
+  position: relative;
+
+  display: grid;
+  grid-template-columns:
+    35px minmax(0, 1fr);
+  gap: 9px;
+  align-items: center;
+
+  width: 100%;
+  min-width: 0;
+  padding: 9px;
+
+  border: 1px solid transparent;
+  border-radius: 9px;
+
+  color: var(--text-secondary);
+  background: transparent;
+
+  text-align: left;
+  cursor: pointer;
+
+  transition:
+    border-color 140ms ease,
+    color 140ms ease,
+    background 140ms ease,
+    transform 140ms ease;
+}
+
+.moduleWorkspace
+.toolSelectorButton:hover {
+  border-color:
+    rgb(255 255 255 / 5%);
+
+  color: var(--text);
+  background:
+    rgb(255 255 255 / 3%);
+
+  transform:
+    translateX(2px);
+}
+
+.moduleWorkspace
+.toolSelectorButton.active {
+  border-color:
+    color-mix(
+      in srgb,
+      var(--primary) 32%,
+      transparent
+    );
+
+  color: var(--text);
+  background:
+    linear-gradient(
+      90deg,
+      var(--primary-soft),
+      color-mix(
+        in srgb,
+        var(--primary) 3%,
+        transparent
+      )
+    );
+
+  box-shadow:
+    inset 3px 0 0
+      var(--primary);
+}
+
+.moduleWorkspace
+.toolSelectorButton.active::after {
+  position: absolute;
+  top: 50%;
+  right: 8px;
+
+  width: 5px;
+  height: 5px;
+
+  border-radius: 50%;
+  background: var(--primary);
+
+  box-shadow:
+    0 0 10px
+      color-mix(
+        in srgb,
+        var(--primary) 60%,
+        transparent
+      );
+
+  transform:
+    translateY(-50%);
+  content: "";
+}
+
+.moduleWorkspace
+.toolSelectorIcon {
+  display: grid;
+  width: 35px;
+  height: 35px;
+  place-items: center;
+
+  border: 1px solid
+    color-mix(
+      in srgb,
+      var(--primary) 22%,
+      transparent
+    );
+
+  border-radius: 9px;
+
+  color: var(--primary);
+  background:
+    color-mix(
+      in srgb,
+      var(--primary) 7%,
+      transparent
+    );
+
+  font-family:
+    "JetBrains Mono",
+    monospace;
+
+  font-size: 7px;
+  font-weight: 850;
+}
+
+.moduleWorkspace
+.toolSelectorButton
+> span:last-child {
+  min-width: 0;
+}
+
+.moduleWorkspace
+.toolSelectorButton strong,
+.moduleWorkspace
+.toolSelectorButton small {
+  display: block;
+}
+
+.moduleWorkspace
+.toolSelectorButton strong {
+  overflow: hidden;
+
+  font-size: 9px;
+  font-weight: 680;
+
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.moduleWorkspace
+.toolSelectorButton small {
+  display: -webkit-box;
+  margin-top: 3px;
+  overflow: hidden;
+
+  color: var(--text-muted);
+  font-size: 7px;
+  line-height: 1.35;
+
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+/* Universal editor and form panels */
+
+.moduleWorkspace
+:is(
+  .editorPanel,
+  .cryptoCard,
+  .emailSecurityCard,
+  .logCard,
+  .dnsResultPanel,
+  .pingResultPanel,
+  .rdapCard,
+  .rdapRawPanel,
+  .secretSummary,
+  .secretFindingCard,
+  .vtCard,
+  .vtConfiguration,
+  .vtEnginesCard,
+  .hashCard,
+  .webReconCard,
+  .webReconListPanel,
+  .fileAnalysisCard,
+  .fileAnalysisHero
+) {
+  border-color: var(--border);
+  border-radius: 12px;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgb(255 255 255 / 2.5%),
+      transparent 42%
+    ),
+    rgb(0 0 0 / 11%);
+
+  box-shadow:
+    inset 0 1px 0
+      rgb(255 255 255 / 2%);
+}
+
+.moduleWorkspace
+:is(
+  .editorHeader,
+  .hashCardHeader,
+  .dnsResultHeader,
+  .pingResultHeader,
+  .vtConfigurationHeader
+) {
+  border-bottom:
+    1px solid var(--border);
+
+  background:
+    linear-gradient(
+      90deg,
+      color-mix(
+        in srgb,
+        var(--primary) 6%,
+        transparent
+      ),
+      transparent
+    );
+}
+
+.moduleWorkspace
+:is(
+  textarea,
+  pre,
+  code
+) {
+  font-family:
+    "JetBrains Mono",
+    monospace;
+}
+
+.moduleWorkspace
+:is(
+  textarea,
+  input,
+  select
+) {
+  border-radius: 9px;
+}
+
+.moduleWorkspace
+:is(
+  .keyboardHint,
+  .rdapSource,
+  .fileKindBadge,
+  .secretExampleBadge,
+  .vtStorageStatus
+) {
+  border-color:
+    color-mix(
+      in srgb,
+      var(--primary) 22%,
+      var(--border)
+    );
+
+  color:
+    color-mix(
+      in srgb,
+      var(--primary) 57%,
+      var(--text-secondary)
+    );
+
+  background:
+    color-mix(
+      in srgb,
+      var(--primary) 6%,
+      transparent
+    );
+}
+
+/* Encoding */
+
+.moduleWorkspaceEncoding
+.editorGrid {
+  display: grid;
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.moduleWorkspaceEncoding
+.editorPanel {
+  min-width: 0;
+  overflow: hidden;
+}
+
+.moduleWorkspaceEncoding
+.editorPanel textarea {
+  min-height: 340px;
+
+  border: 0;
+  border-radius: 0;
+
+  background:
+    color-mix(
+      in srgb,
+      black 17%,
+      transparent
+    );
+}
+
+.moduleWorkspaceEncoding
+.modeSelector {
+  padding: 10px 16px;
+
+  border-bottom:
+    1px solid var(--border);
+
+  background:
+    rgb(0 0 0 / 9%);
+}
+
+.moduleWorkspaceEncoding
+.modeSelector button {
+  border-radius: 8px;
+}
+
+.moduleWorkspaceEncoding
+.toolActions,
+.moduleWorkspaceEncoding
+.toolFooter {
+  border-color: var(--border);
+}
+
+/* File analysis */
+
+.moduleWorkspaceFileAnalysis
+.fileAnalysisToolbar {
+  padding: 14px 17px;
+
+  border-bottom:
+    1px solid var(--border);
+
+  background:
+    rgb(0 0 0 / 9%);
+}
+
+.moduleWorkspaceFileAnalysis
+.fileAnalysisEmpty {
+  min-height: 310px;
+  margin: 14px 17px 17px;
+
+  border: 1px dashed
+    color-mix(
+      in srgb,
+      var(--primary) 26%,
+      var(--border)
+    );
+
+  border-radius: 13px;
+
+  background:
+    radial-gradient(
+      circle at 50% 17%,
+      color-mix(
+        in srgb,
+        var(--primary) 8%,
+        transparent
+      ),
+      transparent 43%
+    ),
+    rgb(0 0 0 / 9%);
+}
+
+.moduleWorkspaceFileAnalysis
+.fileAnalysisResults {
+  gap: 11px;
+  padding: 14px 17px 17px;
+}
+
+.moduleWorkspaceFileAnalysis
+.fileAnalysisSummary {
+  border-color: var(--border);
+}
+
+.moduleWorkspaceFileAnalysis
+.fileAnalysisGrid {
+  gap: 9px;
+}
+
+.moduleWorkspaceFileAnalysis
+.hashInformation {
+  border-color: var(--border);
+  background:
+    rgb(0 0 0 / 14%);
+}
+
+/* Basic network */
+
+.moduleWorkspaceNetworkCore
+:is(
+  .dnsQueryBar,
+  .pingQueryBar
+) {
+  display: grid;
+  gap: 10px;
+  padding: 14px 17px;
+
+  border-bottom:
+    1px solid var(--border);
+
+  background:
+    rgb(0 0 0 / 9%);
+}
+
+.moduleWorkspaceNetworkCore
+.dnsQueryBar {
+  grid-template-columns:
+    minmax(0, 1fr)
+    150px auto;
+}
+
+.moduleWorkspaceNetworkCore
+.pingQueryBar {
+  grid-template-columns:
+    minmax(0, 1fr)
+    170px auto;
+}
+
+.moduleWorkspaceNetworkCore
+:is(
+  .dnsResultPanel,
+  .pingResultPanel
+) {
+  margin: 14px 17px 17px;
+  overflow: hidden;
+}
+
+.moduleWorkspaceNetworkCore
+:is(
+  .dnsEmptyResult,
+  .pingOutput
+) {
+  min-height: 260px;
+}
+
+.moduleWorkspaceNetworkCore
+.dnsRecordList {
+  display: grid;
+  gap: 7px;
+  padding: 12px;
+}
+
+.moduleWorkspaceNetworkCore
+.dnsRecord {
+  border-color: var(--border);
+  border-radius: 9px;
+  background:
+    rgb(255 255 255 / 2%);
+}
+
+.moduleWorkspaceNetworkCore
+.pingOutput {
+  margin: 0;
+  padding: 13px;
+
+  border: 0;
+  border-radius: 0;
+
+  background:
+    color-mix(
+      in srgb,
+      black 20%,
+      transparent
+    );
+
+  line-height: 1.65;
+}
+
+/* OSINT */
+
+.moduleWorkspaceOsint
+.rdapQueryBar {
+  display: grid;
+  grid-template-columns:
+    minmax(0, 1fr) auto;
+  gap: 10px;
+  padding: 14px 17px;
+
+  border-bottom:
+    1px solid var(--border);
+
+  background:
+    rgb(0 0 0 / 9%);
+}
+
+.moduleWorkspaceOsint
+.rdapEmptyState {
+  min-height: 300px;
+  margin: 14px 17px 17px;
+
+  border: 1px dashed
+    color-mix(
+      in srgb,
+      var(--primary) 25%,
+      var(--border)
+    );
+
+  border-radius: 13px;
+
+  background:
+    radial-gradient(
+      circle at 50% 18%,
+      color-mix(
+        in srgb,
+        var(--primary) 8%,
+        transparent
+      ),
+      transparent 43%
+    ),
+    rgb(0 0 0 / 9%);
+}
+
+.moduleWorkspaceOsint
+.rdapResults {
+  gap: 11px;
+  padding: 14px 17px 17px;
+}
+
+.moduleWorkspaceOsint
+.rdapSummary {
+  border-color: var(--border);
+  border-radius: 12px;
+}
+
+.moduleWorkspaceOsint
+.rdapGrid {
+  gap: 9px;
+}
+
+.moduleWorkspaceOsint
+:is(
+  .rdapEntityList,
+  .rdapEventList,
+  .rdapList
+) {
+  border-color: var(--border);
+}
+
+.moduleWorkspaceOsint
+.rdapRawPanel pre {
+  max-height: 430px;
+
+  background:
+    color-mix(
+      in srgb,
+      black 20%,
+      transparent
+    );
+
+  line-height: 1.6;
+}
+
+/* Cryptography */
+
+.moduleWorkspaceCrypto
+.cryptoTabs {
+  display: grid;
+  grid-template-columns:
+    repeat(5, minmax(0, 1fr));
+  gap: 5px;
+  padding: 8px 12px;
+
+  border-bottom:
+    1px solid var(--border);
+
+  background:
+    rgb(0 0 0 / 12%);
+}
+
+.moduleWorkspaceCrypto
+.cryptoTabs button {
+  min-width: 0;
+  padding: 8px 9px;
+
+  border: 1px solid transparent;
+  border-radius: 8px;
+
+  color: var(--text-muted);
+  background: transparent;
+
+  font-size: 8px;
+  cursor: pointer;
+}
+
+.moduleWorkspaceCrypto
+.cryptoTabs button:hover {
+  color: var(--text-secondary);
+  background:
+    rgb(255 255 255 / 3%);
+}
+
+.moduleWorkspaceCrypto
+.cryptoTabs button.active {
+  border-color:
+    color-mix(
+      in srgb,
+      var(--primary) 32%,
+      transparent
+    );
+
+  color: var(--primary);
+  background: var(--primary-soft);
+}
+
+.moduleWorkspaceCrypto
+.cryptoGrid {
+  display: grid;
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+  gap: 11px;
+  padding: 14px 17px 17px;
+}
+
+.moduleWorkspaceCrypto
+.cryptoCard {
+  min-width: 0;
+  padding: 14px;
+}
+
+.moduleWorkspaceCrypto
+.cryptoFields {
+  gap: 10px;
+}
+
+.moduleWorkspaceCrypto
+.cryptoFields.triple {
+  grid-template-columns:
+    repeat(3, minmax(0, 1fr));
+}
+
+.moduleWorkspaceCrypto
+.cryptoOutput {
+  min-height: 100px;
+
+  border-color: var(--border);
+  background:
+    color-mix(
+      in srgb,
+      black 18%,
+      transparent
+    );
+
+  line-height: 1.6;
+}
+
+.moduleWorkspaceCrypto
+.cryptoWarning {
+  border-radius: 9px;
+}
+
+/* Email Security */
+
+.moduleWorkspaceEmail
+.emailSecurityToolbar {
+  padding: 14px 17px;
+
+  border-bottom:
+    1px solid var(--border);
+
+  background:
+    rgb(0 0 0 / 9%);
+}
+
+.moduleWorkspaceEmail
+.emailSecurityEmpty {
+  min-height: 300px;
+  margin: 14px 17px 17px;
+
+  border: 1px dashed
+    color-mix(
+      in srgb,
+      var(--primary) 25%,
+      var(--border)
+    );
+
+  border-radius: 13px;
+}
+
+.moduleWorkspaceEmail
+.emailSecurityResults {
+  gap: 11px;
+  padding: 14px 17px 17px;
+}
+
+.moduleWorkspaceEmail
+.emailSecurityHero {
+  border: 1px solid var(--border);
+  border-radius: 13px;
+
+  background:
+    linear-gradient(
+      110deg,
+      color-mix(
+        in srgb,
+        var(--primary) 8%,
+        transparent
+      ),
+      transparent 48%
+    ),
+    rgb(0 0 0 / 11%);
+}
+
+.moduleWorkspaceEmail
+.emailSecurityStats {
+  display: grid;
+  grid-template-columns:
+    repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.moduleWorkspaceEmail
+.emailSecurityStats article {
+  padding: 13px;
+
+  border: 1px solid var(--border);
+  border-radius: 10px;
+
+  background:
+    rgb(255 255 255 / 2%);
+}
+
+.moduleWorkspaceEmail
+.emailSecurityGrid {
+  gap: 9px;
+}
+
+.moduleWorkspaceEmail
+:is(
+  .emailSecurityTablePanel,
+  .emailFindingList
+) {
+  border-color: var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+/* Log Analysis */
+
+.moduleWorkspaceLogs
+.logToolbar {
+  padding: 14px 17px;
+
+  border-bottom:
+    1px solid var(--border);
+
+  background:
+    rgb(0 0 0 / 9%);
+}
+
+.moduleWorkspaceLogs
+.logTabs {
+  display: flex;
+  gap: 5px;
+  padding: 8px 12px;
+
+  border-bottom:
+    1px solid var(--border);
+
+  background:
+    rgb(0 0 0 / 12%);
+
+  overflow-x: auto;
+}
+
+.moduleWorkspaceLogs
+.logTabs button {
+  min-width: max-content;
+  padding: 8px 11px;
+
+  border: 1px solid transparent;
+  border-radius: 8px;
+
+  color: var(--text-muted);
+  background: transparent;
+
+  font-size: 8px;
+  cursor: pointer;
+}
+
+.moduleWorkspaceLogs
+.logTabs button.active {
+  border-color:
+    color-mix(
+      in srgb,
+      var(--primary) 32%,
+      transparent
+    );
+
+  color: var(--primary);
+  background: var(--primary-soft);
+}
+
+.moduleWorkspaceLogs
+.logEmpty {
+  min-height: 300px;
+  margin: 14px 17px 17px;
+
+  border: 1px dashed
+    color-mix(
+      in srgb,
+      var(--primary) 25%,
+      var(--border)
+    );
+
+  border-radius: 13px;
+}
+
+.moduleWorkspaceLogs
+.logResults {
+  gap: 11px;
+  padding: 14px 17px 17px;
+}
+
+.moduleWorkspaceLogs
+.logHero {
+  border: 1px solid var(--border);
+  border-radius: 13px;
+
+  background:
+    linear-gradient(
+      110deg,
+      color-mix(
+        in srgb,
+        var(--primary) 8%,
+        transparent
+      ),
+      transparent 48%
+    ),
+    rgb(0 0 0 / 11%);
+}
+
+.moduleWorkspaceLogs
+.logStats {
+  display: grid;
+  grid-template-columns:
+    repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.moduleWorkspaceLogs
+.logStats article {
+  padding: 13px;
+
+  border: 1px solid var(--border);
+  border-radius: 10px;
+
+  background:
+    rgb(255 255 255 / 2%);
+}
+
+.moduleWorkspaceLogs
+:is(
+  .logEventsPanel,
+  .logTimeline,
+  .logCard
+) {
+  border-color: var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+/* Secret Scanner */
+
+.moduleWorkspaceSecrets
+.secretToolbar {
+  padding: 14px 17px;
+
+  border-bottom:
+    1px solid var(--border);
+
+  background:
+    rgb(0 0 0 / 9%);
+}
+
+.moduleWorkspaceSecrets
+.secretFilters {
+  gap: 8px;
+  padding: 10px 17px;
+
+  border-bottom:
+    1px solid var(--border);
+}
+
+.moduleWorkspaceSecrets
+.secretEmpty,
+.moduleWorkspaceSecrets
+.secretNoFindings {
+  min-height: 290px;
+  margin: 14px 17px 17px;
+
+  border: 1px dashed
+    color-mix(
+      in srgb,
+      var(--primary) 25%,
+      var(--border)
+    );
+
+  border-radius: 13px;
+}
+
+.moduleWorkspaceSecrets
+.secretResults {
+  gap: 11px;
+  padding: 14px 17px 17px;
+}
+
+.moduleWorkspaceSecrets
+.secretStats {
+  display: grid;
+  grid-template-columns:
+    repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.moduleWorkspaceSecrets
+.secretStats article {
+  padding: 13px;
+
+  border: 1px solid var(--border);
+  border-radius: 10px;
+
+  background:
+    rgb(255 255 255 / 2%);
+}
+
+.moduleWorkspaceSecrets
+.secretFindingCard {
+  border-left:
+    3px solid var(--primary);
+  overflow: hidden;
+}
+
+.moduleWorkspaceSecrets
+.secretValue {
+  border-color: var(--border);
+  background:
+    color-mix(
+      in srgb,
+      black 18%,
+      transparent
+    );
+}
+
+/* Threat Intelligence */
+
+.moduleWorkspaceThreat
+.vtConfiguration {
+  margin: 14px 17px 0;
+  overflow: hidden;
+}
+
+.moduleWorkspaceThreat
+.vtModeTabs {
+  display: flex;
+  gap: 5px;
+  padding: 8px 12px;
+
+  border-bottom:
+    1px solid var(--border);
+
+  background:
+    rgb(0 0 0 / 12%);
+}
+
+.moduleWorkspaceThreat
+.vtModeTabs button {
+  padding: 8px 11px;
+
+  border: 1px solid transparent;
+  border-radius: 8px;
+
+  color: var(--text-muted);
+  background: transparent;
+
+  font-size: 8px;
+  cursor: pointer;
+}
+
+.moduleWorkspaceThreat
+.vtModeTabs button.active {
+  border-color:
+    color-mix(
+      in srgb,
+      var(--primary) 32%,
+      transparent
+    );
+
+  color: var(--primary);
+  background: var(--primary-soft);
+}
+
+.moduleWorkspaceThreat
+.vtLookupToolbar {
+  padding: 14px 17px;
+
+  border-bottom:
+    1px solid var(--border);
+
+  background:
+    rgb(0 0 0 / 9%);
+}
+
+.moduleWorkspaceThreat
+.vtEmptyState {
+  min-height: 300px;
+  margin: 14px 17px 17px;
+
+  border: 1px dashed
+    color-mix(
+      in srgb,
+      var(--primary) 25%,
+      var(--border)
+    );
+
+  border-radius: 13px;
+}
+
+.moduleWorkspaceThreat
+.vtResults {
+  gap: 11px;
+  padding: 14px 17px 17px;
+}
+
+.moduleWorkspaceThreat
+.vtStatsGrid {
+  display: grid;
+  grid-template-columns:
+    repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.moduleWorkspaceThreat
+.vtStatsGrid article {
+  padding: 13px;
+
+  border: 1px solid var(--border);
+  border-radius: 10px;
+
+  background:
+    rgb(255 255 255 / 2%);
+}
+
+.moduleWorkspaceThreat
+:is(
+  .vtEnginesCard,
+  .vtInformationGrid,
+  .vtUrlPanel
+) {
+  border-color: var(--border);
+}
+
+/* Utilities */
+
+.moduleWorkspaceUtilities
+.algorithmSelector {
+  padding: 11px 17px;
+
+  border-bottom:
+    1px solid var(--border);
+
+  background:
+    rgb(0 0 0 / 9%);
+}
+
+.moduleWorkspaceUtilities
+.hashGrid {
+  display: grid;
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+  gap: 11px;
+  padding: 14px 17px 17px;
+}
+
+.moduleWorkspaceUtilities
+.hashCard {
+  min-width: 0;
+  overflow: hidden;
+}
+
+.moduleWorkspaceUtilities
+.hashTextInput {
+  min-height: 220px;
+}
+
+.moduleWorkspaceUtilities
+.hashResult {
+  border-color: var(--border);
+  background:
+    color-mix(
+      in srgb,
+      black 18%,
+      transparent
+    );
+
+  font-family:
+    "JetBrains Mono",
+    monospace;
+}
+
+.moduleWorkspaceUtilities
+.filePicker {
+  border-color:
+    color-mix(
+      in srgb,
+      var(--primary) 22%,
+      var(--border)
+    );
+
+  border-radius: 11px;
+
+  background:
+    color-mix(
+      in srgb,
+      var(--primary) 4%,
+      transparent
+    );
+}
+
+/* Web Recon */
+
+.moduleWorkspaceWeb
+.webReconToolbar {
+  padding: 14px 17px;
+
+  border-bottom:
+    1px solid var(--border);
+
+  background:
+    rgb(0 0 0 / 9%);
+}
+
+.moduleWorkspaceWeb
+.webReconTabs {
+  display: flex;
+  gap: 5px;
+  padding: 8px 12px;
+
+  border-bottom:
+    1px solid var(--border);
+
+  background:
+    rgb(0 0 0 / 12%);
+
+  overflow-x: auto;
+}
+
+.moduleWorkspaceWeb
+.webReconTabs button {
+  min-width: max-content;
+  padding: 8px 11px;
+
+  border: 1px solid transparent;
+  border-radius: 8px;
+
+  color: var(--text-muted);
+  background: transparent;
+
+  font-size: 8px;
+  cursor: pointer;
+}
+
+.moduleWorkspaceWeb
+.webReconTabs button.active {
+  border-color:
+    color-mix(
+      in srgb,
+      var(--primary) 32%,
+      transparent
+    );
+
+  color: var(--primary);
+  background: var(--primary-soft);
+}
+
+.moduleWorkspaceWeb
+.webReconEmpty {
+  min-height: 300px;
+  margin: 14px 17px 17px;
+
+  border: 1px dashed
+    color-mix(
+      in srgb,
+      var(--primary) 25%,
+      var(--border)
+    );
+
+  border-radius: 13px;
+}
+
+.moduleWorkspaceWeb
+.webReconResults {
+  gap: 11px;
+  padding: 14px 17px 17px;
+}
+
+.moduleWorkspaceWeb
+.webReconHero {
+  border: 1px solid var(--border);
+  border-radius: 13px;
+
+  background:
+    linear-gradient(
+      110deg,
+      color-mix(
+        in srgb,
+        var(--primary) 8%,
+        transparent
+      ),
+      transparent 48%
+    ),
+    rgb(0 0 0 / 11%);
+}
+
+.moduleWorkspaceWeb
+.webReconStats {
+  display: grid;
+  grid-template-columns:
+    repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.moduleWorkspaceWeb
+.webReconStats article {
+  padding: 13px;
+
+  border: 1px solid var(--border);
+  border-radius: 10px;
+
+  background:
+    rgb(255 255 255 / 2%);
+}
+
+.moduleWorkspaceWeb
+:is(
+  .webReconListPanel,
+  .webReconHeaders,
+  .webReconCard
+) {
+  border-color: var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+/* Category-specific identity accents */
+
+.moduleWorkspace[data-module="cryptography"],
+.moduleWorkspace[data-module="encoding"],
+.moduleWorkspace[data-module="utilities"] {
+  --module-panel:
+    color-mix(
+      in srgb,
+      var(--surface) 97%,
+      #080a0f
+    );
+}
+
+.moduleWorkspace[data-module="email-security"],
+.moduleWorkspace[data-module="osint"],
+.moduleWorkspace[data-module="threat-intelligence"],
+.moduleWorkspace[data-module="web-recon"] {
+  --module-panel:
+    color-mix(
+      in srgb,
+      var(--surface) 96%,
+      #070b12
+    );
+}
+
+.moduleWorkspace[data-module="file-analysis"],
+.moduleWorkspace[data-module="log-analysis"],
+.moduleWorkspace[data-module="secret-scanner"] {
+  --module-panel:
+    color-mix(
+      in srgb,
+      var(--surface) 96%,
+      #0b080d
+    );
+}
+
+/* Responsive */
+
+@media (max-width: 1120px) {
+  .moduleWorkspace
+  .moduleSelectorWorkspace {
+    grid-template-columns:
+      190px minmax(0, 1fr);
+  }
+
+  .moduleWorkspaceCrypto
+  .cryptoGrid,
+  .moduleWorkspaceUtilities
+  .hashGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .moduleWorkspaceEmail
+  .emailSecurityStats,
+  .moduleWorkspaceLogs
+  .logStats,
+  .moduleWorkspaceSecrets
+  .secretStats,
+  .moduleWorkspaceThreat
+  .vtStatsGrid,
+  .moduleWorkspaceWeb
+  .webReconStats {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 820px) {
+  .moduleWorkspace
+  .moduleSelectorWorkspace {
+    grid-template-columns: 1fr;
+  }
+
+  .moduleWorkspace
+  .toolSelector {
+    position: static;
+
+    display: flex;
+    gap: 6px;
+    overflow-x: auto;
+  }
+
+  .moduleWorkspace
+  .toolSelector::before,
+  .moduleWorkspace
+  .toolSelectorLabel {
+    display: none;
+  }
+
+  .moduleWorkspace
+  .toolSelectorButton {
+    min-width: 175px;
+  }
+
+  .moduleWorkspaceEncoding
+  .editorGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .moduleWorkspaceCrypto
+  .cryptoTabs {
+    display: flex;
+    overflow-x: auto;
+  }
+
+  .moduleWorkspaceCrypto
+  .cryptoTabs button {
+    min-width: max-content;
+  }
+
+  .moduleWorkspaceNetworkCore
+  .dnsQueryBar,
+  .moduleWorkspaceNetworkCore
+  .pingQueryBar,
+  .moduleWorkspaceOsint
+  .rdapQueryBar {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 580px) {
+  .moduleWorkspaceEmail
+  .emailSecurityStats,
+  .moduleWorkspaceLogs
+  .logStats,
+  .moduleWorkspaceSecrets
+  .secretStats,
+  .moduleWorkspaceThreat
+  .vtStatsGrid,
+  .moduleWorkspaceWeb
+  .webReconStats {
+    grid-template-columns: 1fr;
+  }
+
+  .moduleWorkspaceCrypto
+  .cryptoFields.triple {
+    grid-template-columns: 1fr;
+  }
+}
+

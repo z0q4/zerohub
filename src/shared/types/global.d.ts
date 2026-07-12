@@ -1,4 +1,37 @@
 import type {
+  IocIntelligenceResult,
+  IocKeyInput,
+  IocKeyStatus,
+  IocQueryRequest,
+} from '../ioc-intelligence/ioc-intelligence.types';
+
+import type {
+  DiffResult,
+  JsonFormatResult,
+  RegexTestResult,
+  TextConvertResult,
+  TimestampConvertResult,
+  UuidGenerateResult,
+} from '../developer-tools/developer-tools.types';
+
+import type {
+  DnsExploreResult,
+  NetworkInterfacesResult,
+  NetworkRoutesResult,
+  PortCheckResult,
+  SubnetResult,
+  TracerouteResult,
+} from '../network-toolkit/network-toolkit.types';
+
+import type {
+  EmailSecurityResult,
+} from '../email-security/email-security.types';
+
+import type {
+  WebReconResult,
+} from '../web-recon/web-recon.types';
+
+import type {
   CompareResult,
   CryptoAlgorithm,
   CryptoEncoding,
@@ -90,6 +123,119 @@ type ZeroHubAPI = {
       request:
         EncodingTransformRequest,
     ): Promise<string>;
+  };
+
+  iocIntelligence: {
+    keyStatus():
+      Promise<IocKeyStatus>;
+
+    saveKeys(
+      keys: IocKeyInput,
+    ): Promise<IocKeyStatus>;
+
+    clearKeys():
+      Promise<IocKeyStatus>;
+
+    query(
+      request: IocQueryRequest,
+    ): Promise<IocIntelligenceResult>;
+  };
+
+  developerTools: {
+    formatJson(
+      request: {
+        text: string;
+        indent: number;
+        sortKeys: boolean;
+        minify: boolean;
+      },
+    ): Promise<JsonFormatResult>;
+
+    convertYaml(
+      text: string,
+      direction: string,
+    ): Promise<TextConvertResult>;
+
+    convertToml(
+      text: string,
+      direction: string,
+    ): Promise<TextConvertResult>;
+
+    testRegex(
+      request: {
+        pattern: string;
+        text: string;
+        flags: string;
+        replacement: string;
+      },
+    ): Promise<RegexTestResult>;
+
+    generateUuid(
+      request: {
+        version: string;
+        count: number;
+        namespace: string;
+        name: string;
+      },
+    ): Promise<UuidGenerateResult>;
+
+    convertTimestamp(
+      value: string,
+    ): Promise<TimestampConvertResult>;
+
+    diff(
+      request: {
+        left: string;
+        right: string;
+        leftLabel: string;
+        rightLabel: string;
+      },
+    ): Promise<DiffResult>;
+  };
+
+  networkToolkit: {
+    checkPort(
+      request: {
+        host: string;
+        port: number;
+        timeoutMs: number;
+      },
+    ): Promise<PortCheckResult>;
+
+    traceroute(
+      request: {
+        host: string;
+        maxHops: number;
+      },
+    ): Promise<TracerouteResult>;
+
+    calculateSubnet(
+      network: string,
+    ): Promise<SubnetResult>;
+
+    dnsLookup(
+      domain: string,
+      recordType: string,
+    ): Promise<DnsExploreResult>;
+
+    listInterfaces():
+      Promise<NetworkInterfacesResult>;
+
+    listRoutes():
+      Promise<NetworkRoutesResult>;
+  };
+
+  emailSecurity: {
+    inspect(
+      domain: string,
+      selector?: string,
+    ): Promise<EmailSecurityResult>;
+  };
+
+  webRecon: {
+    inspect(
+      url: string,
+    ): Promise<WebReconResult>;
   };
 
   cryptography: {

@@ -1,4 +1,37 @@
 import type {
+  IocIntelligenceResult,
+  IocKeyInput,
+  IocKeyStatus,
+  IocQueryRequest,
+} from './shared/ioc-intelligence/ioc-intelligence.types';
+
+import type {
+  DiffResult,
+  JsonFormatResult,
+  RegexTestResult,
+  TextConvertResult,
+  TimestampConvertResult,
+  UuidGenerateResult,
+} from './shared/developer-tools/developer-tools.types';
+
+import type {
+  DnsExploreResult,
+  NetworkInterfacesResult,
+  NetworkRoutesResult,
+  PortCheckResult,
+  SubnetResult,
+  TracerouteResult,
+} from './shared/network-toolkit/network-toolkit.types';
+
+import type {
+  EmailSecurityResult,
+} from './shared/email-security/email-security.types';
+
+import type {
+  WebReconResult,
+} from './shared/web-recon/web-recon.types';
+
+import type {
   CompareResult,
   CryptoAlgorithm,
   CryptoEncoding,
@@ -112,6 +145,195 @@ const zeroHubAPI = {
       ipcRenderer.invoke(
         'encoding:transform',
         request,
+      ),
+  },
+
+  iocIntelligence: {
+    keyStatus: ():
+      Promise<IocKeyStatus> =>
+      ipcRenderer.invoke(
+        'ioc-intelligence:key-status',
+      ),
+
+    saveKeys: (
+      keys: IocKeyInput,
+    ): Promise<IocKeyStatus> =>
+      ipcRenderer.invoke(
+        'ioc-intelligence:save-keys',
+        keys,
+      ),
+
+    clearKeys: ():
+      Promise<IocKeyStatus> =>
+      ipcRenderer.invoke(
+        'ioc-intelligence:clear-keys',
+      ),
+
+    query: (
+      request: IocQueryRequest,
+    ): Promise<IocIntelligenceResult> =>
+      ipcRenderer.invoke(
+        'ioc-intelligence:query',
+        request,
+      ),
+  },
+
+  developerTools: {
+    formatJson: (
+      request: {
+        text: string;
+        indent: number;
+        sortKeys: boolean;
+        minify: boolean;
+      },
+    ): Promise<JsonFormatResult> =>
+      ipcRenderer.invoke(
+        'developer-tools:json',
+        request,
+      ),
+
+    convertYaml: (
+      text: string,
+      direction: string,
+    ): Promise<TextConvertResult> =>
+      ipcRenderer.invoke(
+        'developer-tools:yaml',
+        text,
+        direction,
+      ),
+
+    convertToml: (
+      text: string,
+      direction: string,
+    ): Promise<TextConvertResult> =>
+      ipcRenderer.invoke(
+        'developer-tools:toml',
+        text,
+        direction,
+      ),
+
+    testRegex: (
+      request: {
+        pattern: string;
+        text: string;
+        flags: string;
+        replacement: string;
+      },
+    ): Promise<RegexTestResult> =>
+      ipcRenderer.invoke(
+        'developer-tools:regex',
+        request,
+      ),
+
+    generateUuid: (
+      request: {
+        version: string;
+        count: number;
+        namespace: string;
+        name: string;
+      },
+    ): Promise<UuidGenerateResult> =>
+      ipcRenderer.invoke(
+        'developer-tools:uuid',
+        request,
+      ),
+
+    convertTimestamp: (
+      value: string,
+    ): Promise<TimestampConvertResult> =>
+      ipcRenderer.invoke(
+        'developer-tools:timestamp',
+        value,
+      ),
+
+    diff: (
+      request: {
+        left: string;
+        right: string;
+        leftLabel: string;
+        rightLabel: string;
+      },
+    ): Promise<DiffResult> =>
+      ipcRenderer.invoke(
+        'developer-tools:diff',
+        request,
+      ),
+  },
+
+  networkToolkit: {
+    checkPort: (
+      request: {
+        host: string;
+        port: number;
+        timeoutMs: number;
+      },
+    ): Promise<PortCheckResult> =>
+      ipcRenderer.invoke(
+        'network-toolkit:port-check',
+        request,
+      ),
+
+    traceroute: (
+      request: {
+        host: string;
+        maxHops: number;
+      },
+    ): Promise<TracerouteResult> =>
+      ipcRenderer.invoke(
+        'network-toolkit:traceroute',
+        request,
+      ),
+
+    calculateSubnet: (
+      network: string,
+    ): Promise<SubnetResult> =>
+      ipcRenderer.invoke(
+        'network-toolkit:subnet',
+        network,
+      ),
+
+    dnsLookup: (
+      domain: string,
+      recordType: string,
+    ): Promise<DnsExploreResult> =>
+      ipcRenderer.invoke(
+        'network-toolkit:dns',
+        domain,
+        recordType,
+      ),
+
+    listInterfaces: ():
+      Promise<NetworkInterfacesResult> =>
+      ipcRenderer.invoke(
+        'network-toolkit:interfaces',
+      ),
+
+    listRoutes: ():
+      Promise<NetworkRoutesResult> =>
+      ipcRenderer.invoke(
+        'network-toolkit:routes',
+      ),
+  },
+
+  emailSecurity: {
+    inspect: (
+      domain: string,
+      selector = '',
+    ): Promise<EmailSecurityResult> =>
+      ipcRenderer.invoke(
+        'email-security:inspect',
+        domain,
+        selector,
+      ),
+  },
+
+  webRecon: {
+    inspect: (
+      url: string,
+    ): Promise<WebReconResult> =>
+      ipcRenderer.invoke(
+        'web-recon:inspect',
+        url,
       ),
   },
 
