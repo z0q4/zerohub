@@ -32,6 +32,10 @@ import {
 } from './main/ipc/file-analysis.ipc';
 
 import {
+  registerFileCrackerIpcHandlers,
+} from './main/ipc/file-cracker.ipc';
+
+import {
   registerHashIpcHandlers,
 } from './main/ipc/hash.ipc';
 
@@ -114,8 +118,12 @@ app.whenReady().then(() => {
   registerCryptographyIpcHandlers();
   registerSystemAuditIpcHandlers();
   registerFileAnalysisIpcHandlers();
+<<<<<<< HEAD
   registerFileForensicsIpcHandlers();
   registerLogAnalysisIpcHandlers();
+=======
+  registerFileCrackerIpcHandlers();
+>>>>>>> d7800de (feat: Zip_cracker added with wordlists;)
   registerHashIpcHandlers();
   registerNetworkIpcHandlers();
   registerOsintIpcHandlers();

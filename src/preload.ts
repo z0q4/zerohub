@@ -70,6 +70,11 @@ import type {
   VirusTotalTargetResult,
 } from './shared/threat-intelligence/threat-intelligence.types';
 
+import type {
+  FileCrackRequest,
+  FileCrackResult,
+} from './shared/file-cracker/file-cracker.types';
+
 const zeroHubAPI = {
   system: {
     getRuntimeInfo: () => ({
@@ -334,7 +339,13 @@ const zeroHubAPI = {
         reportUrl,
       ),
   },
+  fileCracker: {
+    selectZip: (): Promise<string | null> =>
+      ipcRenderer.invoke(
+        'file-cracker:select-zip',
+      ),
 
+<<<<<<< HEAD
   secretScanner: {
     scanFile: (): Promise<SecretScannerResult | null> =>
       ipcRenderer.invoke('secret-scanner:scan-file'),
@@ -343,6 +354,21 @@ const zeroHubAPI = {
       ipcRenderer.invoke('secret-scanner:scan-folder'),
   },
 
+=======
+    selectWordlist: (): Promise<string | null> =>
+      ipcRenderer.invoke(
+        'file-cracker:select-wordlist',
+      ),
+
+    crack: (
+      request: FileCrackRequest,
+    ): Promise<FileCrackResult> =>
+      ipcRenderer.invoke(
+        'file-cracker:crack',
+        request,
+      ),
+  },
+>>>>>>> d7800de (feat: Zip_cracker added with wordlists;)
   settings: {
     get: ():
       Promise<AppSettings> =>
