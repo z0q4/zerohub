@@ -227,32 +227,23 @@ type ZeroHubAPI = {
       reportUrl: string,
     ): Promise<void>;
   };
-
-<<<<<<< HEAD
   secretScanner: {
     scanFile(): Promise<SecretScannerResult | null>;
     scanFolder(): Promise<SecretScannerResult | null>;
-=======
+  };
   fileCracker: {
-    selectZip():
-      Promise<string | null>;
+    selectZip(): Promise<string | null>;
 
-    selectWordlist():
-      Promise<string | null>;
+    selectWordlist(): Promise<string | null>;
 
     crack(
       request: FileCrackRequest,
     ): Promise<FileCrackResult>;
->>>>>>> d7800de (feat: Zip_cracker added with wordlists;)
   };
-
   settings: {
-    get():
-      Promise<AppSettings>;
-
+    get(): Promise<AppSettings>;
     save(
-      settings:
-        AppSettings,
+      settings: AppSettings,
     ): Promise<AppSettings>;
   };
 };

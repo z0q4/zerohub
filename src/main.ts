@@ -112,18 +112,14 @@ function createWindow(): void {
     );
   }
 }
-
 app.whenReady().then(() => {
   registerEncodingIpcHandlers();
   registerCryptographyIpcHandlers();
   registerSystemAuditIpcHandlers();
   registerFileAnalysisIpcHandlers();
-<<<<<<< HEAD
   registerFileForensicsIpcHandlers();
   registerLogAnalysisIpcHandlers();
-=======
   registerFileCrackerIpcHandlers();
->>>>>>> d7800de (feat: Zip_cracker added with wordlists;)
   registerHashIpcHandlers();
   registerNetworkIpcHandlers();
   registerOsintIpcHandlers();
@@ -132,7 +128,6 @@ app.whenReady().then(() => {
   registerThreatIntelligenceIpcHandlers();
 
   createWindow();
-
   app.on('activate', () => {
     if (
       BrowserWindow
