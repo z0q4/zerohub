@@ -16,6 +16,10 @@ import {
 } from './main/ipc/file-analysis.ipc';
 
 import {
+  registerFileCrackerIpcHandlers,
+} from './main/ipc/file-cracker.ipc';
+
+import {
   registerHashIpcHandlers,
 } from './main/ipc/hash.ipc';
 
@@ -92,6 +96,7 @@ function createWindow(): void {
 app.whenReady().then(() => {
   registerEncodingIpcHandlers();
   registerFileAnalysisIpcHandlers();
+  registerFileCrackerIpcHandlers();
   registerHashIpcHandlers();
   registerNetworkIpcHandlers();
   registerOsintIpcHandlers();

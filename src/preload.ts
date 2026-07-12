@@ -42,6 +42,11 @@ import type {
   VirusTotalTargetResult,
 } from './shared/threat-intelligence/threat-intelligence.types';
 
+import type {
+  FileCrackRequest,
+  FileCrackResult,
+} from './shared/file-cracker/file-cracker.types';
+
 const zeroHubAPI = {
   system: {
     getRuntimeInfo: () => ({
@@ -211,7 +216,25 @@ const zeroHubAPI = {
         reportUrl,
       ),
   },
+  fileCracker: {
+    selectZip: (): Promise<string | null> =>
+      ipcRenderer.invoke(
+        'file-cracker:select-zip',
+      ),
 
+    selectWordlist: (): Promise<string | null> =>
+      ipcRenderer.invoke(
+        'file-cracker:select-wordlist',
+      ),
+
+    crack: (
+      request: FileCrackRequest,
+    ): Promise<FileCrackResult> =>
+      ipcRenderer.invoke(
+        'file-cracker:crack',
+        request,
+      ),
+  },
   settings: {
     get: ():
       Promise<AppSettings> =>

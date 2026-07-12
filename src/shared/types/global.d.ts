@@ -36,6 +36,11 @@ import type {
   VirusTotalTargetResult,
 } from '../threat-intelligence/threat-intelligence.types';
 
+import type {
+  FileCrackRequest,
+  FileCrackResult,
+} from '../file-cracker/file-cracker.types';
+
 export {};
 
 type RuntimeInfo = {
@@ -133,6 +138,18 @@ type ZeroHubAPI = {
     openVirusTotalReport(
       reportUrl: string,
     ): Promise<void>;
+  };
+
+  fileCracker: {
+    selectZip():
+      Promise<string | null>;
+
+    selectWordlist():
+      Promise<string | null>;
+
+    crack(
+      request: FileCrackRequest,
+    ): Promise<FileCrackResult>;
   };
 
   settings: {
