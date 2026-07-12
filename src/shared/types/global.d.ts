@@ -3,6 +3,10 @@ import type {
 } from '../encoding/encoding.types';
 
 import type {
+  FileAnalysisResult,
+} from '../file-analysis/file-analysis.types';
+
+import type {
   HashAlgorithm,
   HashFileResult,
   HashTextRequest,
@@ -26,6 +30,11 @@ import type {
 import type {
   AppSettings,
 } from '../settings/settings.types';
+
+import type {
+  VirusTotalSecretStatus,
+  VirusTotalTargetResult,
+} from '../threat-intelligence/threat-intelligence.types';
 
 export {};
 
@@ -53,6 +62,11 @@ type ZeroHubAPI = {
       request:
         EncodingTransformRequest,
     ): Promise<string>;
+  };
+
+  fileAnalysis: {
+    inspectFile():
+      Promise<FileAnalysisResult | null>;
   };
 
   hash: {
@@ -86,6 +100,39 @@ type ZeroHubAPI = {
       request:
         RdapDomainRequest,
     ): Promise<RdapDomainResult>;
+  };
+
+  threatIntelligence: {
+    getVirusTotalStatus():
+      Promise<VirusTotalSecretStatus>;
+
+    saveVirusTotalApiKey(
+      apiKey: string,
+    ): Promise<VirusTotalSecretStatus>;
+
+    removeVirusTotalApiKey():
+      Promise<VirusTotalSecretStatus>;
+
+    lookupVirusTotalFile():
+      Promise<VirusTotalTargetResult | null>;
+
+    refreshVirusTotalFile():
+      Promise<VirusTotalTargetResult>;
+
+    uploadVirusTotalFile():
+      Promise<VirusTotalTargetResult | null>;
+
+    lookupVirusTotalUrl(
+      url: string,
+    ): Promise<VirusTotalTargetResult>;
+
+    scanVirusTotalUrl(
+      url: string,
+    ): Promise<VirusTotalTargetResult>;
+
+    openVirusTotalReport(
+      reportUrl: string,
+    ): Promise<void>;
   };
 
   settings: {

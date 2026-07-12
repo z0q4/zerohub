@@ -12,6 +12,10 @@ import {
 } from '../features/encoding/pages/EncodingPage';
 
 import {
+  FileAnalysisPage,
+} from '../features/file-analysis/pages/FileAnalysisPage';
+
+import {
   NetworkPage,
 } from '../features/network/pages/NetworkPage';
 
@@ -22,6 +26,10 @@ import {
 import {
   SettingsPage,
 } from '../features/settings/pages/SettingsPage';
+
+import {
+  ThreatIntelligencePage,
+} from '../features/threat-intelligence/pages/ThreatIntelligencePage';
 
 import {
   UtilitiesPage,
@@ -131,6 +139,9 @@ export function App() {
           />
         );
 
+      case 'file-analysis':
+        return <FileAnalysisPage />;
+
       case 'network':
         return <NetworkPage />;
 
@@ -142,6 +153,9 @@ export function App() {
 
       case 'utilities':
         return <UtilitiesPage />;
+
+      case 'threat-intelligence':
+        return <ThreatIntelligencePage />;
 
       case 'settings':
         return (

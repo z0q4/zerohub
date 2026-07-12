@@ -4,7 +4,9 @@ export type ModuleId =
   | 'osint'
   | 'encoding'
   | 'utilities'
-  | 'settings';
+  | 'settings'
+  | 'file-analysis'
+  | 'threat-intelligence';
 
 export type ModuleStatus =
   | 'operational'

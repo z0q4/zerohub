@@ -9,6 +9,10 @@ import type {
 } from './shared/encoding/encoding.types';
 
 import type {
+  FileAnalysisResult,
+} from './shared/file-analysis/file-analysis.types';
+
+import type {
   HashAlgorithm,
   HashFileResult,
   HashTextRequest,
@@ -32,6 +36,11 @@ import type {
 import type {
   AppSettings,
 } from './shared/settings/settings.types';
+
+import type {
+  VirusTotalSecretStatus,
+  VirusTotalTargetResult,
+} from './shared/threat-intelligence/threat-intelligence.types';
 
 const zeroHubAPI = {
   system: {
@@ -75,6 +84,14 @@ const zeroHubAPI = {
       ipcRenderer.invoke(
         'encoding:transform',
         request,
+      ),
+  },
+
+  fileAnalysis: {
+    inspectFile: ():
+      Promise<FileAnalysisResult | null> =>
+      ipcRenderer.invoke(
+        'file-analysis:inspect-file',
       ),
   },
 
@@ -128,6 +145,70 @@ const zeroHubAPI = {
       ipcRenderer.invoke(
         'osint:rdap:domain',
         request,
+      ),
+  },
+
+  threatIntelligence: {
+    getVirusTotalStatus: ():
+      Promise<VirusTotalSecretStatus> =>
+      ipcRenderer.invoke(
+        'threat-intelligence:virustotal:status',
+      ),
+
+    saveVirusTotalApiKey: (
+      apiKey: string,
+    ): Promise<VirusTotalSecretStatus> =>
+      ipcRenderer.invoke(
+        'threat-intelligence:virustotal:save-key',
+        apiKey,
+      ),
+
+    removeVirusTotalApiKey: ():
+      Promise<VirusTotalSecretStatus> =>
+      ipcRenderer.invoke(
+        'threat-intelligence:virustotal:remove-key',
+      ),
+
+    lookupVirusTotalFile: ():
+      Promise<VirusTotalTargetResult | null> =>
+      ipcRenderer.invoke(
+        'threat-intelligence:virustotal:lookup-file',
+      ),
+
+    refreshVirusTotalFile: ():
+      Promise<VirusTotalTargetResult> =>
+      ipcRenderer.invoke(
+        'threat-intelligence:virustotal:refresh-file',
+      ),
+
+    uploadVirusTotalFile: ():
+      Promise<VirusTotalTargetResult | null> =>
+      ipcRenderer.invoke(
+        'threat-intelligence:virustotal:upload-file',
+      ),
+
+    lookupVirusTotalUrl: (
+      url: string,
+    ): Promise<VirusTotalTargetResult> =>
+      ipcRenderer.invoke(
+        'threat-intelligence:virustotal:lookup-url',
+        url,
+      ),
+
+    scanVirusTotalUrl: (
+      url: string,
+    ): Promise<VirusTotalTargetResult> =>
+      ipcRenderer.invoke(
+        'threat-intelligence:virustotal:scan-url',
+        url,
+      ),
+
+    openVirusTotalReport: (
+      reportUrl: string,
+    ): Promise<void> =>
+      ipcRenderer.invoke(
+        'threat-intelligence:virustotal:open-report',
+        reportUrl,
       ),
   },
 
