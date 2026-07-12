@@ -20,14 +20,17 @@ cd zerohub
 ## Usage
 
 ```bash
-# Get started
-make start
+#install NVM if you dont have it;
+nvm install 22
 
-# Run tests
-make test
+nvm use 22
 
-# Build
-make build
+#install dependecies;
+npm install
+#start
+npm start
+#or this on root
+npx electron .
 ```
 
 ## Documentation
