@@ -3,6 +3,10 @@ import {
 } from 'react';
 
 import {
+  ModuleWorkspaceHeader,
+} from '../../../components/layout/ModuleWorkspaceHeader';
+
+import {
   FileCrackerTool,
 } from '../components/FileCrackerTool';
 
@@ -23,7 +27,9 @@ export function UtilitiesPage() {
     activeTool,
     setActiveTool,
   ] =
-    useState<UtilityToolId>('hash');
+    useState<UtilityToolId>(
+      'hash',
+    );
 
   function renderTool() {
     switch (activeTool) {
@@ -35,69 +41,109 @@ export function UtilitiesPage() {
   }
 
   return (
-    <>
-      <header className="pageHeader">
-        <div>
-          <span className="eyebrow">
-            ZEROHUB MODULE
-          </span>
+    <div
+      className="moduleWorkspace moduleWorkspaceUtilities"
+      data-module="utilities"
+    >
+      <ModuleWorkspaceHeader
+        abbreviation="UTL"
+        badge="Local utilities"
+        section="Data & Dev"
+        title="Utilities"
+        description="Execute tarefas técnicas rápidas com arquivos e dados locais."
+        privacy="Local processing"
+        capabilities={[
+          'SHA-256',
+          'SHA-512',
+          'Text hashing',
+          'File hashing',
+        ]}
+        workflow={[
+          'Choose source',
+          'Select algorithm',
+          'Calculate locally',
+          'Copy digest',
+        ]}
+      />
 
-          <h1>Utilities</h1>
+      <section className="moduleWorkspaceBody">
+        <div className="moduleWorkspaceContext">
+          <span>TECHNICAL UTILITIES</span>
+
+          <strong>
+            Generate deterministic digests
+            for data and local files.
+          </strong>
 
           <p>
-            Ferramentas locais para tarefas
-            técnicas e análise de dados.
+            O hashing de arquivos é feito em
+            fluxo para evitar carregar todo
+            o conteúdo na memória.
           </p>
+
+          <div>
+            <span>
+              Algorithms
+              <strong>SHA-2</strong>
+            </span>
+
+            <span>
+              Files
+              <strong>Streaming</strong>
+            </span>
+
+            <span>
+              Output
+              <strong>Hex</strong>
+            </span>
+          </div>
         </div>
 
-        <span className="operationalBadge">
-          {UTILITY_TOOL_REGISTRY.length}
-          {' '}ferramenta
-        </span>
-      </header>
+        <div className="utilitiesWorkspace moduleSelectorWorkspace">
+          <aside className="toolSelector">
+            <span className="toolSelectorLabel">
+              UTILITIES
+            </span>
 
-      <div className="utilitiesWorkspace">
-        <aside className="toolSelector">
-          <span className="toolSelectorLabel">
-            FERRAMENTAS
-          </span>
+            {UTILITY_TOOL_REGISTRY.map(
+              (tool) => (
+                <button
+                  className={`toolSelectorButton ${
+                    activeTool === tool.id
+                      ? 'active'
+                      : ''
+                  }`}
+                  key={tool.id}
+                  type="button"
+                  onClick={() => {
+                    setActiveTool(
+                      tool.id,
+                    );
+                  }}
+                >
+                  <span className="toolSelectorIcon">
+                    {tool.abbreviation}
+                  </span>
 
-          {UTILITY_TOOL_REGISTRY.map(
-            (tool) => (
-              <button
-                className={`toolSelectorButton ${
-                  activeTool === tool.id
-                    ? 'active'
-                    : ''
-                }`}
-                key={tool.id}
-                type="button"
-                onClick={() =>
-                  setActiveTool(tool.id)
-                }
-              >
-                <span className="toolSelectorIcon">
-                  {tool.abbreviation}
-                </span>
+                  <span>
+                    <strong>
+                      {tool.name}
+                    </strong>
 
-                <span>
-                  <strong>
-                    {tool.name}
-                  </strong>
+                    <small>
+                      {tool.description}
+                    </small>
+                  </span>
+                </button>
+              ),
+            )}
+          </aside>
 
-                  <small>
-                    {tool.description}
-                  </small>
-                </span>
-              </button>
-            ),
-          )}
-        </aside>
-
-        <div className="activeToolContent">
-          {renderTool()}
+          <div className="activeToolContent">
+            {renderTool()}
+          </div>
         </div>
-      </div>
-    </>
+      </section>
+    </div>
   );
 }

@@ -5382,3 +5382,2101 @@ textarea:focus-visible {
     grid-template-columns: 1fr;
   }
 }
+
+/* === ZEROHUB WEB RECON === */
+
+.webReconToolbar {
+  display: grid;
+  grid-template-columns:
+    minmax(0, 1fr) auto;
+  gap: 8px;
+  padding: 14px;
+
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: #0b0e14;
+}
+
+.webReconToolbar input {
+  min-width: 0;
+  min-height: 38px;
+  padding: 9px 11px;
+
+  border: 1px solid var(--border);
+  border-radius: 8px;
+
+  color: var(--text);
+  background: #080b10;
+
+  font-family:
+    "JetBrains Mono",
+    monospace;
+
+  font-size: 10px;
+}
+
+.webReconEmpty {
+  display: grid;
+  min-height: 320px;
+  place-content: center;
+  margin-top: 14px;
+
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: #090c11;
+
+  text-align: center;
+}
+
+.webReconEmpty > span {
+  display: grid;
+  width: 56px;
+  height: 56px;
+  place-items: center;
+  margin: 0 auto 14px;
+
+  border: 1px solid
+    color-mix(
+      in srgb,
+      var(--primary) 40%,
+      transparent
+    );
+
+  border-radius: 12px;
+  color: var(--primary);
+  background: var(--primary-soft);
+
+  font-family: monospace;
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.webReconEmpty h3 {
+  margin: 0 0 7px;
+  font-size: 15px;
+}
+
+.webReconEmpty p {
+  max-width: 390px;
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 11px;
+}
+
+.webReconResults {
+  display: grid;
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.webReconHero {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 15px;
+
+  border: 1px solid var(--border);
+  border-radius: 10px;
+
+  background:
+    linear-gradient(
+      145deg,
+      #121721,
+      #0b0e14
+    );
+}
+
+.webReconHero > div:first-child {
+  min-width: 0;
+}
+
+.webReconHero span {
+  color: var(--text-muted);
+  font-size: 8px;
+  font-weight: 800;
+}
+
+.webReconHero h3 {
+  margin: 6px 0;
+  font-size: 16px;
+  overflow-wrap: anywhere;
+}
+
+.webReconHero button {
+  padding: 0;
+  border: 0;
+  color: var(--text-secondary);
+  background: transparent;
+  cursor: pointer;
+}
+
+.webReconHero code {
+  font-size: 9px;
+  overflow-wrap: anywhere;
+}
+
+.webReconHero > div:last-child {
+  display: grid;
+  gap: 5px;
+  justify-items: end;
+}
+
+.webReconHero > div:last-child strong {
+  color: var(--primary);
+  font-family: monospace;
+  font-size: 24px;
+}
+
+.webReconHero small {
+  color: var(--text-muted);
+  font-size: 9px;
+}
+
+.webReconStats {
+  display: grid;
+  grid-template-columns:
+    repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.webReconStats article {
+  display: grid;
+  gap: 6px;
+  padding: 13px;
+
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  background: #0b0e14;
+}
+
+.webReconStats span {
+  color: var(--text-muted);
+  font-size: 8px;
+  font-weight: 800;
+}
+
+.webReconStats strong {
+  font-family: monospace;
+  font-size: 15px;
+}
+
+.webReconTabs {
+  display: grid;
+  grid-template-columns:
+    repeat(6, minmax(0, 1fr));
+  gap: 6px;
+  padding: 5px;
+
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: #090c11;
+}
+
+.webReconTabs button {
+  min-height: 34px;
+
+  border: 1px solid transparent;
+  border-radius: 7px;
+
+  color: var(--text-secondary);
+  background: transparent;
+
+  font-size: 9px;
+  cursor: pointer;
+}
+
+.webReconTabs button.active {
+  border-color:
+    color-mix(
+      in srgb,
+      var(--primary) 40%,
+      transparent
+    );
+
+  color: var(--text);
+  background: var(--primary-soft);
+}
+
+.webReconGrid {
+  display: grid;
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.webReconCard,
+.webReconListPanel,
+.webReconHeaders {
+  min-width: 0;
+  padding: 14px;
+
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: #0b0e14;
+}
+
+.webReconCard.full {
+  grid-column: 1 / -1;
+}
+
+.webReconCard > header,
+.webReconListPanel > header,
+.webReconHeaders > header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.webReconCard header span,
+.webReconListPanel header span,
+.webReconHeaders header span {
+  color: var(--text-muted);
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+}
+
+.webReconCard header strong,
+.webReconListPanel header strong,
+.webReconHeaders header strong {
+  font-family: monospace;
+  font-size: 10px;
+}
+
+.webReconCard dl {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+}
+
+.webReconCard dl > div {
+  display: grid;
+  grid-template-columns:
+    120px minmax(0, 1fr);
+  gap: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #1b2029;
+}
+
+.webReconCard dl > div:last-child {
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+
+.webReconCard dt {
+  color: var(--text-muted);
+  font-size: 9px;
+}
+
+.webReconCard dd {
+  min-width: 0;
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 9px;
+  text-align: right;
+  overflow-wrap: anywhere;
+}
+
+.webReconCard > code {
+  display: block;
+  margin-bottom: 10px;
+  color: var(--text-secondary);
+  font-size: 8px;
+  overflow-wrap: anywhere;
+}
+
+.webReconCard pre {
+  max-height: 460px;
+  margin: 0;
+  padding: 10px;
+  overflow: auto;
+
+  border: 1px solid #1e242e;
+  border-radius: 8px;
+
+  color: #b9c2ff;
+  background: #080b10;
+
+  font-family:
+    "JetBrains Mono",
+    monospace;
+
+  font-size: 8px;
+  line-height: 1.55;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.webReconValueList {
+  display: grid;
+  gap: 6px;
+  max-height: 360px;
+  overflow: auto;
+}
+
+.webReconValueList button {
+  min-width: 0;
+  padding: 8px;
+
+  border: 1px solid #1e242e;
+  border-radius: 7px;
+
+  color: var(--text-secondary);
+  background: #080b10;
+
+  text-align: left;
+  cursor: pointer;
+}
+
+.webReconValueList code {
+  font-size: 8px;
+  overflow-wrap: anywhere;
+}
+
+.webReconListPanel > div {
+  display: grid;
+  gap: 8px;
+}
+
+.webReconListPanel article {
+  display: grid;
+  grid-template-columns:
+    80px minmax(0, 1fr) 90px;
+  gap: 12px;
+  align-items: start;
+  padding: 10px;
+
+  border: 1px solid #1e242e;
+  border-radius: 8px;
+  background: #080b10;
+}
+
+.webReconListPanel article > div {
+  display: grid;
+  gap: 5px;
+}
+
+.webReconListPanel article code,
+.webReconListPanel article span,
+.webReconListPanel article small,
+.webReconListPanel article strong {
+  min-width: 0;
+  font-size: 8px;
+  overflow-wrap: anywhere;
+}
+
+.webReconListPanel article span,
+.webReconListPanel article small {
+  color: var(--text-muted);
+}
+
+.webReconListPanel article.present {
+  box-shadow:
+    inset 2px 0 #51dd87;
+}
+
+.webReconListPanel article.missing {
+  box-shadow:
+    inset 2px 0 #ff6074;
+}
+
+.webReconWarning {
+  margin: 12px 0 0;
+  padding: 9px;
+
+  border: 1px solid
+    rgb(255 90 110 / 30%);
+
+  border-radius: 8px;
+
+  color: #ff9aa5;
+  background:
+    rgb(255 90 110 / 7%);
+
+  font-size: 9px;
+}
+
+.webReconHeaders > div {
+  display: grid;
+  max-height: 560px;
+  overflow: auto;
+
+  border: 1px solid #1c222c;
+  border-radius: 8px;
+}
+
+.webReconHeaders button {
+  display: grid;
+  grid-template-columns:
+    220px minmax(0, 1fr);
+  gap: 12px;
+  padding: 9px 10px;
+
+  border: 0;
+  border-bottom: 1px solid #1b2029;
+
+  color: var(--text);
+  background: #080b10;
+
+  text-align: left;
+  cursor: pointer;
+}
+
+.webReconHeaders button:last-child {
+  border-bottom: 0;
+}
+
+.webReconHeaders code,
+.webReconHeaders span {
+  min-width: 0;
+  font-size: 8px;
+  overflow-wrap: anywhere;
+}
+
+.webReconHeaders code {
+  color: var(--primary);
+}
+
+.webReconHeaders span {
+  color: var(--text-secondary);
+}
+
+@media (max-width: 900px) {
+  .webReconTabs {
+    grid-template-columns:
+      repeat(3, minmax(0, 1fr));
+  }
+
+  .webReconStats,
+  .webReconGrid {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 680px) {
+  .webReconToolbar {
+    grid-template-columns: 1fr;
+  }
+
+  .webReconHero {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .webReconTabs,
+  .webReconStats,
+  .webReconGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .webReconListPanel article,
+  .webReconHeaders button {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* === ZEROHUB EMAIL SECURITY === */
+
+.emailSecurityToolbar {
+  display: grid;
+  grid-template-columns:
+    minmax(0, 1fr)
+    minmax(0, 1fr)
+    auto;
+  gap: 10px;
+  align-items: end;
+  padding: 14px;
+
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: #0b0e14;
+}
+
+.emailSecurityToolbar label {
+  display: grid;
+  gap: 6px;
+}
+
+.emailSecurityToolbar label span {
+  color: var(--text-secondary);
+  font-size: 9px;
+}
+
+.emailSecurityToolbar input {
+  min-width: 0;
+  min-height: 38px;
+  padding: 9px 10px;
+
+  border: 1px solid var(--border);
+  border-radius: 8px;
+
+  color: var(--text);
+  background: #080b10;
+
+  font-family:
+    "JetBrains Mono",
+    monospace;
+
+  font-size: 9px;
+}
+
+.emailSecurityEmpty {
+  display: grid;
+  min-height: 320px;
+  place-content: center;
+  margin-top: 14px;
+
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: #090c11;
+
+  text-align: center;
+}
+
+.emailSecurityEmpty > span {
+  display: grid;
+  width: 58px;
+  height: 58px;
+  place-items: center;
+  margin: 0 auto 14px;
+
+  border: 1px solid
+    color-mix(
+      in srgb,
+      var(--primary) 40%,
+      transparent
+    );
+
+  border-radius: 12px;
+  color: var(--primary);
+  background: var(--primary-soft);
+
+  font-family: monospace;
+  font-size: 9px;
+  font-weight: 800;
+}
+
+.emailSecurityEmpty h3 {
+  margin: 0 0 7px;
+  font-size: 15px;
+}
+
+.emailSecurityEmpty p {
+  max-width: 400px;
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 11px;
+}
+
+.emailSecurityResults {
+  display: grid;
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.emailSecurityHero {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 15px;
+
+  border: 1px solid var(--border);
+  border-radius: 10px;
+
+  background:
+    linear-gradient(
+      145deg,
+      #121721,
+      #0b0e14
+    );
+}
+
+.emailSecurityHero span {
+  color: var(--text-muted);
+  font-size: 8px;
+  font-weight: 800;
+}
+
+.emailSecurityHero h3 {
+  margin: 6px 0;
+  font-size: 16px;
+}
+
+.emailSecurityHero code {
+  color: var(--text-secondary);
+  font-size: 8px;
+  overflow-wrap: anywhere;
+}
+
+.emailSecurityHero > div:last-child {
+  display: grid;
+  justify-items: end;
+  gap: 4px;
+}
+
+.emailSecurityHero > div:last-child strong {
+  color: var(--primary);
+  font-family: monospace;
+  font-size: 28px;
+}
+
+.emailSecurityHero small {
+  color: var(--text-muted);
+  font-size: 9px;
+}
+
+.emailSecurityStats {
+  display: grid;
+  grid-template-columns:
+    repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.emailSecurityStats article {
+  display: grid;
+  gap: 6px;
+  padding: 13px;
+
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  background: #0b0e14;
+}
+
+.emailSecurityStats span {
+  color: var(--text-muted);
+  font-size: 8px;
+  font-weight: 800;
+}
+
+.emailSecurityStats strong {
+  font-family: monospace;
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+
+.emailSecurityStats .danger strong {
+  color: #ff8290;
+}
+
+.emailSecurityTabs {
+  display: grid;
+  grid-template-columns:
+    repeat(6, minmax(0, 1fr));
+  gap: 6px;
+  padding: 5px;
+
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: #090c11;
+}
+
+.emailSecurityTabs button {
+  min-height: 34px;
+
+  border: 1px solid transparent;
+  border-radius: 7px;
+
+  color: var(--text-secondary);
+  background: transparent;
+
+  font-size: 9px;
+  cursor: pointer;
+}
+
+.emailSecurityTabs button.active {
+  border-color:
+    color-mix(
+      in srgb,
+      var(--primary) 40%,
+      transparent
+    );
+
+  color: var(--text);
+  background: var(--primary-soft);
+}
+
+.emailSecurityGrid {
+  display: grid;
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.emailSecurityCard,
+.emailSecurityTablePanel {
+  min-width: 0;
+  padding: 14px;
+
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: #0b0e14;
+}
+
+.emailSecurityCard.full {
+  grid-column: 1 / -1;
+}
+
+.emailSecurityCard > header,
+.emailSecurityTablePanel > header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.emailSecurityCard header span,
+.emailSecurityTablePanel header span {
+  color: var(--text-muted);
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+}
+
+.emailSecurityCard header strong,
+.emailSecurityTablePanel header strong {
+  font-family: monospace;
+  font-size: 10px;
+}
+
+.emailSecurityCard pre {
+  max-height: 420px;
+  margin: 0;
+  padding: 10px;
+  overflow: auto;
+
+  border: 1px solid #1e242e;
+  border-radius: 8px;
+
+  color: #b9c2ff;
+  background: #080b10;
+
+  font-family:
+    "JetBrains Mono",
+    monospace;
+
+  font-size: 8px;
+  line-height: 1.55;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  user-select: text;
+}
+
+.emailSecurityCard dl {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+}
+
+.emailSecurityCard dl > div {
+  display: grid;
+  grid-template-columns:
+    140px minmax(0, 1fr);
+  gap: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #1b2029;
+}
+
+.emailSecurityCard dl > div:last-child {
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+
+.emailSecurityCard dt {
+  color: var(--text-muted);
+  font-size: 9px;
+}
+
+.emailSecurityCard dd {
+  min-width: 0;
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 9px;
+  text-align: right;
+  overflow-wrap: anywhere;
+}
+
+.emailFindingList {
+  display: grid;
+  gap: 8px;
+  max-height: 440px;
+  overflow: auto;
+}
+
+.emailFindingList article {
+  display: grid;
+  gap: 6px;
+  padding: 10px;
+
+  border: 1px solid;
+  border-radius: 8px;
+}
+
+.emailFindingList article.high {
+  border-color:
+    rgb(255 90 110 / 30%);
+  background:
+    rgb(255 90 110 / 7%);
+}
+
+.emailFindingList article.medium {
+  border-color:
+    rgb(255 181 71 / 25%);
+  background:
+    rgb(255 181 71 / 6%);
+}
+
+.emailFindingList article.low,
+.emailFindingList article.info {
+  border-color: #252d39;
+  background: #080b10;
+}
+
+.emailFindingList article > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.emailFindingList strong,
+.emailFindingList span,
+.emailFindingList p {
+  font-size: 8px;
+}
+
+.emailFindingList span {
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+
+.emailFindingList p {
+  margin: 0;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.emailMechanismList,
+.emailTagList {
+  display: grid;
+  max-height: 440px;
+  overflow: auto;
+
+  border: 1px solid #1c222c;
+  border-radius: 8px;
+}
+
+.emailMechanismList button,
+.emailTagList button {
+  display: grid;
+  grid-template-columns:
+    160px minmax(0, 1fr) 100px;
+  gap: 12px;
+  padding: 9px 10px;
+
+  border: 0;
+  border-bottom: 1px solid #1b2029;
+
+  color: var(--text);
+  background: #080b10;
+
+  text-align: left;
+  cursor: pointer;
+}
+
+.emailTagList button {
+  grid-template-columns:
+    120px minmax(0, 1fr);
+}
+
+.emailMechanismList button:last-child,
+.emailTagList button:last-child {
+  border-bottom: 0;
+}
+
+.emailMechanismList code,
+.emailMechanismList span,
+.emailMechanismList small,
+.emailTagList code,
+.emailTagList span {
+  min-width: 0;
+  font-size: 8px;
+  overflow-wrap: anywhere;
+}
+
+.emailMechanismList code,
+.emailTagList code {
+  color: var(--primary);
+}
+
+.emailMechanismList span,
+.emailMechanismList small,
+.emailTagList span {
+  color: var(--text-secondary);
+}
+
+.emailSecurityTablePanel > div {
+  display: grid;
+  max-height: 500px;
+  overflow: auto;
+
+  border: 1px solid #1c222c;
+  border-radius: 8px;
+}
+
+.emailSecurityTablePanel button,
+.emailSecurityTableHeader {
+  display: grid;
+  grid-template-columns:
+    120px minmax(0, 1fr) 100px;
+  gap: 12px;
+  padding: 9px 10px;
+}
+
+.emailSecurityTablePanel button {
+  border: 0;
+  border-bottom: 1px solid #1b2029;
+
+  color: var(--text);
+  background: #080b10;
+
+  text-align: left;
+  cursor: pointer;
+}
+
+.emailSecurityTablePanel button:last-child {
+  border-bottom: 0;
+}
+
+.emailSecurityTableHeader {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+
+  color: var(--text-muted);
+  background: #10151d;
+
+  font-size: 8px;
+  font-weight: 800;
+}
+
+.emailSecurityTablePanel button strong,
+.emailSecurityTablePanel button code,
+.emailSecurityTablePanel button span {
+  min-width: 0;
+  font-size: 8px;
+  overflow-wrap: anywhere;
+}
+
+.emailSecurityTablePanel button code,
+.emailSecurityTablePanel button span {
+  color: var(--text-secondary);
+}
+
+@media (max-width: 900px) {
+  .emailSecurityToolbar {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+
+  .emailSecurityToolbar button {
+    grid-column: 1 / -1;
+  }
+
+  .emailSecurityTabs {
+    grid-template-columns:
+      repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 680px) {
+  .emailSecurityToolbar,
+  .emailSecurityStats,
+  .emailSecurityGrid,
+  .emailSecurityTabs {
+    grid-template-columns: 1fr;
+  }
+
+  .emailSecurityHero {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .emailMechanismList button,
+  .emailTagList button,
+  .emailSecurityTablePanel button,
+  .emailSecurityTableHeader {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* === ZEROHUB NETWORK TOOLKIT === */
+
+.networkToolkitTabs {
+  display: grid;
+  grid-template-columns:
+    repeat(6, minmax(0, 1fr));
+  gap: 6px;
+  padding: 5px;
+
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: #090c11;
+}
+
+.networkToolkitTabs button {
+  min-height: 34px;
+  border: 1px solid transparent;
+  border-radius: 7px;
+
+  color: var(--text-secondary);
+  background: transparent;
+
+  font-size: 9px;
+  cursor: pointer;
+}
+
+.networkToolkitTabs button.active {
+  border-color:
+    color-mix(
+      in srgb,
+      var(--primary) 40%,
+      transparent
+    );
+
+  color: var(--text);
+  background: var(--primary-soft);
+}
+
+.networkToolkitWorkspace {
+  display: grid;
+  grid-template-columns:
+    minmax(0, 0.8fr)
+    minmax(0, 1.2fr);
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.networkToolkitForm,
+.networkToolkitResult,
+.networkToolkitSingle {
+  display: grid;
+  align-content: start;
+  gap: 12px;
+  min-width: 0;
+  padding: 14px;
+
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: #0b0e14;
+}
+
+.networkToolkitForm > header,
+.networkToolkitResult > header {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.networkToolkitForm header span,
+.networkToolkitResult header span {
+  color: var(--text-muted);
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+}
+
+.networkToolkitResult header strong {
+  font-family: monospace;
+  font-size: 10px;
+}
+
+.networkToolkitForm label {
+  display: grid;
+  gap: 6px;
+}
+
+.networkToolkitForm label span {
+  color: var(--text-secondary);
+  font-size: 9px;
+}
+
+.networkToolkitForm input,
+.networkToolkitForm select {
+  min-width: 0;
+  min-height: 38px;
+  padding: 9px 10px;
+
+  border: 1px solid var(--border);
+  border-radius: 8px;
+
+  color: var(--text);
+  background: #080b10;
+
+  font-family:
+    "JetBrains Mono",
+    monospace;
+
+  font-size: 9px;
+}
+
+.networkToolkitInline {
+  display: grid;
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.networkToolkitResult > p,
+.networkToolkitPlaceholder {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 10px;
+}
+
+.networkToolkitJson {
+  max-height: 480px;
+  margin: 0;
+  padding: 10px;
+  overflow: auto;
+
+  border: 1px solid #1e242e;
+  border-radius: 8px;
+
+  color: #b9c2ff;
+  background: #080b10;
+
+  font-family:
+    "JetBrains Mono",
+    monospace;
+
+  font-size: 8px;
+  line-height: 1.55;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.networkPortState {
+  display: grid;
+  gap: 5px;
+  padding: 13px;
+
+  border: 1px solid;
+  border-radius: 9px;
+}
+
+.networkPortState.open {
+  border-color:
+    rgb(81 221 135 / 30%);
+  color: #8ce7ad;
+  background:
+    rgb(81 221 135 / 7%);
+}
+
+.networkPortState.closed {
+  border-color:
+    rgb(255 90 110 / 30%);
+  color: #ff9aa5;
+  background:
+    rgb(255 90 110 / 7%);
+}
+
+.networkPortState strong {
+  font-size: 13px;
+}
+
+.networkPortState span {
+  font-family: monospace;
+  font-size: 9px;
+}
+
+.networkHopList,
+.networkDnsList {
+  display: grid;
+  max-height: 400px;
+  overflow: auto;
+
+  border: 1px solid #1c222c;
+  border-radius: 8px;
+}
+
+.networkHopList button,
+.networkDnsList button {
+  display: grid;
+  grid-template-columns:
+    60px minmax(0, 1fr) 120px;
+  gap: 10px;
+  padding: 9px 10px;
+
+  border: 0;
+  border-bottom: 1px solid #1b2029;
+
+  color: var(--text);
+  background: #080b10;
+
+  text-align: left;
+  cursor: pointer;
+}
+
+.networkHopList button:last-child,
+.networkDnsList button:last-child {
+  border-bottom: 0;
+}
+
+.networkHopList strong,
+.networkHopList code,
+.networkHopList span,
+.networkDnsList code,
+.networkDnsList span,
+.networkDnsList small {
+  min-width: 0;
+  font-size: 8px;
+  overflow-wrap: anywhere;
+}
+
+.networkHopList code,
+.networkHopList span,
+.networkDnsList span,
+.networkDnsList small {
+  color: var(--text-secondary);
+}
+
+.networkToolkitDetails {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+}
+
+.networkToolkitDetails > div {
+  display: grid;
+  grid-template-columns:
+    160px minmax(0, 1fr);
+  gap: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #1b2029;
+}
+
+.networkToolkitDetails > div:last-child {
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+
+.networkToolkitDetails dt {
+  color: var(--text-muted);
+  font-size: 9px;
+}
+
+.networkToolkitDetails dd {
+  min-width: 0;
+  margin: 0;
+  color: var(--text-secondary);
+  font-family: monospace;
+  font-size: 9px;
+  text-align: right;
+  overflow-wrap: anywhere;
+}
+
+.networkToolkitSingle {
+  margin-top: 12px;
+}
+
+.networkToolkitActionBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.networkToolkitActionBar span,
+.networkToolkitActionBar code {
+  color: var(--text-secondary);
+  font-size: 9px;
+}
+
+.networkInterfaceGrid {
+  display: grid;
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.networkInterfaceGrid > article {
+  display: grid;
+  gap: 10px;
+  min-width: 0;
+  padding: 12px;
+
+  border: 1px solid #1e242e;
+  border-radius: 9px;
+  background: #080b10;
+}
+
+.networkInterfaceGrid article > header {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.networkInterfaceGrid header strong {
+  font-family: monospace;
+  font-size: 11px;
+}
+
+.networkInterfaceGrid header span {
+  color: var(--primary);
+  font-size: 8px;
+}
+
+.networkInterfaceGrid dl {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+}
+
+.networkInterfaceGrid dl > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.networkInterfaceGrid dt,
+.networkInterfaceGrid dd {
+  font-size: 8px;
+}
+
+.networkInterfaceGrid dt {
+  color: var(--text-muted);
+}
+
+.networkInterfaceGrid dd {
+  margin: 0;
+  color: var(--text-secondary);
+}
+
+.networkInterfaceGrid article > div {
+  display: grid;
+  gap: 6px;
+}
+
+.networkInterfaceGrid article > div button {
+  display: grid;
+  gap: 4px;
+  padding: 8px;
+
+  border: 1px solid #1c222c;
+  border-radius: 7px;
+
+  color: var(--text);
+  background: #0b0e14;
+
+  text-align: left;
+  cursor: pointer;
+}
+
+.networkInterfaceGrid code,
+.networkInterfaceGrid button span {
+  font-size: 8px;
+  overflow-wrap: anywhere;
+}
+
+.networkInterfaceGrid button span {
+  color: var(--text-muted);
+}
+
+.networkRouteTable {
+  display: grid;
+  max-height: 560px;
+  overflow: auto;
+
+  border: 1px solid #1c222c;
+  border-radius: 8px;
+}
+
+.networkRouteTable > div,
+.networkRouteTable > button {
+  display: grid;
+  grid-template-columns:
+    minmax(120px, 1fr)
+    minmax(120px, 1fr)
+    100px
+    100px
+    80px;
+  gap: 10px;
+  padding: 9px 10px;
+}
+
+.networkRouteHeader {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+
+  color: var(--text-muted);
+  background: #10151d;
+
+  font-size: 8px;
+  font-weight: 800;
+}
+
+.networkRouteTable > button {
+  border: 0;
+  border-bottom: 1px solid #1b2029;
+
+  color: var(--text);
+  background: #080b10;
+
+  text-align: left;
+  cursor: pointer;
+}
+
+.networkRouteTable > button:last-child {
+  border-bottom: 0;
+}
+
+.networkRouteTable code,
+.networkRouteTable span,
+.networkRouteTable strong {
+  min-width: 0;
+  font-size: 8px;
+  overflow-wrap: anywhere;
+}
+
+.networkRouteTable code,
+.networkRouteTable span {
+  color: var(--text-secondary);
+}
+
+@media (max-width: 900px) {
+  .networkToolkitTabs {
+    grid-template-columns:
+      repeat(3, minmax(0, 1fr));
+  }
+
+  .networkToolkitWorkspace {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 680px) {
+  .networkToolkitTabs,
+  .networkToolkitInline,
+  .networkInterfaceGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .networkToolkitActionBar {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .networkHopList button,
+  .networkDnsList button,
+  .networkRouteTable > button {
+    grid-template-columns: 1fr;
+  }
+
+  .networkRouteHeader {
+    display: none !important;
+  }
+}
+
+/* === ZEROHUB DEVELOPER TOOLS === */
+
+.developerToolsTabs {
+  display: grid;
+  grid-template-columns:
+    repeat(7, minmax(0, 1fr));
+  gap: 6px;
+  padding: 5px;
+
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: #090c11;
+}
+
+.developerToolsTabs button {
+  min-height: 34px;
+  border: 1px solid transparent;
+  border-radius: 7px;
+
+  color: var(--text-secondary);
+  background: transparent;
+
+  font-size: 9px;
+  cursor: pointer;
+}
+
+.developerToolsTabs button.active {
+  border-color:
+    color-mix(
+      in srgb,
+      var(--primary) 40%,
+      transparent
+    );
+
+  color: var(--text);
+  background: var(--primary-soft);
+}
+
+.developerWorkspace,
+.developerDiffWorkspace {
+  display: grid;
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.developerPanel {
+  display: grid;
+  align-content: start;
+  gap: 12px;
+  min-width: 0;
+  padding: 14px;
+
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: #0b0e14;
+}
+
+.developerPanel > header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.developerPanel header span {
+  color: var(--text-muted);
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+}
+
+.developerPanel header button {
+  padding: 0;
+  border: 0;
+
+  color: var(--primary);
+  background: transparent;
+
+  font-size: 8px;
+  cursor: pointer;
+}
+
+.developerPanel header strong {
+  font-family: monospace;
+  font-size: 9px;
+}
+
+.developerPanel label {
+  display: grid;
+  gap: 6px;
+}
+
+.developerPanel label > span {
+  color: var(--text-secondary);
+  font-size: 9px;
+}
+
+.developerPanel input,
+.developerPanel select,
+.developerPanel textarea {
+  min-width: 0;
+  padding: 9px 10px;
+
+  border: 1px solid var(--border);
+  border-radius: 8px;
+
+  color: var(--text);
+  background: #080b10;
+
+  font-family:
+    "JetBrains Mono",
+    monospace;
+
+  font-size: 9px;
+}
+
+.developerPanel textarea {
+  resize: vertical;
+  line-height: 1.55;
+}
+
+.developerPanel pre {
+  min-height: 250px;
+  max-height: 600px;
+  margin: 0;
+  padding: 10px;
+  overflow: auto;
+
+  border: 1px solid #1e242e;
+  border-radius: 8px;
+
+  color: #b9c2ff;
+  background: #080b10;
+
+  font-family:
+    "JetBrains Mono",
+    monospace;
+
+  font-size: 8px;
+  line-height: 1.55;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  user-select: text;
+}
+
+.developerInline {
+  display: grid;
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.developerCheck {
+  display: flex !important;
+  align-items: center;
+  gap: 8px;
+  padding: 8px;
+
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: #080b10;
+}
+
+.developerCheck input {
+  width: auto;
+}
+
+.developerActions {
+  display: flex;
+  gap: 8px;
+}
+
+.developerNotice {
+  margin: 0;
+  padding: 9px;
+
+  border: 1px solid
+    rgb(255 181 71 / 25%);
+
+  border-radius: 8px;
+
+  color: #ffd08a;
+  background:
+    rgb(255 181 71 / 6%);
+
+  font-size: 8px;
+  line-height: 1.5;
+}
+
+.developerDiffButton {
+  grid-column: 1 / -1;
+}
+
+.developerDiffResult {
+  grid-column: 1 / -1;
+}
+
+@media (max-width: 980px) {
+  .developerToolsTabs {
+    grid-template-columns:
+      repeat(4, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 720px) {
+  .developerToolsTabs,
+  .developerWorkspace,
+  .developerDiffWorkspace,
+  .developerInline {
+    grid-template-columns: 1fr;
+  }
+
+  .developerDiffButton,
+  .developerDiffResult {
+    grid-column: auto;
+  }
+}
+
+/* === ZEROHUB IOC INTELLIGENCE === */
+
+.iocNotice {
+  margin-bottom: 12px;
+  padding: 10px 12px;
+
+  border: 1px solid
+    rgb(255 181 71 / 25%);
+
+  border-radius: 9px;
+
+  color: #ffd08a;
+  background:
+    rgb(255 181 71 / 6%);
+
+  font-size: 9px;
+  line-height: 1.5;
+}
+
+.iocLayout {
+  display: grid;
+  grid-template-columns:
+    minmax(0, 1.2fr)
+    minmax(300px, 0.8fr);
+  gap: 12px;
+}
+
+.iocInputPanel,
+.iocKeyPanel {
+  display: grid;
+  align-content: start;
+  gap: 12px;
+  min-width: 0;
+  padding: 14px;
+
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: #0b0e14;
+}
+
+.iocInputPanel > header,
+.iocKeyPanel > header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.iocInputPanel header span,
+.iocKeyPanel header span {
+  color: var(--text-muted);
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+}
+
+.iocInputPanel header strong {
+  font-family: monospace;
+  font-size: 9px;
+}
+
+.iocKeyPanel header button {
+  padding: 0;
+  border: 0;
+
+  color: var(--primary);
+  background: transparent;
+
+  font-size: 8px;
+  cursor: pointer;
+}
+
+.iocInputPanel textarea,
+.iocKeyForm input {
+  min-width: 0;
+  padding: 10px;
+
+  border: 1px solid var(--border);
+  border-radius: 8px;
+
+  color: var(--text);
+  background: #080b10;
+
+  font-family:
+    "JetBrains Mono",
+    monospace;
+
+  font-size: 9px;
+  line-height: 1.55;
+}
+
+.iocInputPanel textarea {
+  resize: vertical;
+}
+
+.iocProviderGrid {
+  display: grid;
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.iocProviderGrid label {
+  display: grid;
+  grid-template-columns:
+    auto minmax(0, 1fr) auto;
+  gap: 7px;
+  align-items: center;
+  padding: 9px;
+
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: #080b10;
+}
+
+.iocProviderGrid label span {
+  font-size: 9px;
+}
+
+.iocProviderGrid small {
+  color: #ff9aa5;
+  font-size: 7px;
+}
+
+.iocProviderGrid small.configured {
+  color: #8ce7ad;
+}
+
+.iocKeyPanel dl {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+}
+
+.iocKeyPanel dl > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #1b2029;
+}
+
+.iocKeyPanel dl > div:last-child {
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+
+.iocKeyPanel dt,
+.iocKeyPanel dd {
+  font-size: 9px;
+}
+
+.iocKeyPanel dt {
+  color: var(--text-muted);
+}
+
+.iocKeyPanel dd {
+  margin: 0;
+  color: var(--text-secondary);
+}
+
+.iocKeyForm {
+  display: grid;
+  gap: 10px;
+  padding-top: 4px;
+}
+
+.iocKeyForm label {
+  display: grid;
+  gap: 6px;
+}
+
+.iocKeyForm label span {
+  color: var(--text-secondary);
+  font-size: 8px;
+}
+
+.iocKeyForm > div {
+  display: flex;
+  gap: 8px;
+}
+
+.iocResults {
+  display: grid;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.iocStats {
+  display: grid;
+  grid-template-columns:
+    repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.iocStats article {
+  display: grid;
+  gap: 6px;
+  padding: 12px;
+
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  background: #0b0e14;
+}
+
+.iocStats span {
+  color: var(--text-muted);
+  font-size: 8px;
+  font-weight: 800;
+}
+
+.iocStats strong {
+  font-family: monospace;
+  font-size: 13px;
+}
+
+.iocStats .danger strong {
+  color: #ff8290;
+}
+
+.iocStats .warning strong {
+  color: #ffd08a;
+}
+
+.iocResultList {
+  display: grid;
+  gap: 10px;
+}
+
+.iocResultList > article {
+  display: grid;
+  gap: 12px;
+  padding: 13px;
+
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: #0b0e14;
+}
+
+.iocResultList > article.malicious {
+  box-shadow:
+    inset 3px 0 #ff6074;
+}
+
+.iocResultList > article.suspicious {
+  box-shadow:
+    inset 3px 0 #ffb547;
+}
+
+.iocResultList > article.clean-or-unknown {
+  box-shadow:
+    inset 3px 0 #51dd87;
+}
+
+.iocResultList > article > header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.iocResultList header > button {
+  min-width: 0;
+  padding: 0;
+  border: 0;
+
+  color: var(--text);
+  background: transparent;
+
+  text-align: left;
+  cursor: pointer;
+}
+
+.iocResultList header code {
+  font-size: 9px;
+  overflow-wrap: anywhere;
+}
+
+.iocResultList header > div {
+  display: grid;
+  justify-items: end;
+  gap: 4px;
+}
+
+.iocResultList header span {
+  color: var(--text-muted);
+  font-size: 8px;
+}
+
+.iocResultList header strong {
+  font-size: 8px;
+  text-transform: uppercase;
+}
+
+.iocProviderResults {
+  display: grid;
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.iocProviderResults details {
+  min-width: 0;
+  padding: 9px;
+
+  border: 1px solid #1e242e;
+  border-radius: 8px;
+  background: #080b10;
+}
+
+.iocProviderResults summary {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  cursor: pointer;
+}
+
+.iocProviderResults summary span,
+.iocProviderResults summary strong {
+  font-size: 8px;
+}
+
+.iocProviderResults summary strong {
+  color: var(--primary);
+}
+
+.iocProviderResults p {
+  margin: 9px 0 0;
+  color: var(--text-secondary);
+  font-size: 8px;
+  line-height: 1.5;
+}
+
+.iocProviderResults pre {
+  max-height: 360px;
+  margin: 9px 0 0;
+  padding: 9px;
+  overflow: auto;
+
+  border: 1px solid #1e242e;
+  border-radius: 7px;
+
+  color: #b9c2ff;
+  background: #06080c;
+
+  font-family:
+    "JetBrains Mono",
+    monospace;
+
+  font-size: 7px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 900px) {
+  .iocLayout {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 680px) {
+  .iocProviderGrid,
+  .iocProviderResults,
+  .iocStats {
+    grid-template-columns: 1fr;
+  }
+
+  .iocResultList > article > header {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .iocResultList header > div {
+    justify-items: start;
+  }
+}

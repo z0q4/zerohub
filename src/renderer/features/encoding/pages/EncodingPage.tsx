@@ -1,8 +1,22 @@
-import { useState } from 'react';
+import {
+  useState,
+} from 'react';
 
-import { Base64Tool } from '../components/Base64Tool';
-import { HexTool } from '../components/HexTool';
-import { UrlTool } from '../components/UrlTool';
+import {
+  ModuleWorkspaceHeader,
+} from '../../../components/layout/ModuleWorkspaceHeader';
+
+import {
+  Base64Tool,
+} from '../components/Base64Tool';
+
+import {
+  HexTool,
+} from '../components/HexTool';
+
+import {
+  UrlTool,
+} from '../components/UrlTool';
 
 import {
   ENCODING_TOOL_REGISTRY,
@@ -13,8 +27,13 @@ import type {
 } from '../encoding.registry';
 
 export function EncodingPage() {
-  const [activeTool, setActiveTool] =
-    useState<EncodingToolId>('base64');
+  const [
+    activeTool,
+    setActiveTool,
+  ] =
+    useState<EncodingToolId>(
+      'base64',
+    );
 
   function renderTool() {
     switch (activeTool) {
@@ -30,69 +49,108 @@ export function EncodingPage() {
   }
 
   return (
-    <>
-      <header className="pageHeader">
-        <div>
-          <span className="eyebrow">
-            ZEROHUB MODULE
-          </span>
+    <div
+      className="moduleWorkspace moduleWorkspaceEncoding"
+      data-module="encoding"
+    >
+      <ModuleWorkspaceHeader
+        abbreviation="ENC"
+        badge={`${ENCODING_TOOL_REGISTRY.length} codecs`}
+        section="Data & Dev"
+        title="Encoding"
+        description="Codifique, decodifique e transforme dados em formatos técnicos comuns."
+        privacy="Local transformations"
+        capabilities={[
+          'Base64',
+          'URL encoding',
+          'Hexadecimal',
+        ]}
+        workflow={[
+          'Select codec',
+          'Paste input',
+          'Transform',
+          'Copy result',
+        ]}
+      />
 
-          <h1>Encoding</h1>
+      <section className="moduleWorkspaceBody">
+        <div className="moduleWorkspaceContext">
+          <span>DATA TRANSFORM</span>
+
+          <strong>
+            Convert representations without
+            changing the underlying data.
+          </strong>
 
           <p>
-            Codificação, decodificação e
-            transformação de dados.
+            O workspace mantém entrada e
+            saída lado a lado para facilitar
+            validação, comparação e cópia.
           </p>
+
+          <div>
+            <span>
+              Processing
+              <strong>Local</strong>
+            </span>
+
+            <span>
+              Input
+              <strong>Text</strong>
+            </span>
+
+            <span>
+              Output
+              <strong>Copyable</strong>
+            </span>
+          </div>
         </div>
 
-        <span className="operationalBadge">
-          {ENCODING_TOOL_REGISTRY.length}
-          {' '}ferramentas
-        </span>
-      </header>
+        <div className="encodingWorkspace moduleSelectorWorkspace">
+          <aside className="toolSelector">
+            <span className="toolSelectorLabel">
+              TRANSFORMERS
+            </span>
 
-      <div className="encodingWorkspace">
-        <aside className="toolSelector">
-          <span className="toolSelectorLabel">
-            FERRAMENTAS
-          </span>
+            {ENCODING_TOOL_REGISTRY.map(
+              (tool) => (
+                <button
+                  className={`toolSelectorButton ${
+                    activeTool === tool.id
+                      ? 'active'
+                      : ''
+                  }`}
+                  key={tool.id}
+                  type="button"
+                  onClick={() => {
+                    setActiveTool(
+                      tool.id,
+                    );
+                  }}
+                >
+                  <span className="toolSelectorIcon">
+                    {tool.abbreviation}
+                  </span>
 
-          {ENCODING_TOOL_REGISTRY.map(
-            (tool) => (
-              <button
-                className={`toolSelectorButton ${
-                  activeTool === tool.id
-                    ? 'active'
-                    : ''
-                }`}
-                key={tool.id}
-                type="button"
-                onClick={() =>
-                  setActiveTool(tool.id)
-                }
-              >
-                <span className="toolSelectorIcon">
-                  {tool.abbreviation}
-                </span>
+                  <span>
+                    <strong>
+                      {tool.name}
+                    </strong>
 
-                <span>
-                  <strong>
-                    {tool.name}
-                  </strong>
+                    <small>
+                      {tool.description}
+                    </small>
+                  </span>
+                </button>
+              ),
+            )}
+          </aside>
 
-                  <small>
-                    {tool.description}
-                  </small>
-                </span>
-              </button>
-            ),
-          )}
-        </aside>
-
-        <div className="activeToolContent">
-          {renderTool()}
+          <div className="activeToolContent">
+            {renderTool()}
+          </div>
         </div>
-      </div>
-    </>
+      </section>
+    </div>
   );
 }

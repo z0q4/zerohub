@@ -1,0 +1,836 @@
+/* ==========================================================================
+   ZEROHUB INTERFACE V5
+   Workspace tabs, activity rail, status bar and focus mode.
+   ========================================================================== */
+
+:root {
+  --activity-rail-width: 286px;
+  --status-bar-height: 28px;
+}
+
+.applicationV5 {
+  min-height: 100vh;
+}
+
+.applicationV5.focusMode {
+  grid-template-columns:
+    minmax(0, 1fr);
+}
+
+.contentShellV5 {
+  display: grid;
+  grid-template-rows:
+    auto
+    auto
+    auto
+    minmax(0, 1fr)
+    var(--status-bar-height);
+
+  min-width: 0;
+  min-height: 100vh;
+}
+
+.appTopbarV5 {
+  position: relative;
+  z-index: 20;
+}
+
+.topbarUtilityButton {
+  height: 32px;
+  padding: 0 10px;
+
+  border: 1px solid var(--border);
+  border-radius: 8px;
+
+  color: var(--text-secondary);
+  background:
+    rgb(255 255 255 / 2.5%);
+
+  font-size: 8px;
+  font-weight: 700;
+  cursor: pointer;
+
+  transition:
+    border-color 140ms ease,
+    color 140ms ease,
+    background 140ms ease;
+}
+
+.topbarUtilityButton:hover,
+.topbarUtilityButton.active {
+  border-color:
+    color-mix(
+      in srgb,
+      var(--primary) 38%,
+      transparent
+    );
+
+  color: var(--primary);
+  background: var(--primary-soft);
+}
+
+.topbarSubbarV5 {
+  margin-bottom: 8px;
+}
+
+/* Workspace tabs */
+
+.workspaceTabsBar {
+  display: grid;
+  grid-template-columns:
+    minmax(0, 1fr) auto;
+  gap: 8px;
+  align-items: end;
+
+  min-width: 0;
+  margin-bottom: 10px;
+  padding:
+    0 2px;
+}
+
+.workspaceTabs {
+  display: flex;
+  gap: 5px;
+  min-width: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding-bottom: 2px;
+
+  scrollbar-width: none;
+}
+
+.workspaceTabs::-webkit-scrollbar {
+  display: none;
+}
+
+.workspaceTab {
+  display: grid;
+  grid-template-columns:
+    minmax(0, 1fr) auto;
+  align-items: stretch;
+
+  min-width: 142px;
+  max-width: 210px;
+
+  border: 1px solid var(--border);
+  border-radius:
+    9px 9px 4px 4px;
+
+  background:
+    rgb(255 255 255 / 2.4%);
+
+  overflow: hidden;
+
+  transition:
+    border-color 140ms ease,
+    background 140ms ease;
+}
+
+.workspaceTab:hover {
+  border-color:
+    color-mix(
+      in srgb,
+      var(--primary) 27%,
+      transparent
+    );
+
+  background:
+    rgb(255 255 255 / 3.8%);
+}
+
+.workspaceTab.active {
+  border-color:
+    color-mix(
+      in srgb,
+      var(--primary) 40%,
+      transparent
+    );
+
+  background:
+    linear-gradient(
+      180deg,
+      var(--primary-soft),
+      rgb(255 255 255 / 2.5%)
+    );
+
+  box-shadow:
+    inset 0 -2px 0
+      var(--primary);
+}
+
+.workspaceTabMain {
+  position: relative;
+
+  display: grid;
+  grid-template-columns:
+    25px minmax(0, 1fr);
+  gap: 8px;
+  align-items: center;
+
+  min-width: 0;
+  padding:
+    7px 6px 7px 8px;
+
+  border: 0;
+  color: var(--text-secondary);
+  background: transparent;
+
+  text-align: left;
+  cursor: pointer;
+}
+
+.workspaceTabMain strong {
+  min-width: 0;
+  overflow: hidden;
+
+  font-size: 8px;
+  font-weight: 650;
+
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.workspaceTab.active
+.workspaceTabMain {
+  color: var(--text);
+}
+
+.workspaceTabIcon {
+  display: grid;
+  width: 25px;
+  height: 25px;
+  place-items: center;
+
+  border: 1px solid
+    color-mix(
+      in srgb,
+      var(--primary) 24%,
+      transparent
+    );
+
+  border-radius: 7px;
+
+  color: var(--primary);
+  background:
+    color-mix(
+      in srgb,
+      var(--primary) 8%,
+      transparent
+    );
+
+  font-family:
+    "JetBrains Mono",
+    monospace;
+
+  font-size: 6px;
+  font-weight: 800;
+}
+
+.workspaceTabMain i {
+  position: absolute;
+  left: 8px;
+  right: 8px;
+  bottom: 0;
+
+  height: 1px;
+
+  background:
+    linear-gradient(
+      90deg,
+      transparent,
+      var(--primary),
+      transparent
+    );
+}
+
+.workspaceTabClose {
+  width: 28px;
+
+  border: 0;
+  border-left:
+    1px solid
+      rgb(255 255 255 / 4%);
+
+  color: var(--text-muted);
+  background: transparent;
+
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.workspaceTabClose:hover {
+  color: var(--text);
+  background:
+    rgb(255 255 255 / 5%);
+}
+
+.workspaceTabsActions {
+  display: flex;
+  gap: 5px;
+}
+
+.workspaceTabsActions button {
+  display: grid;
+  width: 32px;
+  height: 32px;
+  place-items: center;
+
+  border: 1px solid var(--border);
+  border-radius: 8px;
+
+  color: var(--text-secondary);
+  background:
+    rgb(255 255 255 / 2.5%);
+
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.workspaceTabsActions button:hover {
+  border-color:
+    color-mix(
+      in srgb,
+      var(--primary) 35%,
+      transparent
+    );
+
+  color: var(--primary);
+  background: var(--primary-soft);
+}
+
+/* Workspace frame */
+
+.workspaceFrame {
+  display: grid;
+  grid-template-columns:
+    minmax(0, 1fr);
+  gap: 12px;
+
+  min-width: 0;
+  min-height: 0;
+}
+
+.workspaceFrame.withActivityRail {
+  grid-template-columns:
+    minmax(0, 1fr)
+    var(--activity-rail-width);
+}
+
+.workspaceMain {
+  min-width: 0;
+  min-height: 0;
+  overflow: auto;
+}
+
+/* Activity rail */
+
+.activityRail {
+  position: sticky;
+  top: 0;
+
+  display: grid;
+  align-content: start;
+  gap: 12px;
+
+  min-width: 0;
+  max-height:
+    calc(
+      100vh -
+      190px
+    );
+
+  padding: 12px;
+
+  border: 1px solid var(--border);
+  border-radius: 13px;
+
+  background:
+    linear-gradient(
+      145deg,
+      color-mix(
+        in srgb,
+        var(--primary) 7%,
+        transparent
+      ),
+      transparent 40%
+    ),
+    color-mix(
+      in srgb,
+      var(--surface) 96%,
+      transparent
+    );
+
+  box-shadow:
+    0 16px 40px
+      rgb(0 0 0 / 16%);
+
+  overflow-y: auto;
+}
+
+.activityRailHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.activityRailHeader span,
+.activityRailSectionBlock
+> header span {
+  color: var(--primary);
+  font-size: 7px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+}
+
+.activityRailHeader strong {
+  display: block;
+  margin-top: 3px;
+
+  font-size: 11px;
+}
+
+.activityRailHeader
+> button {
+  display: grid;
+  width: 28px;
+  height: 28px;
+  place-items: center;
+
+  border: 1px solid var(--border);
+  border-radius: 8px;
+
+  color: var(--text-muted);
+  background:
+    rgb(255 255 255 / 2%);
+
+  cursor: pointer;
+}
+
+.activityRailHeader
+> button:hover {
+  color: var(--text);
+  background:
+    rgb(255 255 255 / 5%);
+}
+
+.activityRailCurrent {
+  display: grid;
+  gap: 12px;
+  padding: 13px;
+
+  border: 1px solid var(--border);
+  border-radius: 11px;
+
+  background:
+    rgb(0 0 0 / 12%);
+}
+
+.activityRailCurrentTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 9px;
+}
+
+.activityRailCurrentIcon {
+  display: grid;
+  width: 42px;
+  height: 42px;
+  place-items: center;
+
+  border: 1px solid
+    color-mix(
+      in srgb,
+      var(--primary) 34%,
+      transparent
+    );
+
+  border-radius: 11px;
+
+  color: var(--primary);
+  background: var(--primary-soft);
+
+  font-family:
+    "JetBrains Mono",
+    monospace;
+
+  font-size: 9px;
+  font-weight: 800;
+}
+
+.activityRailSection {
+  padding: 5px 8px;
+
+  border: 1px solid var(--border);
+  border-radius: 999px;
+
+  color: var(--text-muted);
+  background:
+    rgb(255 255 255 / 2.5%);
+
+  font-size: 7px;
+}
+
+.activityRailCurrent h2 {
+  margin: 0;
+  font-size: 17px;
+  letter-spacing: -0.035em;
+}
+
+.activityRailCurrent p {
+  margin: 0;
+
+  color: var(--text-secondary);
+  font-size: 8px;
+  line-height: 1.55;
+}
+
+.activityRailCurrentMeta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  padding-top: 9px;
+
+  border-top:
+    1px solid var(--border);
+}
+
+.activityRailCurrentMeta span,
+.activityRailCurrentMeta strong {
+  font-size: 8px;
+}
+
+.activityRailCurrentMeta span {
+  color: var(--text-muted);
+}
+
+.activityRailCurrentMeta strong {
+  color: var(--primary);
+  text-transform: capitalize;
+}
+
+.activityRailActions {
+  display: grid;
+  grid-template-columns:
+    minmax(0, 1fr) auto;
+  gap: 7px;
+}
+
+.activityRailActions
+button {
+  min-height: 33px;
+  font-size: 8px;
+}
+
+.activityRailSectionBlock {
+  display: grid;
+  gap: 8px;
+}
+
+.activityRailSectionBlock
+> header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.activityRailSectionBlock
+> header strong {
+  color: var(--text-secondary);
+  font-size: 8px;
+}
+
+.activityRailList {
+  display: grid;
+  gap: 6px;
+}
+
+.activityRailList > p {
+  margin: 0;
+  padding: 12px;
+
+  border: 1px dashed
+    color-mix(
+      in srgb,
+      var(--primary) 20%,
+      var(--border)
+    );
+
+  border-radius: 9px;
+
+  color: var(--text-muted);
+  font-size: 8px;
+  line-height: 1.5;
+}
+
+.activityRailModule {
+  display: grid;
+  grid-template-columns:
+    29px minmax(0, 1fr) auto;
+  gap: 8px;
+  align-items: center;
+
+  min-width: 0;
+  padding: 8px;
+
+  border: 1px solid var(--border);
+  border-radius: 9px;
+
+  color: var(--text);
+  background:
+    rgb(255 255 255 / 2.3%);
+
+  text-align: left;
+  cursor: pointer;
+
+  transition:
+    border-color 130ms ease,
+    background 130ms ease,
+    transform 130ms ease;
+}
+
+.activityRailModule:hover {
+  border-color:
+    color-mix(
+      in srgb,
+      var(--primary) 33%,
+      transparent
+    );
+
+  background: var(--primary-soft);
+
+  transform:
+    translateX(-2px);
+}
+
+.activityRailModule
+> span {
+  display: grid;
+  width: 29px;
+  height: 29px;
+  place-items: center;
+
+  border: 1px solid
+    color-mix(
+      in srgb,
+      var(--primary) 26%,
+      transparent
+    );
+
+  border-radius: 8px;
+
+  color: var(--primary);
+  background:
+    color-mix(
+      in srgb,
+      var(--primary) 8%,
+      transparent
+    );
+
+  font-family:
+    "JetBrains Mono",
+    monospace;
+
+  font-size: 6px;
+  font-weight: 800;
+}
+
+.activityRailModule
+strong,
+.activityRailModule
+small {
+  display: block;
+}
+
+.activityRailModule
+strong {
+  overflow: hidden;
+
+  font-size: 8px;
+
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.activityRailModule
+small {
+  margin-top: 2px;
+  color: var(--text-muted);
+  font-size: 6px;
+}
+
+.activityRailModule i {
+  color: var(--primary);
+  font-style: normal;
+}
+
+/* Status bar */
+
+.statusBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+
+  min-width: 0;
+  padding:
+    0 10px;
+
+  border-top:
+    1px solid var(--border);
+
+  color: var(--text-muted);
+  background:
+    color-mix(
+      in srgb,
+      var(--surface) 98%,
+      black
+    );
+
+  font-size: 7px;
+}
+
+.statusBar > div {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  min-width: 0;
+}
+
+.statusBar strong {
+  color: var(--text-secondary);
+  font-size: 7px;
+}
+
+.statusBarPulse {
+  width: 6px;
+  height: 6px;
+
+  border-radius: 999px;
+  background: var(--primary);
+
+  box-shadow:
+    0 0 10px
+      color-mix(
+        in srgb,
+        var(--primary) 65%,
+        transparent
+      );
+}
+
+/* Focus mode */
+
+.applicationV5.focusMode
+.contentShellV5 {
+  grid-column: 1 / -1;
+}
+
+.applicationV5.focusMode
+.topbarSubbar,
+.applicationV5.focusMode
+.workspaceTabsBar {
+  margin-left: 8px;
+  margin-right: 8px;
+}
+
+.applicationV5.focusMode
+.workspaceFrame {
+  grid-template-columns:
+    minmax(0, 1fr);
+}
+
+/* Section-aware tint */
+
+html[data-section="intelligence"] {
+  --section-tint:
+    color-mix(
+      in srgb,
+      var(--primary) 9%,
+      transparent
+    );
+}
+
+html[data-section="analysis"] {
+  --section-tint:
+    color-mix(
+      in srgb,
+      var(--primary) 7%,
+      transparent
+    );
+}
+
+html[data-section="network"] {
+  --section-tint:
+    color-mix(
+      in srgb,
+      var(--primary) 8%,
+      transparent
+    );
+}
+
+html[data-section="data-dev"] {
+  --section-tint:
+    color-mix(
+      in srgb,
+      var(--primary) 6%,
+      transparent
+    );
+}
+
+.workspaceFrame {
+  background:
+    radial-gradient(
+      circle at 100% 0%,
+      var(
+        --section-tint,
+        transparent
+      ),
+      transparent 34%
+    );
+}
+
+@media (max-width: 1240px) {
+  .workspaceFrame.withActivityRail {
+    grid-template-columns:
+      minmax(0, 1fr)
+      250px;
+  }
+
+  :root {
+    --activity-rail-width:
+      250px;
+  }
+}
+
+@media (max-width: 1040px) {
+  .workspaceFrame.withActivityRail {
+    grid-template-columns:
+      minmax(0, 1fr);
+  }
+
+  .activityRail {
+    position: static;
+    max-height: none;
+  }
+}
+
+@media (max-width: 760px) {
+  .workspaceTab {
+    min-width: 118px;
+  }
+
+  .statusBar {
+    justify-content: center;
+  }
+
+  .statusBar > div:last-child {
+    display: none;
+  }
+
+  .topbarUtilityButton {
+    padding: 0 8px;
+  }
+}
+

@@ -1,4 +1,24 @@
 import {
+  registerIocIntelligenceIpcHandlers,
+} from './main/ipc/ioc-intelligence.ipc';
+
+import {
+  registerDeveloperToolsIpcHandlers,
+} from './main/ipc/developer-tools.ipc';
+
+import {
+  registerNetworkToolkitIpcHandlers,
+} from './main/ipc/network-toolkit.ipc';
+
+import {
+  registerEmailSecurityIpcHandlers,
+} from './main/ipc/email-security.ipc';
+
+import {
+  registerWebReconIpcHandlers,
+} from './main/ipc/web-recon.ipc';
+
+import {
   registerCryptographyIpcHandlers,
 } from './main/ipc/cryptography.ipc';
 
@@ -114,6 +134,11 @@ function createWindow(): void {
 }
 app.whenReady().then(() => {
   registerEncodingIpcHandlers();
+  registerIocIntelligenceIpcHandlers();
+  registerDeveloperToolsIpcHandlers();
+  registerNetworkToolkitIpcHandlers();
+  registerEmailSecurityIpcHandlers();
+  registerWebReconIpcHandlers();
   registerCryptographyIpcHandlers();
   registerSystemAuditIpcHandlers();
   registerFileAnalysisIpcHandlers();

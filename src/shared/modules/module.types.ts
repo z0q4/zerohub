@@ -11,7 +11,12 @@ export type ModuleId =
   | 'file-forensics'
   | 'log-analysis'
   | 'system-audit'
-  | 'cryptography';
+  | 'cryptography'
+  | 'web-recon'
+  | 'email-security'
+  | 'network-toolkit'
+  | 'developer-tools'
+  | 'ioc-intelligence';
 
 export type ModuleStatus =
   | 'operational'
@@ -19,6 +24,10 @@ export type ModuleStatus =
 
 export type ModuleSection =
   | 'workspace'
+  | 'intelligence'
+  | 'analysis'
+  | 'network'
+  | 'data-dev'
   | 'system';
 
 export type ModuleDefinition = {

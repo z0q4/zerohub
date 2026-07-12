@@ -3,6 +3,10 @@ import {
 } from 'react';
 
 import {
+  ModuleWorkspaceHeader,
+} from '../../../components/layout/ModuleWorkspaceHeader';
+
+import {
   RdapDomainTool,
 } from '../components/RdapDomainTool';
 
@@ -26,86 +30,116 @@ export function OsintPage() {
   function renderTool() {
     switch (activeTool) {
       case 'rdap-domain':
-        return (
-          <RdapDomainTool />
-        );
+        return <RdapDomainTool />;
     }
   }
 
   return (
-    <>
-      <header className="pageHeader">
-        <div>
-          <span className="eyebrow">
-            ZEROHUB MODULE
-          </span>
+    <div
+      className="moduleWorkspace moduleWorkspaceOsint"
+      data-module="osint"
+    >
+      <ModuleWorkspaceHeader
+        abbreviation="OSI"
+        badge="Public data"
+        section="Intelligence"
+        title="OSINT"
+        description="Consulte e organize informações públicas de infraestrutura e registro."
+        privacy="Public RDAP sources"
+        capabilities={[
+          'RDAP',
+          'Domain registration',
+          'Entities',
+          'Events',
+          'Raw response',
+        ]}
+        workflow={[
+          'Enter domain',
+          'Query RDAP',
+          'Normalize data',
+          'Review entities',
+        ]}
+      />
 
-          <h1>OSINT</h1>
+      <section className="moduleWorkspaceBody">
+        <div className="moduleWorkspaceContext">
+          <span>PUBLIC INTELLIGENCE</span>
+
+          <strong>
+            Convert registration records
+            into an investigation-ready view.
+          </strong>
 
           <p>
-            Consulta e organização de
-            informações públicas.
+            A consulta usa fontes públicas
+            RDAP e preserva tanto o resumo
+            normalizado quanto a resposta
+            original.
           </p>
+
+          <div>
+            <span>
+              Source
+              <strong>RDAP</strong>
+            </span>
+
+            <span>
+              Data
+              <strong>Public</strong>
+            </span>
+
+            <span>
+              Output
+              <strong>Normalized</strong>
+            </span>
+          </div>
         </div>
 
-        <span className="operationalBadge">
-          {
-            OSINT_TOOL_REGISTRY
-              .length
-          }
-          {' '}ferramenta
-        </span>
-      </header>
+        <div className="osintWorkspace moduleSelectorWorkspace">
+          <aside className="toolSelector">
+            <span className="toolSelectorLabel">
+              INTELLIGENCE
+            </span>
 
-      <div className="osintWorkspace">
-        <aside className="toolSelector">
-          <span className="toolSelectorLabel">
-            FERRAMENTAS
-          </span>
+            {OSINT_TOOL_REGISTRY.map(
+              (tool) => (
+                <button
+                  className={`toolSelectorButton ${
+                    activeTool === tool.id
+                      ? 'active'
+                      : ''
+                  }`}
+                  key={tool.id}
+                  type="button"
+                  onClick={() => {
+                    setActiveTool(
+                      tool.id,
+                    );
+                  }}
+                >
+                  <span className="toolSelectorIcon">
+                    {tool.abbreviation}
+                  </span>
 
-          {OSINT_TOOL_REGISTRY.map(
-            (tool) => (
-              <button
-                className={`toolSelectorButton ${
-                  activeTool ===
-                  tool.id
-                    ? 'active'
-                    : ''
-                }`}
-                key={tool.id}
-                type="button"
-                onClick={() =>
-                  setActiveTool(
-                    tool.id,
-                  )
-                }
-              >
-                <span className="toolSelectorIcon">
-                  {
-                    tool.abbreviation
-                  }
-                </span>
+                  <span>
+                    <strong>
+                      {tool.name}
+                    </strong>
 
-                <span>
-                  <strong>
-                    {tool.name}
-                  </strong>
+                    <small>
+                      {tool.description}
+                    </small>
+                  </span>
+                </button>
+              ),
+            )}
+          </aside>
 
-                  <small>
-                    {
-                      tool.description
-                    }
-                  </small>
-                </span>
-              </button>
-            ),
-          )}
-        </aside>
-
-        <div className="activeToolContent">
-          {renderTool()}
+          <div className="activeToolContent">
+            {renderTool()}
+          </div>
         </div>
-      </div>
-    </>
+      </section>
+    </div>
   );
 }
