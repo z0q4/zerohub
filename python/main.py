@@ -19,9 +19,66 @@ from modules.threat_intelligence import (
     virustotal_url_scan,
 )
 
+from modules.secret_scanner import (
+    scan_file as scan_secret_file,
+    scan_folder as scan_secret_folder,
+)
+
+
+from modules.file_forensics import (
+    inspect_file as inspect_forensic_file,
+)
+
+
+from modules.log_analysis import (
+    inspect_log_file,
+)
+
+
+from modules.system_audit import (
+    run_system_audit,
+)
+
+
+from modules.cryptography_tools import (
+    constant_time_compare,
+    create_hmac,
+    decode_jwt,
+    derive_pbkdf2,
+    generate_random,
+    verify_hmac,
+)
+
 Handler = Callable[[dict[str, Any]], Any]
 
 ACTIONS: dict[str, Handler] = {
+    "cryptography.hmac_create":
+        create_hmac,
+
+    "cryptography.hmac_verify":
+        verify_hmac,
+
+    "cryptography.pbkdf2":
+        derive_pbkdf2,
+
+    "cryptography.random":
+        generate_random,
+
+    "cryptography.jwt_decode":
+        decode_jwt,
+
+    "cryptography.compare":
+        constant_time_compare,
+
+    "system_audit.run":
+        run_system_audit,
+
+    "log_analysis.inspect":
+        inspect_log_file,
+
+    "file_forensics.inspect":
+        inspect_forensic_file,
+
     "encoding.transform": transform_text,
     "file_analysis.inspect": inspect_file,
     "hash.text": hash_text,
@@ -33,6 +90,11 @@ ACTIONS: dict[str, Handler] = {
     "threat_intelligence.virustotal_file_upload": virustotal_file_upload,
     "threat_intelligence.virustotal_url": virustotal_url_lookup,
     "threat_intelligence.virustotal_url_scan": virustotal_url_scan,
+    "secret_scanner.scan_file":
+        scan_secret_file,
+
+    "secret_scanner.scan_folder":
+        scan_secret_folder,
 }
 
 

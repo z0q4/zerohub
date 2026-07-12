@@ -1,4 +1,20 @@
 import {
+  registerCryptographyIpcHandlers,
+} from './main/ipc/cryptography.ipc';
+
+import {
+  registerSystemAuditIpcHandlers,
+} from './main/ipc/system-audit.ipc';
+
+import {
+  registerLogAnalysisIpcHandlers,
+} from './main/ipc/log-analysis.ipc';
+
+import {
+  registerFileForensicsIpcHandlers,
+} from './main/ipc/file-forensics.ipc';
+
+import {
   app,
   BrowserWindow,
 } from 'electron';
@@ -30,6 +46,10 @@ import {
 import {
   registerSettingsIpcHandlers,
 } from './main/ipc/settings.ipc';
+
+import {
+  registerSecretScannerIpcHandlers,
+} from './main/ipc/secret-scanner.ipc';
 
 import {
   registerThreatIntelligenceIpcHandlers,
@@ -91,11 +111,16 @@ function createWindow(): void {
 
 app.whenReady().then(() => {
   registerEncodingIpcHandlers();
+  registerCryptographyIpcHandlers();
+  registerSystemAuditIpcHandlers();
   registerFileAnalysisIpcHandlers();
+  registerFileForensicsIpcHandlers();
+  registerLogAnalysisIpcHandlers();
   registerHashIpcHandlers();
   registerNetworkIpcHandlers();
   registerOsintIpcHandlers();
   registerSettingsIpcHandlers();
+  registerSecretScannerIpcHandlers();
   registerThreatIntelligenceIpcHandlers();
 
   createWindow();

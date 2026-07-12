@@ -1,3 +1,31 @@
+import type {
+  CompareResult,
+  CryptoAlgorithm,
+  CryptoEncoding,
+  HmacResult,
+  HmacVerifyResult,
+  JwtResult,
+  Pbkdf2Result,
+  RandomRequest,
+  RandomResult,
+} from './shared/cryptography/cryptography.types';
+
+import type {
+  SystemAuditResult,
+} from './shared/system-audit/system-audit.types';
+
+import type {
+  LogAnalysisResult,
+} from './shared/log-analysis/log-analysis.types';
+
+import type {
+  FileForensicsResult,
+} from './shared/file-forensics/file-forensics.types';
+
+import type {
+  SecretScannerResult,
+} from './shared/secret-scanner/secret-scanner.types';
+
 import {
   clipboard,
   contextBridge,
@@ -84,6 +112,101 @@ const zeroHubAPI = {
       ipcRenderer.invoke(
         'encoding:transform',
         request,
+      ),
+  },
+
+  cryptography: {
+    createHmac: (
+      request: {
+        key: string;
+        message: string;
+        algorithm: CryptoAlgorithm;
+        encoding: CryptoEncoding;
+      },
+    ): Promise<HmacResult> =>
+      ipcRenderer.invoke(
+        'cryptography:hmac-create',
+        request,
+      ),
+
+    verifyHmac: (
+      request: {
+        key: string;
+        message: string;
+        expected: string;
+        algorithm: CryptoAlgorithm;
+        encoding: CryptoEncoding;
+      },
+    ): Promise<HmacVerifyResult> =>
+      ipcRenderer.invoke(
+        'cryptography:hmac-verify',
+        request,
+      ),
+
+    derivePbkdf2: (
+      request: {
+        password: string;
+        salt: string;
+        algorithm: CryptoAlgorithm;
+        iterations: number;
+        length: number;
+      },
+    ): Promise<Pbkdf2Result> =>
+      ipcRenderer.invoke(
+        'cryptography:pbkdf2',
+        request,
+      ),
+
+    generateRandom: (
+      request: RandomRequest,
+    ): Promise<RandomResult> =>
+      ipcRenderer.invoke(
+        'cryptography:random',
+        request,
+      ),
+
+    decodeJwt: (
+      token: string,
+    ): Promise<JwtResult> =>
+      ipcRenderer.invoke(
+        'cryptography:jwt',
+        token,
+      ),
+
+    compare: (
+      left: string,
+      right: string,
+    ): Promise<CompareResult> =>
+      ipcRenderer.invoke(
+        'cryptography:compare',
+        left,
+        right,
+      ),
+  },
+
+  systemAudit: {
+    run: ():
+      Promise<SystemAuditResult> =>
+      ipcRenderer.invoke(
+        'system-audit:run',
+      ),
+  },
+
+  logAnalysis: {
+    inspectFile: ():
+      Promise<LogAnalysisResult | null> =>
+      ipcRenderer.invoke(
+        'log-analysis:inspect-file',
+      ),
+  },
+
+  fileForensics: {
+    inspectFile: (
+      minStringLength = 5,
+    ): Promise<FileForensicsResult | null> =>
+      ipcRenderer.invoke(
+        'file-forensics:inspect-file',
+        minStringLength,
       ),
   },
 
@@ -210,6 +333,14 @@ const zeroHubAPI = {
         'threat-intelligence:virustotal:open-report',
         reportUrl,
       ),
+  },
+
+  secretScanner: {
+    scanFile: (): Promise<SecretScannerResult | null> =>
+      ipcRenderer.invoke('secret-scanner:scan-file'),
+
+    scanFolder: (): Promise<SecretScannerResult | null> =>
+      ipcRenderer.invoke('secret-scanner:scan-folder'),
   },
 
   settings: {

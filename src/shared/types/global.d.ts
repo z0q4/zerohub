@@ -1,4 +1,32 @@
 import type {
+  CompareResult,
+  CryptoAlgorithm,
+  CryptoEncoding,
+  HmacResult,
+  HmacVerifyResult,
+  JwtResult,
+  Pbkdf2Result,
+  RandomRequest,
+  RandomResult,
+} from '../cryptography/cryptography.types';
+
+import type {
+  SystemAuditResult,
+} from '../system-audit/system-audit.types';
+
+import type {
+  LogAnalysisResult,
+} from '../log-analysis/log-analysis.types';
+
+import type {
+  FileForensicsResult,
+} from '../file-forensics/file-forensics.types';
+
+import type {
+  SecretScannerResult,
+} from '../secret-scanner/secret-scanner.types';
+
+import type {
   EncodingTransformRequest,
 } from '../encoding/encoding.types';
 
@@ -62,6 +90,66 @@ type ZeroHubAPI = {
       request:
         EncodingTransformRequest,
     ): Promise<string>;
+  };
+
+  cryptography: {
+    createHmac(
+      request: {
+        key: string;
+        message: string;
+        algorithm: CryptoAlgorithm;
+        encoding: CryptoEncoding;
+      },
+    ): Promise<HmacResult>;
+
+    verifyHmac(
+      request: {
+        key: string;
+        message: string;
+        expected: string;
+        algorithm: CryptoAlgorithm;
+        encoding: CryptoEncoding;
+      },
+    ): Promise<HmacVerifyResult>;
+
+    derivePbkdf2(
+      request: {
+        password: string;
+        salt: string;
+        algorithm: CryptoAlgorithm;
+        iterations: number;
+        length: number;
+      },
+    ): Promise<Pbkdf2Result>;
+
+    generateRandom(
+      request: RandomRequest,
+    ): Promise<RandomResult>;
+
+    decodeJwt(
+      token: string,
+    ): Promise<JwtResult>;
+
+    compare(
+      left: string,
+      right: string,
+    ): Promise<CompareResult>;
+  };
+
+  systemAudit: {
+    run():
+      Promise<SystemAuditResult>;
+  };
+
+  logAnalysis: {
+    inspectFile():
+      Promise<LogAnalysisResult | null>;
+  };
+
+  fileForensics: {
+    inspectFile(
+      minStringLength?: number,
+    ): Promise<FileForensicsResult | null>;
   };
 
   fileAnalysis: {
@@ -133,6 +221,11 @@ type ZeroHubAPI = {
     openVirusTotalReport(
       reportUrl: string,
     ): Promise<void>;
+  };
+
+  secretScanner: {
+    scanFile(): Promise<SecretScannerResult | null>;
+    scanFolder(): Promise<SecretScannerResult | null>;
   };
 
   settings: {
