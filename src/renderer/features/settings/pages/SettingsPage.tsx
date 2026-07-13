@@ -5,6 +5,11 @@ import {
 } from 'react';
 
 import {
+  useCaseWorkspace,
+} from '../../cases/CaseWorkspaceContext';
+
+
+import {
   DEFAULT_APP_SETTINGS,
 } from '../../../../shared/settings/settings.defaults';
 
@@ -15,6 +20,8 @@ import type {
 
 type SettingsPageProps = {
   settings: AppSettings;
+
+  onOpenCases(): void;
 
   onSave(
     settings: AppSettings,
@@ -57,8 +64,17 @@ const ACCENT_OPTIONS:
 
 export function SettingsPage({
   settings,
+  onOpenCases,
   onSave,
 }: SettingsPageProps) {
+  const {
+    summaries,
+    activeCase,
+    loading: casesLoading,
+    mutating: casesMutating,
+    error: casesError,
+    selectCase,
+  } = useCaseWorkspace();
   const [
     draft,
     setDraft,
@@ -97,6 +113,33 @@ export function SettingsPage({
             draft.accentColor,
         ) ?? ACCENT_OPTIONS[0],
       [draft.accentColor],
+    );
+
+  const caseMetrics =
+    useMemo(
+      () => ({
+        total:
+          summaries.length,
+
+        active:
+          summaries.filter(
+            (summary) =>
+              summary.status ===
+              'active',
+          ).length,
+
+        activities:
+          summaries.reduce(
+            (
+              total,
+              summary,
+            ) =>
+              total +
+              summary.activityCount,
+            0,
+          ),
+      }),
+      [summaries],
     );
 
   useEffect(() => {
@@ -319,6 +362,203 @@ export function SettingsPage({
             </label>
           </div>
 
+          <div className="settingsSection settingsCasesSection">
+            <div className="settingsSectionHeader">
+              <div>
+                <span>
+                  INVESTIGATION PROFILES
+                </span>
+
+                <h2>
+                  Perfis e investigações
+                </h2>
+
+                <p>
+                  Selecione o perfil ativo ou
+                  abra o workspace completo de
+                  investigação.
+                </p>
+              </div>
+
+              <span
+                className={`settingsCasesBadge ${
+                  activeCase
+                    ? 'active'
+                    : ''
+                }`}
+              >
+                {activeCase
+                  ? 'Perfil ativo'
+                  : 'Sem perfil'}
+              </span>
+            </div>
+
+            <div className="settingsCasesOverview">
+              <div className="settingsCasesIdentity">
+                <span
+                  className="settingsCasesIndicator"
+                  aria-hidden="true"
+                />
+
+                <div>
+                  <small>
+                    PERFIL ATUAL
+                  </small>
+
+                  <strong>
+                    {activeCase
+                      ? activeCase.name
+                      : 'Nenhum perfil selecionado'}
+                  </strong>
+
+                  <p>
+                    {activeCase
+                      ? (
+                          activeCase.description ||
+                          'Perfil sem descrição.'
+                        )
+                      : 'As ferramentas ainda não estão vinculadas a uma investigação.'}
+                  </p>
+                </div>
+              </div>
+
+              <div className="settingsCasesMetrics">
+                <article>
+                  <span>PERFIS</span>
+
+                  <strong>
+                    {caseMetrics.total}
+                  </strong>
+                </article>
+
+                <article>
+                  <span>ATIVOS</span>
+
+                  <strong>
+                    {caseMetrics.active}
+                  </strong>
+                </article>
+
+                <article>
+                  <span>EVENTOS</span>
+
+                  <strong>
+                    {
+                      caseMetrics.activities
+                    }
+                  </strong>
+                </article>
+              </div>
+            </div>
+
+            <div className="settingsCasesControls">
+              <label>
+                <span>
+                  Perfil ativo
+                </span>
+
+                <select
+                  value={
+                    activeCase?.id ?? ''
+                  }
+                  disabled={
+                    casesLoading ||
+                    casesMutating
+                  }
+                  onChange={(event) => {
+                    const caseId =
+                      event.target.value ||
+                      null;
+
+                    setError(null);
+                    setMessage(null);
+
+                    selectCase(caseId)
+                      .catch(
+                        (unknownError) => {
+                          setError(
+                            unknownError
+                              instanceof Error
+                              ? unknownError.message
+                              : 'Não foi possível selecionar o perfil.',
+                          );
+                        },
+                      );
+                  }}
+                >
+                  <option value="">
+                    Nenhum perfil ativo
+                  </option>
+
+                  {summaries.map(
+                    (summary) => (
+                      <option
+                        key={summary.id}
+                        value={summary.id}
+                      >
+                        {summary.name}
+                        {' · '}
+                        {
+                          summary.activityCount
+                        }
+                        {' eventos'}
+                      </option>
+                    ),
+                  )}
+                </select>
+              </label>
+
+              <div className="settingsCasesActions">
+                <button
+                  className="secondaryButton"
+                  type="button"
+                  disabled={
+                    casesMutating ||
+                    !activeCase
+                  }
+                  onClick={() => {
+                    setError(null);
+                    setMessage(null);
+
+                    selectCase(null)
+                      .catch(
+                        (unknownError) => {
+                          setError(
+                            unknownError
+                              instanceof Error
+                              ? unknownError.message
+                              : 'Não foi possível desativar o perfil.',
+                          );
+                        },
+                      );
+                  }}
+                >
+                  Desativar perfil
+                </button>
+
+                <button
+                  className="primaryButton"
+                  type="button"
+                  onClick={
+                    onOpenCases
+                  }
+                >
+                  Abrir gerenciador
+                </button>
+              </div>
+            </div>
+
+            <footer className="settingsCasesFooter">
+              <span>
+                Armazenamento local
+              </span>
+
+              <strong>
+                userData/cases/cases.v1.json
+              </strong>
+            </footer>
+          </div>
+
           {message && (
             <div
               className="settingsMessage success"
@@ -328,12 +568,12 @@ export function SettingsPage({
             </div>
           )}
 
-          {error && (
+          {(error || casesError) && (
             <div
               className="settingsMessage error"
               role="alert"
             >
-              {error}
+              {error ?? casesError}
             </div>
           )}
 

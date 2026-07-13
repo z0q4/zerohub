@@ -17,6 +17,17 @@ export const MODULE_REGISTRY: readonly ModuleDefinition[] = [
     showOnDashboard: false,
   },
   {
+    id: 'cases',
+    name: 'Perfis do alvo',
+    description:
+      'Perfis persistentes, alvos e timeline de investigação.',
+    abbreviation: 'CASE',
+    icon: '◉',
+    status: 'operational',
+    section: 'workspace',
+    showOnDashboard: false,
+  },
+  {
     id: 'network',
     name: 'Network',
     description:
