@@ -5,6 +5,19 @@ import {
 } from 'react';
 
 import {
+  ActiveCaseControl,
+} from '../components/layout/ActiveCaseControl';
+
+import {
+  CasesPage,
+} from '../features/cases/pages/CasesPage';
+
+import {
+  useCaseWorkspace,
+} from '../features/cases/CaseWorkspaceContext';
+
+
+import {
   IocIntelligencePage,
 } from '../features/ioc-intelligence/pages/IocIntelligencePage';
 
@@ -211,6 +224,10 @@ function readTabs(): PageId[] {
 }
 
 export function App() {
+  const {
+    activeCase,
+  } = useCaseWorkspace();
+
   const [
     activePage,
     setActivePage,
@@ -748,6 +765,9 @@ export function App() {
 
   function renderPage() {
     switch (activePage) {
+      case 'cases':
+        return <CasesPage />;
+
       case 'dashboard':
         return (
           <DashboardPage
@@ -825,6 +845,9 @@ export function App() {
             settings={
               settings
             }
+            onOpenCases={() => {
+              navigate('cases');
+            }}
             onSave={
               saveSettings
             }
@@ -939,6 +962,12 @@ export function App() {
           </div>
 
           <div className="topbarActions">
+            <ActiveCaseControl
+              onOpenCases={() => {
+                navigate('cases');
+              }}
+            />
+
             <button
               className={`topbarUtilityButton ${
                 activityRailOpen
@@ -1114,6 +1143,12 @@ export function App() {
               {
                 activeModule.status
               }
+            </span>
+
+            <span>
+              {activeCase
+                ? `Case: ${activeCase.name}`
+                : 'No active case'}
             </span>
           </div>
 

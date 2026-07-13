@@ -16,7 +16,8 @@ export type ModuleId =
   | 'email-security'
   | 'network-toolkit'
   | 'developer-tools'
-  | 'ioc-intelligence';
+  | 'ioc-intelligence'
+  | 'cases';
 
 export type ModuleStatus =
   | 'operational'
