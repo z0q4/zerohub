@@ -1,4 +1,13 @@
 import type {
+  CaseActivity,
+  CaseActivityCreateInput,
+  CaseCreateInput,
+  CaseStatus,
+  CaseSummary,
+  InvestigationCase,
+} from './shared/cases/cases.types';
+
+import type {
   IocIntelligenceResult,
   IocKeyInput,
   IocKeyStatus,
@@ -587,6 +596,62 @@ const zeroHubAPI = {
         request,
       ),
   },
+  cases: {
+    list: ():
+      Promise<CaseSummary[]> =>
+      ipcRenderer.invoke(
+        'cases:list',
+      ),
+
+    get: (
+      caseId: string,
+    ): Promise<InvestigationCase> =>
+      ipcRenderer.invoke(
+        'cases:get',
+        caseId,
+      ),
+
+    getActive: ():
+      Promise<InvestigationCase | null> =>
+      ipcRenderer.invoke(
+        'cases:get-active',
+      ),
+
+    create: (
+      input: CaseCreateInput,
+    ): Promise<InvestigationCase> =>
+      ipcRenderer.invoke(
+        'cases:create',
+        input,
+      ),
+
+    setActive: (
+      caseId: string | null,
+    ): Promise<InvestigationCase | null> =>
+      ipcRenderer.invoke(
+        'cases:set-active',
+        caseId,
+      ),
+
+    addActivity: (
+      input: CaseActivityCreateInput,
+    ): Promise<CaseActivity> =>
+      ipcRenderer.invoke(
+        'cases:add-activity',
+        input,
+      ),
+
+    updateStatus: (
+      caseId: string,
+      status: CaseStatus,
+    ): Promise<InvestigationCase> =>
+      ipcRenderer.invoke(
+        'cases:update-status',
+        caseId,
+        status,
+      ),
+  },
+
   settings: {
     get: ():
       Promise<AppSettings> =>
