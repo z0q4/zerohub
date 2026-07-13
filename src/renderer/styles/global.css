@@ -69,9 +69,7 @@ textarea:focus-visible {
 }
 
 .application {
-  display: grid;
   grid-template-columns: 240px minmax(0, 1fr);
-  min-height: 100vh;
 
   background:
     radial-gradient(
@@ -83,9 +81,6 @@ textarea:focus-visible {
 }
 
 .sidebar {
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
   padding: 18px 13px;
 
   border-right: 1px solid var(--border);
@@ -93,18 +88,11 @@ textarea:focus-visible {
 }
 
 .brand {
-  display: flex;
-  align-items: center;
   gap: 11px;
   padding: 4px 7px 28px;
 }
 
 .brandLogo {
-  display: grid;
-  width: 38px;
-  height: 38px;
-  place-items: center;
-
   border: 1px solid #6574ff;
   border-radius: 10px;
 
@@ -147,7 +135,6 @@ textarea:focus-visible {
 }
 
 .navigation {
-  display: grid;
   gap: 4px;
 }
 
@@ -185,9 +172,7 @@ textarea:focus-visible {
 }
 
 .navigationIcon {
-  display: grid;
   width: 18px;
-  place-items: center;
 
   color: #7e89c8;
   font-size: 14px;
@@ -244,10 +229,8 @@ textarea:focus-visible {
 }
 
 .mainContent {
-  min-width: 0;
   height: 100vh;
   padding: 40px;
-  overflow-y: auto;
 }
 
 .pageHeader {
