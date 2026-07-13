@@ -111,15 +111,16 @@ import type {
   PageId,
 } from './types';
 
-const FAVORITES_KEY =
-  'zerohub.ui.favorites.v1';
+import {
+  DEFAULT_SESSION_SNAPSHOT,
+  clearSessionSnapshot,
+  readSessionSnapshot,
+  saveSessionSnapshot,
+} from './session-persistence';
 
-const RECENTS_KEY =
-  'zerohub.ui.recents.v1';
-
-const WORKSPACE_MODE_KEY =
-  'zerohub.ui.workspace-mode.v1';
-
+import type {
+  SessionSnapshot,
+} from './session-persistence';
 function isPageId(
   value: unknown,
 ): value is PageId {
@@ -132,44 +133,10 @@ function isPageId(
   );
 }
 
-function readStoredPages(
-  key: string,
-): PageId[] {
-  try {
-    const parsed =
-      JSON.parse(
-        localStorage.getItem(
-          key,
-        ) ?? '[]',
-      ) as unknown;
-
-    if (!Array.isArray(parsed)) {
-      return [];
-    }
-
-    return parsed.filter(
-      isPageId,
-    );
-  } catch {
-    return [];
-  }
-}
-
-function readWorkspaceMode():
-  WorkspaceMode {
-  const stored =
-    localStorage.getItem(
-      WORKSPACE_MODE_KEY,
-    );
-
-  return stored === 'attack'
-    ? 'attack'
-    : 'osint';
-}
-
 export function App() {
   const {
     activeCase,
+    selectCase,
   } = useCaseWorkspace();
 
   const [
@@ -177,7 +144,8 @@ export function App() {
     setActivePage,
   ] =
     useState<PageId>(
-      'dashboard',
+      DEFAULT_SESSION_SNAPSHOT
+        .activePage,
     );
 
   const [
@@ -189,6 +157,11 @@ export function App() {
     });
 
   const [
+    sessionPersistenceReady,
+    setSessionPersistenceReady,
+  ] = useState(false);
+
+  const [
     commandPaletteOpen,
     setCommandPaletteOpen,
   ] = useState(false);
@@ -198,7 +171,8 @@ export function App() {
     setWorkspaceMode,
   ] =
     useState<WorkspaceMode>(
-      readWorkspaceMode,
+      DEFAULT_SESSION_SNAPSHOT
+        .workspaceMode,
     );
 
   const [
@@ -206,10 +180,8 @@ export function App() {
     setFavoriteIds,
   ] =
     useState<PageId[]>(
-      () =>
-        readStoredPages(
-          FAVORITES_KEY,
-        ),
+      DEFAULT_SESSION_SNAPSHOT
+        .favoriteIds,
     );
 
   const [
@@ -217,10 +189,8 @@ export function App() {
     setRecentIds,
   ] =
     useState<PageId[]>(
-      () =>
-        readStoredPages(
-          RECENTS_KEY,
-        ),
+      DEFAULT_SESSION_SNAPSHOT
+        .recentIds,
     );
 
   const activeModule =
@@ -237,28 +207,74 @@ export function App() {
       [],
     );
 
+  function applySessionSnapshot(
+    snapshot: SessionSnapshot,
+  ): void {
+    setActivePage(
+      isPageId(snapshot.activePage)
+        ? snapshot.activePage
+        : 'dashboard',
+    );
+    setFavoriteIds(
+      snapshot.favoriteIds,
+    );
+    setRecentIds(
+      snapshot.recentIds,
+    );
+    setWorkspaceMode(
+      snapshot.workspaceMode,
+    );
+  }
   useEffect(() => {
     let mounted = true;
 
-    window.zeroHub.settings
-      .get()
-      .then(
-        (
+    async function initializeSettings():
+      Promise<void> {
+      try {
+        const loadedSettings =
+          await window.zeroHub
+            .settings
+            .get();
+
+        if (!mounted) {
+          return;
+        }
+
+        setSettings(
           loadedSettings,
-        ) => {
-          if (mounted) {
-            setSettings(
-              loadedSettings,
-            );
-          }
-        },
-      )
-      .catch((error) => {
+        );
+
+        if (
+          loadedSettings
+            .saveSessionOnClose
+        ) {
+          applySessionSnapshot(
+            readSessionSnapshot(),
+          );
+        } else {
+          clearSessionSnapshot();
+        }
+      } catch (error) {
         console.error(
           'Não foi possível carregar as configurações.',
           error,
         );
-      });
+
+        if (mounted) {
+          applySessionSnapshot(
+            readSessionSnapshot(),
+          );
+        }
+      } finally {
+        if (mounted) {
+          setSessionPersistenceReady(
+            true,
+          );
+        }
+      }
+    }
+
+    void initializeSettings();
 
     return () => {
       mounted = false;
@@ -311,29 +327,28 @@ export function App() {
   ]);
 
   useEffect(() => {
-    localStorage.setItem(
-      FAVORITES_KEY,
-      JSON.stringify(
-        favoriteIds,
-      ),
-    );
-  }, [favoriteIds]);
+    if (
+      !sessionPersistenceReady ||
+      !settings
+        .saveSessionOnClose
+    ) {
+      return;
+    }
 
-  useEffect(() => {
-    localStorage.setItem(
-      RECENTS_KEY,
-      JSON.stringify(
-        recentIds,
-      ),
-    );
-  }, [recentIds]);
-
-  useEffect(() => {
-    localStorage.setItem(
-      WORKSPACE_MODE_KEY,
+    saveSessionSnapshot({
+      activePage,
+      favoriteIds,
+      recentIds,
       workspaceMode,
-    );
-  }, [workspaceMode]);
+    });
+  }, [
+    activePage,
+    favoriteIds,
+    recentIds,
+    sessionPersistenceReady,
+    settings.saveSessionOnClose,
+    workspaceMode,
+  ]);
 
   useEffect(() => {
     if (
@@ -446,6 +461,15 @@ export function App() {
     setSettings(
       savedSettings,
     );
+
+    if (
+      !savedSettings
+        .saveSessionOnClose
+    ) {
+      clearSessionSnapshot();
+
+      await selectCase(null);
+    }
   }
 
   function navigate(

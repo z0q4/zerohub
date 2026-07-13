@@ -23,5 +23,6 @@ export const DEFAULT_APP_SETTINGS:
     accentColor: 'blue',
     visualProfile: 'default',
     compactMode: false,
+    saveSessionOnClose: true,
     showRuntimeInfo: true,
   };

@@ -12,5 +12,6 @@ export type AppSettings = {
   accentColor: AccentColor;
   visualProfile: VisualProfile;
   compactMode: boolean;
+  saveSessionOnClose: boolean;
   showRuntimeInfo: boolean;
 };
