@@ -6,7 +6,6 @@ import {
 
 import type {
   CaseCreateInput,
-  CaseStatus,
   CaseTargetKind,
 } from '../../../../shared/cases/cases.types';
 
@@ -14,23 +13,18 @@ import {
   useCaseWorkspace,
 } from '../CaseWorkspaceContext';
 
-const TARGET_LABELS:
-  Record<CaseTargetKind, string> = {
-    domain: 'Domínio',
-    ip: 'Endereço IP',
-    email: 'E-mail',
-    url: 'URL',
-    hash: 'Hash',
-    file: 'Arquivo',
-    other: 'Outro',
-  };
+import {
+  CaseProfileEditor,
+} from '../components/CaseProfileEditor';
 
-const STATUS_LABELS:
-  Record<CaseStatus, string> = {
-    active: 'Ativo',
-    paused: 'Pausado',
-    archived: 'Arquivado',
-  };
+import {
+  CaseTargetManager,
+} from '../components/CaseTargetManager';
+
+import {
+  STATUS_LABELS,
+  TARGET_LABELS,
+} from '../cases.constants';
 
 const DATE_FORMATTER =
   new Intl.DateTimeFormat(
@@ -120,9 +114,7 @@ export function CasesPage() {
   const [
     creating,
     setCreating,
-  ] = useState(
-    summaries.length === 0,
-  );
+  ] = useState(false);
 
   const [
     draft,
@@ -832,6 +824,11 @@ export function CasesPage() {
                   )}
                 </div>
 
+                <CaseProfileEditor
+                  key={`profile-${activeCase.id}`}
+                  caseData={activeCase}
+                />
+
                 <div className="caseSummaryGrid">
                   <article>
                     <span>ALVOS</span>
@@ -865,64 +862,10 @@ export function CasesPage() {
                   </article>
                 </div>
 
-                <section className="caseSection">
-                  <header>
-                    <div>
-                      <span>
-                        TARGETS
-                      </span>
-
-                      <h3>
-                        Alvos vinculados
-                      </h3>
-                    </div>
-
-                    <small>
-                      {
-                        activeCase
-                          .targets
-                          .length
-                      }
-                    </small>
-                  </header>
-
-                  <div className="caseTargets">
-                    {activeCase
-                      .targets
-                      .map(
-                        (target) => (
-                          <article
-                            key={
-                              target.id
-                            }
-                          >
-                            <span>
-                              {
-                                TARGET_LABELS[
-                                  target.kind
-                                ]
-                              }
-                            </span>
-
-                            <strong>
-                              {target.label}
-                            </strong>
-
-                            <code>
-                              {target.value}
-                            </code>
-                          </article>
-                        ),
-                      )}
-
-                    {activeCase.targets
-                      .length === 0 && (
-                      <div className="caseSectionEmpty">
-                        Nenhum alvo vinculado.
-                      </div>
-                    )}
-                  </div>
-                </section>
+                <CaseTargetManager
+                  key={`targets-${activeCase.id}`}
+                  caseData={activeCase}
+                />
 
                 <form
                   className="caseManualNote"

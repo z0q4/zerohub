@@ -4,11 +4,15 @@ import {
 
 import {
   addCaseActivity,
+  addCaseTarget,
   createCase,
   getActiveCase,
   getCase,
   listCases,
+  removeCaseTarget,
   setActiveCase,
+  setPrimaryCaseTarget,
+  updateCase,
   updateCaseStatus,
 } from '../services/cases.service';
 
@@ -60,6 +64,44 @@ export function registerCasesIpcHandlers():
       input: unknown,
     ) =>
       addCaseActivity(input),
+  );
+
+  ipcMain.handle(
+    'cases:update',
+    (
+      _event,
+      input: unknown,
+    ) =>
+      updateCase(input),
+  );
+
+  ipcMain.handle(
+    'cases:add-target',
+    (
+      _event,
+      input: unknown,
+    ) =>
+      addCaseTarget(input),
+  );
+
+  ipcMain.handle(
+    'cases:remove-target',
+    (
+      _event,
+      input: unknown,
+    ) =>
+      removeCaseTarget(input),
+  );
+
+  ipcMain.handle(
+    'cases:set-primary-target',
+    (
+      _event,
+      input: unknown,
+    ) =>
+      setPrimaryCaseTarget(
+        input,
+      ),
   );
 
   ipcMain.handle(

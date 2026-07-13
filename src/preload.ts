@@ -2,8 +2,12 @@ import type {
   CaseActivity,
   CaseActivityCreateInput,
   CaseCreateInput,
+  CasePrimaryTargetInput,
   CaseStatus,
   CaseSummary,
+  CaseTargetCreateInput,
+  CaseTargetRemoveInput,
+  CaseUpdateInput,
   InvestigationCase,
 } from './shared/cases/cases.types';
 
@@ -638,6 +642,38 @@ const zeroHubAPI = {
     ): Promise<CaseActivity> =>
       ipcRenderer.invoke(
         'cases:add-activity',
+        input,
+      ),
+
+    update: (
+      input: CaseUpdateInput,
+    ): Promise<InvestigationCase> =>
+      ipcRenderer.invoke(
+        'cases:update',
+        input,
+      ),
+
+    addTarget: (
+      input: CaseTargetCreateInput,
+    ): Promise<InvestigationCase> =>
+      ipcRenderer.invoke(
+        'cases:add-target',
+        input,
+      ),
+
+    removeTarget: (
+      input: CaseTargetRemoveInput,
+    ): Promise<InvestigationCase> =>
+      ipcRenderer.invoke(
+        'cases:remove-target',
+        input,
+      ),
+
+    setPrimaryTarget: (
+      input: CasePrimaryTargetInput,
+    ): Promise<InvestigationCase> =>
+      ipcRenderer.invoke(
+        'cases:set-primary-target',
         input,
       ),
 

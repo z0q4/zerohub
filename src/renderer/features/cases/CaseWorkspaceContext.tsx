@@ -12,8 +12,12 @@ import type {
   CaseActivity,
   CaseActivityCreateInput,
   CaseCreateInput,
+  CasePrimaryTargetInput,
   CaseStatus,
   CaseSummary,
+  CaseTargetCreateInput,
+  CaseTargetRemoveInput,
+  CaseUpdateInput,
   InvestigationCase,
 } from '../../../shared/cases/cases.types';
 
@@ -37,6 +41,22 @@ type CaseWorkspaceContextValue = {
   addActivity(
     input: CaseActivityCreateInput,
   ): Promise<CaseActivity>;
+
+  updateCase(
+    input: CaseUpdateInput,
+  ): Promise<InvestigationCase>;
+
+  addTarget(
+    input: CaseTargetCreateInput,
+  ): Promise<InvestigationCase>;
+
+  removeTarget(
+    input: CaseTargetRemoveInput,
+  ): Promise<InvestigationCase>;
+
+  setPrimaryTarget(
+    input: CasePrimaryTargetInput,
+  ): Promise<InvestigationCase>;
 
   updateStatus(
     caseId: string,
@@ -253,6 +273,151 @@ export function CaseWorkspaceProvider({
       [loadSnapshot],
     );
 
+  const updateCase =
+    useCallback(
+      async (
+        input: CaseUpdateInput,
+      ): Promise<InvestigationCase> => {
+        setMutating(true);
+        setError(null);
+
+        try {
+          const updated =
+            await window.zeroHub
+              .cases
+              .update(input);
+
+          await loadSnapshot();
+
+          return updated;
+        } catch (unknownError) {
+          const normalized =
+            normalizeError(
+              unknownError,
+            );
+
+          setError(
+            normalized.message,
+          );
+
+          throw normalized;
+        } finally {
+          setMutating(false);
+        }
+      },
+      [loadSnapshot],
+    );
+
+  const addTarget =
+    useCallback(
+      async (
+        input:
+          CaseTargetCreateInput,
+      ): Promise<InvestigationCase> => {
+        setMutating(true);
+        setError(null);
+
+        try {
+          const updated =
+            await window.zeroHub
+              .cases
+              .addTarget(input);
+
+          await loadSnapshot();
+
+          return updated;
+        } catch (unknownError) {
+          const normalized =
+            normalizeError(
+              unknownError,
+            );
+
+          setError(
+            normalized.message,
+          );
+
+          throw normalized;
+        } finally {
+          setMutating(false);
+        }
+      },
+      [loadSnapshot],
+    );
+
+  const removeTarget =
+    useCallback(
+      async (
+        input:
+          CaseTargetRemoveInput,
+      ): Promise<InvestigationCase> => {
+        setMutating(true);
+        setError(null);
+
+        try {
+          const updated =
+            await window.zeroHub
+              .cases
+              .removeTarget(input);
+
+          await loadSnapshot();
+
+          return updated;
+        } catch (unknownError) {
+          const normalized =
+            normalizeError(
+              unknownError,
+            );
+
+          setError(
+            normalized.message,
+          );
+
+          throw normalized;
+        } finally {
+          setMutating(false);
+        }
+      },
+      [loadSnapshot],
+    );
+
+  const setPrimaryTarget =
+    useCallback(
+      async (
+        input:
+          CasePrimaryTargetInput,
+      ): Promise<InvestigationCase> => {
+        setMutating(true);
+        setError(null);
+
+        try {
+          const updated =
+            await window.zeroHub
+              .cases
+              .setPrimaryTarget(
+                input,
+              );
+
+          await loadSnapshot();
+
+          return updated;
+        } catch (unknownError) {
+          const normalized =
+            normalizeError(
+              unknownError,
+            );
+
+          setError(
+            normalized.message,
+          );
+
+          throw normalized;
+        } finally {
+          setMutating(false);
+        }
+      },
+      [loadSnapshot],
+    );
+
   const updateStatus =
     useCallback(
       async (
@@ -317,18 +482,26 @@ export function CaseWorkspaceProvider({
         createCase,
         selectCase,
         addActivity,
+        updateCase,
+        addTarget,
+        removeTarget,
+        setPrimaryTarget,
         updateStatus,
       }),
       [
         activeCase,
         addActivity,
+        addTarget,
         createCase,
         error,
         loading,
         mutating,
         refresh,
+        removeTarget,
         selectCase,
+        setPrimaryTarget,
         summaries,
+        updateCase,
         updateStatus,
       ],
     );
