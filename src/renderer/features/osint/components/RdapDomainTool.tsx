@@ -1,11 +1,16 @@
 import {
   type KeyboardEvent,
+  useRef,
   useState,
 } from 'react';
 
 import type {
   RdapDomainResult,
 } from '../../../../shared/osint/rdap.types';
+
+import {
+  useCaseWorkspace,
+} from '../../cases/CaseWorkspaceContext';
 
 function formatDate(
   value: string,
@@ -31,6 +36,12 @@ function formatDate(
 }
 
 export function RdapDomainTool() {
+  const {
+    activeCase,
+    addActivity,
+    mutating,
+  } = useCaseWorkspace();
+
   const [
     domain,
     setDomain,
@@ -62,10 +73,43 @@ export function RdapDomainTool() {
     setCopied,
   ] = useState(false);
 
+  const [
+    registeredCaseIds,
+    setRegisteredCaseIds,
+  ] = useState<string[]>([]);
+
+  const [
+    lastRegisteredCase,
+    setLastRegisteredCase,
+  ] =
+    useState<{
+      id: string;
+      name: string;
+    } | null>(null);
+
+  const [
+    registrationError,
+    setRegistrationError,
+  ] =
+    useState<string | null>(
+      null,
+    );
+
+  const [
+    registering,
+    setRegistering,
+  ] = useState(false);
+
+  const registrationInFlight =
+    useRef(false);
+
   async function executeLookup():
     Promise<void> {
     setError(null);
     setCopied(false);
+    setRegisteredCaseIds([]);
+    setLastRegisteredCase(null);
+    setRegistrationError(null);
 
     if (!domain.trim()) {
       setResult(null);
@@ -109,6 +153,86 @@ export function RdapDomainTool() {
     setResult(null);
     setError(null);
     setCopied(false);
+    setRegisteredCaseIds([]);
+    setLastRegisteredCase(null);
+    setRegistrationError(null);
+  }
+
+  async function registerResult():
+    Promise<void> {
+    setRegistrationError(null);
+
+    if (!result) {
+      return;
+    }
+
+    if (!activeCase) {
+      setRegistrationError(
+        'Selecione um perfil ativo antes de registrar a consulta.',
+      );
+      return;
+    }
+
+    if (
+      registrationInFlight.current ||
+      registeredCaseIds.includes(
+        activeCase.id,
+      )
+    ) {
+      return;
+    }
+
+    const targetCase = {
+      id: activeCase.id,
+      name: activeCase.name,
+    };
+
+    registrationInFlight.current =
+      true;
+    setRegistering(true);
+
+    try {
+      await addActivity({
+        caseId:
+          targetCase.id,
+        moduleId: 'osint',
+        action:
+          'rdap-domain-lookup',
+        title:
+          `Consulta RDAP: ${result.domain}`,
+        status: 'success',
+        input: {
+          domain:
+            result.domain,
+        },
+        output: result,
+        note:
+          `Consulta RDAP concluída com ${result.status.length} status e ${result.nameservers.length} nameservers.`,
+        durationMs:
+          result.elapsedMs,
+      });
+
+      setRegisteredCaseIds(
+        (current) => [
+          ...current,
+          targetCase.id,
+        ],
+      );
+
+      setLastRegisteredCase(
+        targetCase,
+      );
+    } catch (unknownError) {
+      setRegistrationError(
+        unknownError instanceof Error
+          ? unknownError.message
+          : 'Não foi possível registrar a consulta no perfil.',
+      );
+    } finally {
+      registrationInFlight.current =
+        false;
+      setRegistering(false);
+    }
   }
 
   function copyJson(): void {
@@ -175,6 +299,7 @@ export function RdapDomainTool() {
           <input
             value={domain}
             type="text"
+            disabled={registering}
             spellCheck={false}
             placeholder="example.com"
             onChange={(event) => {
@@ -185,6 +310,15 @@ export function RdapDomainTool() {
               setResult(null);
               setError(null);
               setCopied(false);
+              setRegisteredCaseIds(
+                [],
+              );
+              setLastRegisteredCase(
+                null,
+              );
+              setRegistrationError(
+                null,
+              );
             }}
             onKeyDown={
               handleKeyboard
@@ -195,7 +329,9 @@ export function RdapDomainTool() {
         <button
           className="primaryButton rdapSubmit"
           type="button"
-          disabled={busy}
+          disabled={
+            busy || registering
+          }
           onClick={() => {
             void executeLookup();
           }}
@@ -456,15 +592,84 @@ export function RdapDomainTool() {
         </div>
       )}
 
+      {result && !activeCase && (
+        <div
+          className="toolMessage error"
+          role="status"
+        >
+          Nenhum perfil ativo. Selecione
+          um perfil para registrar esta
+          consulta na timeline.
+        </div>
+      )}
+
+      {result && lastRegisteredCase && (
+        <div
+          className="toolMessage success"
+          role="status"
+        >
+          Consulta registrada na timeline
+          de {lastRegisteredCase.name}.
+        </div>
+      )}
+
+      {registrationError && (
+        <div
+          className="toolMessage error"
+          role="alert"
+        >
+          {registrationError}
+        </div>
+      )}
+
       <div className="toolFooter">
         <span className="keyboardHint">
           Ctrl + Enter para consultar
         </span>
 
         <div className="toolActions">
+          {result && (
+            <button
+              className="primaryButton"
+              type="button"
+              disabled={
+                activeCase === null ||
+                mutating ||
+                registering ||
+                (
+                  activeCase !== null &&
+                  registeredCaseIds.includes(
+                    activeCase.id,
+                  )
+                )
+              }
+              onClick={() => {
+                registerResult().catch(
+                  (unknownError) => {
+                    console.error(
+                      'Falha inesperada ao registrar consulta RDAP.',
+                      unknownError,
+                    );
+                  },
+                );
+              }}
+            >
+              {activeCase === null
+                ? 'Selecione um perfil'
+                : registeredCaseIds.includes(
+                    activeCase.id,
+                  )
+                  ? 'Registrado no perfil'
+                  : registering
+                    ? 'Registrando...'
+                    : 'Registrar no perfil'}
+            </button>
+          )}
+
           <button
             className="secondaryButton"
             type="button"
+            disabled={registering}
             onClick={clearLookup}
           >
             Limpar
