@@ -87,6 +87,10 @@ import {
   pythonService,
 } from './main/python/python.service';
 
+import {
+  clearSessionOnExitIfDisabled,
+} from './main/services/session.service';
+
 if (started) {
   app.quit();
 }
@@ -169,10 +173,42 @@ app.whenReady().then(() => {
   });
 });
 
+let sessionCleanupStarted =
+  false;
+
+let sessionCleanupComplete =
+  false;
+
 app.on(
   'before-quit',
-  () => {
+  (event) => {
     pythonService.stop();
+
+    if (sessionCleanupComplete) {
+      return;
+    }
+
+    event.preventDefault();
+
+    if (sessionCleanupStarted) {
+      return;
+    }
+
+    sessionCleanupStarted = true;
+
+    void clearSessionOnExitIfDisabled()
+      .catch((error) => {
+        console.error(
+          'Não foi possível limpar a sessão antes de fechar.',
+          error,
+        );
+      })
+      .finally(() => {
+        sessionCleanupComplete =
+          true;
+
+        app.quit();
+      });
   },
 );
 

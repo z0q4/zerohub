@@ -360,6 +360,50 @@ export function SettingsPage({
                 <span />
               </span>
             </label>
+
+            <label className="settingToggle">
+              <div>
+                <strong>
+                  Salvar sessão ao fechar
+                </strong>
+
+                <span>
+                  Restaura abas, módulos
+                  recentes, layout, Focus
+                  Mode e perfil ativo ao
+                  reabrir. Ao desativar, a
+                  sessão anterior é apagada
+                  sem remover dados
+                  permanentes.
+                </span>
+              </div>
+
+              <input
+                type="checkbox"
+                checked={
+                  draft
+                    .saveSessionOnClose
+                }
+                onChange={(event) => {
+                  setDraft(
+                    (
+                      current,
+                    ) => ({
+                      ...current,
+                      saveSessionOnClose:
+                        event.target
+                          .checked,
+                    }),
+                  );
+
+                  setMessage(null);
+                }}
+              />
+
+              <span className="toggleTrack">
+                <span />
+              </span>
+            </label>
           </div>
 
           <div className="settingsSection settingsCasesSection">

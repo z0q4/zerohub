@@ -15,5 +15,6 @@ export const DEFAULT_APP_SETTINGS:
   AppSettings = {
     accentColor: 'blue',
     compactMode: false,
+    saveSessionOnClose: true,
     showRuntimeInfo: true,
   };

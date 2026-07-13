@@ -119,15 +119,20 @@ export function CaseWorkspaceProvider({
 
   const loadSnapshot =
     useCallback(
-      async (): Promise<void> => {
+      async (
+        restoreActiveCase = true,
+      ): Promise<void> => {
         const [
           nextSummaries,
           nextActiveCase,
         ] =
           await Promise.all([
             window.zeroHub.cases.list(),
-            window.zeroHub.cases
-              .getActive(),
+            restoreActiveCase
+              ? window.zeroHub.cases
+                  .getActive()
+              : window.zeroHub.cases
+                  .setActive(null),
           ]);
 
         setSummaries(
@@ -139,6 +144,51 @@ export function CaseWorkspaceProvider({
         );
       },
       [],
+    );
+
+  const initialize =
+    useCallback(
+      async (): Promise<void> => {
+        setLoading(true);
+        setError(null);
+
+        try {
+          let restoreActiveCase =
+            true;
+
+          try {
+            const settings =
+              await window.zeroHub
+                .settings
+                .get();
+
+            restoreActiveCase =
+              settings
+                .saveSessionOnClose;
+          } catch (unknownError) {
+            console.error(
+              'Falha ao consultar a persistência da sessão.',
+              unknownError,
+            );
+          }
+
+          await loadSnapshot(
+            restoreActiveCase,
+          );
+        } catch (unknownError) {
+          const normalized =
+            normalizeError(
+              unknownError,
+            );
+
+          setError(
+            normalized.message,
+          );
+        } finally {
+          setLoading(false);
+        }
+      },
+      [loadSnapshot],
     );
 
   const refresh =
@@ -458,7 +508,7 @@ export function CaseWorkspaceProvider({
     );
 
   useEffect(() => {
-    refresh().catch(
+    initialize().catch(
       (unknownError) => {
         console.error(
           'Falha ao iniciar o contexto de perfis.',
@@ -466,7 +516,7 @@ export function CaseWorkspaceProvider({
         );
       },
     );
-  }, [refresh]);
+  }, [initialize]);
 
   const value =
     useMemo<
