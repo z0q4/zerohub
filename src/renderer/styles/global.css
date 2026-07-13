@@ -122,11 +122,6 @@ textarea:focus-visible {
   font-weight: 800;
 }
 
-.brandText strong,
-.brandText span {
-  display: block;
-}
-
 .brandText strong {
   font-size: 15px;
 }
@@ -375,12 +370,6 @@ textarea:focus-visible {
 
 .moduleAvailable {
   border-color: rgb(102 119 255 / 25%);
-}
-
-.moduleTop {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
 }
 
 .moduleIcon {
