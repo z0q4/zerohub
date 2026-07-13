@@ -7,11 +7,13 @@ import {
 
 import {
   MODULE_REGISTRY,
+  isModuleAvailableInMode,
 } from '../../../shared/modules/module.registry';
 
 import type {
   ModuleDefinition,
   ModuleSection,
+  WorkspaceMode,
 } from '../../../shared/modules/module.types';
 
 import type {
@@ -22,6 +24,7 @@ type CommandPaletteProps = {
   activePage: PageId;
   favoriteIds: PageId[];
   recentIds: PageId[];
+  workspaceMode: WorkspaceMode;
 
   onClose(): void;
 
@@ -103,6 +106,7 @@ export function CommandPalette({
   activePage,
   favoriteIds,
   recentIds,
+  workspaceMode,
   onClose,
   onNavigate,
   onToggleFavorite,
@@ -160,6 +164,12 @@ export function CommandPalette({
             };
           },
         )
+          .filter((item) =>
+            isModuleAvailableInMode(
+              item.module,
+              workspaceMode,
+            ),
+          )
           .filter(
             (item) =>
               item.score > 0,
@@ -177,6 +187,7 @@ export function CommandPalette({
         favoriteIds,
         normalizedQuery,
         recentIds,
+        workspaceMode,
       ],
     );
 
@@ -483,4 +494,3 @@ export function CommandPalette({
     </div>
   );
 }
-

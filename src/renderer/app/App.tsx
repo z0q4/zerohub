@@ -5,10 +5,6 @@ import {
 } from 'react';
 
 import {
-  ActiveCaseControl,
-} from '../components/layout/ActiveCaseControl';
-
-import {
   CasesPage,
 } from '../features/cases/pages/CasesPage';
 
@@ -54,20 +50,12 @@ import {
 } from '../features/file-forensics/pages/FileForensicsPage';
 
 import {
-  ActivityRail,
-} from '../components/layout/ActivityRail';
-
-import {
   CommandPalette,
 } from '../components/layout/CommandPalette';
 
 import {
-  Sidebar,
-} from '../components/layout/Sidebar';
-
-import {
-  WorkspaceTabs,
-} from '../components/layout/WorkspaceTabs';
+  MapWorkspaceShell,
+} from '../components/workspace/MapWorkspaceShell';
 
 import {
   EncodingPage,
@@ -102,12 +90,9 @@ import {
 } from '../features/utilities/pages/UtilitiesPage';
 
 import {
-  DashboardPage,
-} from '../pages/DashboardPage';
-
-import {
   MODULE_REGISTRY,
   getModuleById,
+  isModuleAvailableInMode,
 } from '../../shared/modules/module.registry';
 
 import {
@@ -119,22 +104,12 @@ import type {
 } from '../../shared/settings/settings.types';
 
 import type {
-  ModuleSection,
+  WorkspaceMode,
 } from '../../shared/modules/module.types';
 
 import type {
   PageId,
 } from './types';
-
-const SECTION_LABELS:
-  Record<ModuleSection, string> = {
-    workspace: 'Workspace',
-    intelligence: 'Intelligence',
-    analysis: 'Analysis',
-    network: 'Network',
-    'data-dev': 'Data & Dev',
-    system: 'System',
-  };
 
 const FAVORITES_KEY =
   'zerohub.ui.favorites.v1';
@@ -142,17 +117,8 @@ const FAVORITES_KEY =
 const RECENTS_KEY =
   'zerohub.ui.recents.v1';
 
-const SIDEBAR_KEY =
-  'zerohub.ui.sidebar-collapsed.v1';
-
-const TABS_KEY =
-  'zerohub.ui.workspace-tabs.v1';
-
-const RAIL_KEY =
-  'zerohub.ui.activity-rail.v1';
-
-const FOCUS_KEY =
-  'zerohub.ui.focus-mode.v1';
+const WORKSPACE_MODE_KEY =
+  'zerohub.ui.workspace-mode.v1';
 
 function isPageId(
   value: unknown,
@@ -189,38 +155,16 @@ function readStoredPages(
   }
 }
 
-function readBoolean(
-  key: string,
-  fallback: boolean,
-): boolean {
-  const value =
-    localStorage.getItem(key);
-
-  if (value === null) {
-    return fallback;
-  }
-
-  return value === 'true';
-}
-
-function readTabs(): PageId[] {
+function readWorkspaceMode():
+  WorkspaceMode {
   const stored =
-    readStoredPages(
-      TABS_KEY,
+    localStorage.getItem(
+      WORKSPACE_MODE_KEY,
     );
 
-  const withoutDuplicates =
-    Array.from(
-      new Set<PageId>([
-        'dashboard',
-        ...stored,
-      ]),
-    );
-
-  return withoutDuplicates.slice(
-    0,
-    9,
-  );
+  return stored === 'attack'
+    ? 'attack'
+    : 'osint';
 }
 
 export function App() {
@@ -250,39 +194,11 @@ export function App() {
   ] = useState(false);
 
   const [
-    sidebarCollapsed,
-    setSidebarCollapsed,
+    workspaceMode,
+    setWorkspaceMode,
   ] =
-    useState<boolean>(
-      () =>
-        readBoolean(
-          SIDEBAR_KEY,
-          false,
-        ),
-    );
-
-  const [
-    activityRailOpen,
-    setActivityRailOpen,
-  ] =
-    useState<boolean>(
-      () =>
-        readBoolean(
-          RAIL_KEY,
-          true,
-        ),
-    );
-
-  const [
-    focusMode,
-    setFocusMode,
-  ] =
-    useState<boolean>(
-      () =>
-        readBoolean(
-          FOCUS_KEY,
-          false,
-        ),
+    useState<WorkspaceMode>(
+      readWorkspaceMode,
     );
 
   const [
@@ -307,30 +223,8 @@ export function App() {
         ),
     );
 
-  const [
-    openTabs,
-    setOpenTabs,
-  ] =
-    useState<PageId[]>(
-      readTabs,
-    );
-
   const activeModule =
     getModuleById(activePage);
-
-  const activeSection =
-    SECTION_LABELS[
-      activeModule.section
-    ];
-
-  const runtimeInfo =
-    useMemo(
-      () =>
-        window.zeroHub
-          .system
-          .getRuntimeInfo(),
-      [],
-    );
 
   const commandHint =
     useMemo(
@@ -341,40 +235,6 @@ export function App() {
           ? '⌘ K'
           : 'Ctrl K',
       [],
-    );
-
-  const favoriteModules =
-    useMemo(
-      () =>
-        favoriteIds
-          .map((id) =>
-            getModuleById(id),
-          )
-          .filter(
-            (module) =>
-              module.id !==
-                'dashboard' &&
-              module.id !==
-                'settings',
-          ),
-      [favoriteIds],
-    );
-
-  const recentModules =
-    useMemo(
-      () =>
-        recentIds
-          .map((id) =>
-            getModuleById(id),
-          )
-          .filter(
-            (module) =>
-              module.id !==
-                'dashboard' &&
-              module.id !==
-                'settings',
-          ),
-      [recentIds],
     );
 
   useEffect(() => {
@@ -415,6 +275,12 @@ export function App() {
     document
       .documentElement
       .dataset
+      .visualProfile =
+        settings.visualProfile;
+
+    document
+      .documentElement
+      .dataset
       .page =
         activePage;
 
@@ -426,42 +292,22 @@ export function App() {
 
     document
       .documentElement
+      .dataset
+      .workspaceMode =
+        workspaceMode;
+
+    document
+      .documentElement
       .classList
       .toggle(
         'compact-ui',
         settings.compactMode,
       );
-
-    document
-      .documentElement
-      .classList
-      .toggle(
-        'sidebar-is-collapsed',
-        sidebarCollapsed,
-      );
-
-    document
-      .documentElement
-      .classList
-      .toggle(
-        'activity-rail-open',
-        activityRailOpen,
-      );
-
-    document
-      .documentElement
-      .classList
-      .toggle(
-        'focus-mode',
-        focusMode,
-      );
   }, [
     activeModule.section,
     activePage,
-    activityRailOpen,
-    focusMode,
     settings,
-    sidebarCollapsed,
+    workspaceMode,
   ]);
 
   useEffect(() => {
@@ -484,39 +330,26 @@ export function App() {
 
   useEffect(() => {
     localStorage.setItem(
-      SIDEBAR_KEY,
-      String(
-        sidebarCollapsed,
-      ),
+      WORKSPACE_MODE_KEY,
+      workspaceMode,
     );
-  }, [sidebarCollapsed]);
+  }, [workspaceMode]);
 
   useEffect(() => {
-    localStorage.setItem(
-      RAIL_KEY,
-      String(
-        activityRailOpen,
-      ),
-    );
-  }, [activityRailOpen]);
+    if (
+      isModuleAvailableInMode(
+        activeModule,
+        workspaceMode,
+      )
+    ) {
+      return;
+    }
 
-  useEffect(() => {
-    localStorage.setItem(
-      FOCUS_KEY,
-      String(
-        focusMode,
-      ),
-    );
-  }, [focusMode]);
-
-  useEffect(() => {
-    localStorage.setItem(
-      TABS_KEY,
-      JSON.stringify(
-        openTabs,
-      ),
-    );
-  }, [openTabs]);
+    setActivePage('dashboard');
+  }, [
+    activeModule,
+    workspaceMode,
+  ]);
 
   useEffect(() => {
     function handleKeyDown(
@@ -541,68 +374,45 @@ export function App() {
 
       if (
         modifier &&
-        event.key.toLowerCase() ===
-          'b'
+        event.key === '1'
       ) {
         event.preventDefault();
 
-        setSidebarCollapsed(
-          (current) =>
-            !current,
+        setWorkspaceMode(
+          'osint',
         );
       }
 
       if (
         modifier &&
-        event.key.toLowerCase() ===
-          'j'
+        event.key === '2'
       ) {
         event.preventDefault();
 
-        setActivityRailOpen(
-          (current) =>
-            !current,
+        setWorkspaceMode(
+          'attack',
         );
-      }
-
-      if (
-        modifier &&
-        event.shiftKey &&
-        event.key.toLowerCase() ===
-          'f'
-      ) {
-        event.preventDefault();
-
-        setFocusMode(
-          (current) =>
-            !current,
-        );
-      }
-
-      if (
-        event.altKey &&
-        /^[1-9]$/.test(
-          event.key,
-        )
-      ) {
-        const index =
-          Number(event.key) - 1;
-
-        const target =
-          openTabs[index];
-
-        if (target) {
-          event.preventDefault();
-          navigate(target);
-        }
       }
 
       if (
         event.key === 'Escape'
       ) {
-        setCommandPaletteOpen(
-          false,
-        );
+        if (commandPaletteOpen) {
+          setCommandPaletteOpen(
+            false,
+          );
+
+          return;
+        }
+
+        if (
+          activePage !==
+          'dashboard'
+        ) {
+          setActivePage(
+            'dashboard',
+          );
+        }
       }
     }
 
@@ -617,7 +427,10 @@ export function App() {
         handleKeyDown,
       );
     };
-  }, [openTabs]);
+  }, [
+    activePage,
+    commandPaletteOpen,
+  ]);
 
   async function saveSettings(
     nextSettings:
@@ -635,38 +448,11 @@ export function App() {
     );
   }
 
-  function ensureTab(
-    page: PageId,
-  ): void {
-    setOpenTabs(
-      (current) => {
-        if (
-          current.includes(page)
-        ) {
-          return current;
-        }
-
-        const next = [
-          ...current,
-          page,
-        ];
-
-        return next.slice(
-          Math.max(
-            0,
-            next.length - 9,
-          ),
-        );
-      },
-    );
-  }
-
   function navigate(
     page: PageId,
   ): void {
     setActivePage(page);
     setCommandPaletteOpen(false);
-    ensureTab(page);
 
     if (
       page === 'dashboard' ||
@@ -684,59 +470,6 @@ export function App() {
         ),
       ].slice(0, 10),
     );
-  }
-
-  function closeTab(
-    page: PageId,
-  ): void {
-    if (
-      page === 'dashboard'
-    ) {
-      return;
-    }
-
-    setOpenTabs(
-      (current) => {
-        const index =
-          current.indexOf(page);
-
-        const next =
-          current.filter(
-            (item) =>
-              item !== page,
-          );
-
-        if (
-          activePage === page
-        ) {
-          const fallback =
-            next[
-              Math.max(
-                0,
-                index - 1,
-              )
-            ] ??
-            'dashboard';
-
-          setActivePage(
-            fallback,
-          );
-        }
-
-        return next;
-      },
-    );
-  }
-
-  function closeOtherTabs():
-    void {
-    setOpenTabs([
-      'dashboard',
-      ...(activePage ===
-      'dashboard'
-        ? []
-        : [activePage]),
-    ]);
   }
 
   function toggleFavorite(
@@ -769,27 +502,7 @@ export function App() {
         return <CasesPage />;
 
       case 'dashboard':
-        return (
-          <DashboardPage
-            favoriteIds={
-              favoriteIds
-            }
-            recentIds={
-              recentIds
-            }
-            onNavigate={
-              navigate
-            }
-            onOpenCommandPalette={() => {
-              setCommandPaletteOpen(
-                true,
-              );
-            }}
-            onToggleFavorite={
-              toggleFavorite
-            }
-          />
-        );
+        return null;
 
       case 'ioc-intelligence':
         return <IocIntelligencePage />;
@@ -857,340 +570,28 @@ export function App() {
   }
 
   return (
-    <div
-      className={`application applicationV5 ${
-        sidebarCollapsed
-          ? 'sidebarCollapsed'
-          : ''
-      } ${
-        focusMode
-          ? 'focusMode'
-          : ''
-      }`}
-    >
-      {!focusMode && (
-        <Sidebar
-          activePage={
-            activePage
-          }
-          collapsed={
-            sidebarCollapsed
-          }
-          favoriteIds={
-            favoriteIds
-          }
-          recentIds={
-            recentIds
-          }
-          showRuntimeInfo={
-            settings
-              .showRuntimeInfo
-          }
-          onNavigate={
-            navigate
-          }
-          onOpenCommandPalette={() => {
-            setCommandPaletteOpen(
-              true,
-            );
-          }}
-          onToggleCollapsed={() => {
-            setSidebarCollapsed(
-              (current) =>
-                !current,
-            );
-          }}
-          onToggleFavorite={
-            toggleFavorite
-          }
-        />
-      )}
-
-      <section className="contentShell contentShellV5">
-        <header className="appTopbar appTopbarV5">
-          <div className="topbarLeft">
-            {!focusMode && (
-              <button
-                className="topbarSidebarToggle"
-                type="button"
-                aria-label="Alternar sidebar"
-                title="Alternar sidebar (Ctrl+B)"
-                onClick={() => {
-                  setSidebarCollapsed(
-                    (current) =>
-                      !current,
-                  );
-                }}
-              >
-                ☰
-              </button>
-            )}
-
-            <div className="topbarContext">
-              <span>
-                {activeSection}
-              </span>
-
-              <strong>
-                {activeModule.name}
-              </strong>
-            </div>
-          </div>
-
-          <div className="topbarCenter">
-            <button
-              className="topbarCommand"
-              type="button"
-              onClick={() => {
-                setCommandPaletteOpen(
-                  true,
-                );
-              }}
-            >
-              <span>
-                ⌕
-              </span>
-
-              <strong>
-                Buscar módulo
-              </strong>
-
-              <kbd>
-                {commandHint}
-              </kbd>
-            </button>
-          </div>
-
-          <div className="topbarActions">
-            <ActiveCaseControl
-              onOpenCases={() => {
-                navigate('cases');
-              }}
-            />
-
-            <button
-              className={`topbarUtilityButton ${
-                activityRailOpen
-                  ? 'active'
-                  : ''
-              }`}
-              type="button"
-              title="Painel contextual (Ctrl+J)"
-              onClick={() => {
-                setActivityRailOpen(
-                  (current) =>
-                    !current,
-                );
-              }}
-            >
-              Panel
-            </button>
-
-            <button
-              className={`topbarUtilityButton ${
-                focusMode
-                  ? 'active'
-                  : ''
-              }`}
-              type="button"
-              title="Focus mode (Ctrl+Shift+F)"
-              onClick={() => {
-                setFocusMode(
-                  (current) =>
-                    !current,
-                );
-              }}
-            >
-              Focus
-            </button>
-
-            <button
-              className="topbarSettings"
-              type="button"
-              aria-label="Abrir configurações"
-              title="Configurações"
-              onClick={() => {
-                navigate(
-                  'settings',
-                );
-              }}
-            >
-              ⚙
-            </button>
-          </div>
-        </header>
-
-        <div className="topbarSubbar topbarSubbarV5">
-          <span>
-            {activeModule.description}
-          </span>
-
-          <div>
-            <small>
-              {
-                activeModule.abbreviation
-              }
-              {' · '}
-              {activeSection}
-            </small>
-
-            {activePage !==
-              'dashboard' &&
-              activePage !==
-                'settings' && (
-              <button
-                type="button"
-                onClick={() => {
-                  toggleFavorite(
-                    activePage,
-                  );
-                }}
-              >
-                {favoriteIds.includes(
-                  activePage,
-                )
-                  ? 'Desafixar'
-                  : 'Fixar'}
-              </button>
-            )}
-          </div>
-        </div>
-
-        <WorkspaceTabs
-          activePage={
-            activePage
-          }
-          tabs={openTabs}
-          onClose={
-            closeTab
-          }
-          onCloseOthers={
-            closeOtherTabs
-          }
-          onNavigate={
-            navigate
-          }
-          onOpenCommandPalette={() => {
-            setCommandPaletteOpen(
-              true,
-            );
-          }}
-        />
-
+    <>
+      <MapWorkspaceShell
+        activeCase={activeCase}
+        activeModule={activeModule}
+        activePage={activePage}
+        commandHint={commandHint}
+        mode={workspaceMode}
+        onModeChange={setWorkspaceMode}
+        onNavigate={navigate}
+        onOpenCommandPalette={() => {
+          setCommandPaletteOpen(
+            true,
+          );
+        }}
+      >
         <div
-          className={`workspaceFrame ${
-            activityRailOpen &&
-            !focusMode
-              ? 'withActivityRail'
-              : ''
-          }`}
+          className="pageTransition"
+          key={activePage}
         >
-          <main className="mainContent workspaceMain">
-            <div
-              className="pageTransition"
-              key={activePage}
-            >
-              {renderPage()}
-            </div>
-          </main>
-
-          {activityRailOpen &&
-            !focusMode && (
-              <ActivityRail
-                activeModule={
-                  activeModule
-                }
-                favoriteModules={
-                  favoriteModules
-                }
-                recentModules={
-                  recentModules
-                }
-                isFavorite={
-                  favoriteIds.includes(
-                    activePage,
-                  )
-                }
-                onClose={() => {
-                  setActivityRailOpen(
-                    false,
-                  );
-                }}
-                onNavigate={
-                  navigate
-                }
-                onOpenCommandPalette={() => {
-                  setCommandPaletteOpen(
-                    true,
-                  );
-                }}
-                onToggleFavorite={
-                  toggleFavorite
-                }
-              />
-            )}
+          {renderPage()}
         </div>
-
-        <footer className="statusBar">
-          <div>
-            <span className="statusBarPulse" />
-
-            <strong>
-              ZeroHub
-            </strong>
-
-            <span>
-              {
-                activeModule.status
-              }
-            </span>
-
-            <span>
-              {activeCase
-                ? `Case: ${activeCase.name}`
-                : 'No active case'}
-            </span>
-          </div>
-
-          <div>
-            <span>
-              {runtimeInfo.platform}
-            </span>
-
-            <span>
-              Electron
-              {' '}
-              {
-                runtimeInfo
-                  .electronVersion
-              }
-            </span>
-
-            <span>
-              Node
-              {' '}
-              {
-                runtimeInfo
-                  .nodeVersion
-              }
-            </span>
-
-            <span>
-              Accent
-              {' '}
-              {
-                settings.accentColor
-              }
-            </span>
-
-            <span>
-              Tabs
-              {' '}
-              {openTabs.length}
-            </span>
-          </div>
-        </footer>
-      </section>
+      </MapWorkspaceShell>
 
       {commandPaletteOpen && (
         <CommandPalette
@@ -1202,6 +603,9 @@ export function App() {
           }
           recentIds={
             recentIds
+          }
+          workspaceMode={
+            workspaceMode
           }
           onClose={() => {
             setCommandPaletteOpen(
@@ -1216,6 +620,6 @@ export function App() {
           }
         />
       )}
-    </div>
+    </>
   );
 }
