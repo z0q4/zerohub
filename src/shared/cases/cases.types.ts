@@ -77,6 +77,28 @@ export type CaseCreateInput = {
   primaryTarget?: CaseTargetInput;
 };
 
+export type CaseUpdateInput = {
+  caseId: string;
+  name: string;
+  description?: string;
+  tags?: string[];
+};
+
+export type CaseTargetCreateInput = {
+  caseId: string;
+  target: CaseTargetInput;
+};
+
+export type CaseTargetRemoveInput = {
+  caseId: string;
+  targetId: string;
+};
+
+export type CasePrimaryTargetInput = {
+  caseId: string;
+  targetId: string;
+};
+
 export type CaseActivityCreateInput = {
   caseId: string;
   moduleId: string;

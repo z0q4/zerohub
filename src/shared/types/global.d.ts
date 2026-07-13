@@ -2,8 +2,12 @@ import type {
   CaseActivity,
   CaseActivityCreateInput,
   CaseCreateInput,
+  CasePrimaryTargetInput,
   CaseStatus,
   CaseSummary,
+  CaseTargetCreateInput,
+  CaseTargetRemoveInput,
+  CaseUpdateInput,
   InvestigationCase,
 } from '../cases/cases.types';
 
@@ -416,6 +420,22 @@ type ZeroHubAPI = {
     addActivity(
       input: CaseActivityCreateInput,
     ): Promise<CaseActivity>;
+
+    update(
+      input: CaseUpdateInput,
+    ): Promise<InvestigationCase>;
+
+    addTarget(
+      input: CaseTargetCreateInput,
+    ): Promise<InvestigationCase>;
+
+    removeTarget(
+      input: CaseTargetRemoveInput,
+    ): Promise<InvestigationCase>;
+
+    setPrimaryTarget(
+      input: CasePrimaryTargetInput,
+    ): Promise<InvestigationCase>;
 
     updateStatus(
       caseId: string,
