@@ -1,6 +1,5 @@
 import {
   type KeyboardEvent,
-  useRef,
   useState,
 } from 'react';
 
@@ -9,8 +8,8 @@ import type {
 } from '../../../../shared/osint/rdap.types';
 
 import {
-  useCaseWorkspace,
-} from '../../cases/CaseWorkspaceContext';
+  useCaseResultRegistration,
+} from '../../cases/useCaseResultRegistration';
 
 function formatDate(
   value: string,
@@ -38,9 +37,20 @@ function formatDate(
 export function RdapDomainTool() {
   const {
     activeCase,
-    addActivity,
-    mutating,
-  } = useCaseWorkspace();
+    isRegisteredForActiveCase,
+    lastRegisteredCase,
+    registerResult:
+      registerCaseResult,
+    registering,
+    registrationDisabled,
+    registrationError,
+    resetResultRegistration,
+  } = useCaseResultRegistration({
+    errorMessage:
+      'Não foi possível registrar a consulta no perfil.',
+    missingCaseMessage:
+      'Selecione um perfil ativo antes de registrar a consulta.',
+  });
 
   const [
     domain,
@@ -73,43 +83,11 @@ export function RdapDomainTool() {
     setCopied,
   ] = useState(false);
 
-  const [
-    registeredCaseIds,
-    setRegisteredCaseIds,
-  ] = useState<string[]>([]);
-
-  const [
-    lastRegisteredCase,
-    setLastRegisteredCase,
-  ] =
-    useState<{
-      id: string;
-      name: string;
-    } | null>(null);
-
-  const [
-    registrationError,
-    setRegistrationError,
-  ] =
-    useState<string | null>(
-      null,
-    );
-
-  const [
-    registering,
-    setRegistering,
-  ] = useState(false);
-
-  const registrationInFlight =
-    useRef(false);
-
   async function executeLookup():
     Promise<void> {
     setError(null);
     setCopied(false);
-    setRegisteredCaseIds([]);
-    setLastRegisteredCase(null);
-    setRegistrationError(null);
+    resetResultRegistration();
 
     if (!domain.trim()) {
       setResult(null);
@@ -153,86 +131,32 @@ export function RdapDomainTool() {
     setResult(null);
     setError(null);
     setCopied(false);
-    setRegisteredCaseIds([]);
-    setLastRegisteredCase(null);
-    setRegistrationError(null);
+    resetResultRegistration();
   }
 
   async function registerResult():
     Promise<void> {
-    setRegistrationError(null);
-
     if (!result) {
       return;
     }
 
-    if (!activeCase) {
-      setRegistrationError(
-        'Selecione um perfil ativo antes de registrar a consulta.',
-      );
-      return;
-    }
-
-    if (
-      registrationInFlight.current ||
-      registeredCaseIds.includes(
-        activeCase.id,
-      )
-    ) {
-      return;
-    }
-
-    const targetCase = {
-      id: activeCase.id,
-      name: activeCase.name,
-    };
-
-    registrationInFlight.current =
-      true;
-    setRegistering(true);
-
-    try {
-      await addActivity({
-        caseId:
-          targetCase.id,
-        moduleId: 'osint',
-        action:
-          'rdap-domain-lookup',
-        title:
-          `Consulta RDAP: ${result.domain}`,
-        status: 'success',
-        input: {
-          domain:
-            result.domain,
-        },
-        output: result,
-        note:
-          `Consulta RDAP concluída com ${result.status.length} status e ${result.nameservers.length} nameservers.`,
-        durationMs:
-          result.elapsedMs,
-      });
-
-      setRegisteredCaseIds(
-        (current) => [
-          ...current,
-          targetCase.id,
-        ],
-      );
-
-      setLastRegisteredCase(
-        targetCase,
-      );
-    } catch (unknownError) {
-      setRegistrationError(
-        unknownError instanceof Error
-          ? unknownError.message
-          : 'Não foi possível registrar a consulta no perfil.',
-      );
-    } finally {
-      registrationInFlight.current =
-        false;
-      setRegistering(false);
-    }
+    await registerCaseResult({
+      moduleId: 'osint',
+      action:
+        'rdap-domain-lookup',
+      title:
+        `Consulta RDAP: ${result.domain}`,
+      status: 'success',
+      input: {
+        domain:
+          result.domain,
+      },
+      output: result,
+      note:
+        `Consulta RDAP concluída com ${result.status.length} status e ${result.nameservers.length} nameservers.`,
+      durationMs:
+        result.elapsedMs,
+    });
   }
 
   function copyJson(): void {
@@ -310,15 +234,7 @@ export function RdapDomainTool() {
               setResult(null);
               setError(null);
               setCopied(false);
-              setRegisteredCaseIds(
-                [],
-              );
-              setLastRegisteredCase(
-                null,
-              );
-              setRegistrationError(
-                null,
-              );
+              resetResultRegistration();
             }}
             onKeyDown={
               handleKeyboard
@@ -633,15 +549,7 @@ export function RdapDomainTool() {
               className="primaryButton"
               type="button"
               disabled={
-                activeCase === null ||
-                mutating ||
-                registering ||
-                (
-                  activeCase !== null &&
-                  registeredCaseIds.includes(
-                    activeCase.id,
-                  )
-                )
+                registrationDisabled
               }
               onClick={() => {
                 registerResult().catch(
@@ -656,9 +564,7 @@ export function RdapDomainTool() {
             >
               {activeCase === null
                 ? 'Selecione um perfil'
-                : registeredCaseIds.includes(
-                    activeCase.id,
-                  )
+                : isRegisteredForActiveCase
                   ? 'Registrado no perfil'
                   : registering
                     ? 'Registrando...'
