@@ -7,5 +7,6 @@ export type AccentColor =
 export type AppSettings = {
   accentColor: AccentColor;
   compactMode: boolean;
+  saveSessionOnClose: boolean;
   showRuntimeInfo: boolean;
 };

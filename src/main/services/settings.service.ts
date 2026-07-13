@@ -67,6 +67,15 @@ function normalizeSettings(
         : DEFAULT_APP_SETTINGS
             .compactMode,
 
+    saveSessionOnClose:
+      typeof candidate
+        .saveSessionOnClose ===
+      'boolean'
+        ? candidate
+            .saveSessionOnClose
+        : DEFAULT_APP_SETTINGS
+            .saveSessionOnClose,
+
     showRuntimeInfo:
       typeof candidate
         .showRuntimeInfo ===

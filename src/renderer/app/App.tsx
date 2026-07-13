@@ -126,6 +126,17 @@ import type {
   PageId,
 } from './types';
 
+import {
+  DEFAULT_SESSION_SNAPSHOT,
+  clearSessionSnapshot,
+  readSessionSnapshot,
+  saveSessionSnapshot,
+} from './session-persistence';
+
+import type {
+  SessionSnapshot,
+} from './session-persistence';
+
 const SECTION_LABELS:
   Record<ModuleSection, string> = {
     workspace: 'Workspace',
@@ -138,21 +149,6 @@ const SECTION_LABELS:
 
 const FAVORITES_KEY =
   'zerohub.ui.favorites.v1';
-
-const RECENTS_KEY =
-  'zerohub.ui.recents.v1';
-
-const SIDEBAR_KEY =
-  'zerohub.ui.sidebar-collapsed.v1';
-
-const TABS_KEY =
-  'zerohub.ui.workspace-tabs.v1';
-
-const RAIL_KEY =
-  'zerohub.ui.activity-rail.v1';
-
-const FOCUS_KEY =
-  'zerohub.ui.focus-mode.v1';
 
 function isPageId(
   value: unknown,
@@ -189,43 +185,10 @@ function readStoredPages(
   }
 }
 
-function readBoolean(
-  key: string,
-  fallback: boolean,
-): boolean {
-  const value =
-    localStorage.getItem(key);
-
-  if (value === null) {
-    return fallback;
-  }
-
-  return value === 'true';
-}
-
-function readTabs(): PageId[] {
-  const stored =
-    readStoredPages(
-      TABS_KEY,
-    );
-
-  const withoutDuplicates =
-    Array.from(
-      new Set<PageId>([
-        'dashboard',
-        ...stored,
-      ]),
-    );
-
-  return withoutDuplicates.slice(
-    0,
-    9,
-  );
-}
-
 export function App() {
   const {
     activeCase,
+    selectCase,
   } = useCaseWorkspace();
 
   const [
@@ -245,6 +208,11 @@ export function App() {
     });
 
   const [
+    sessionPersistenceReady,
+    setSessionPersistenceReady,
+  ] = useState(false);
+
+  const [
     commandPaletteOpen,
     setCommandPaletteOpen,
   ] = useState(false);
@@ -254,11 +222,8 @@ export function App() {
     setSidebarCollapsed,
   ] =
     useState<boolean>(
-      () =>
-        readBoolean(
-          SIDEBAR_KEY,
-          false,
-        ),
+      DEFAULT_SESSION_SNAPSHOT
+        .sidebarCollapsed,
     );
 
   const [
@@ -266,11 +231,8 @@ export function App() {
     setActivityRailOpen,
   ] =
     useState<boolean>(
-      () =>
-        readBoolean(
-          RAIL_KEY,
-          true,
-        ),
+      DEFAULT_SESSION_SNAPSHOT
+        .activityRailOpen,
     );
 
   const [
@@ -278,11 +240,8 @@ export function App() {
     setFocusMode,
   ] =
     useState<boolean>(
-      () =>
-        readBoolean(
-          FOCUS_KEY,
-          false,
-        ),
+      DEFAULT_SESSION_SNAPSHOT
+        .focusMode,
     );
 
   const [
@@ -301,10 +260,8 @@ export function App() {
     setRecentIds,
   ] =
     useState<PageId[]>(
-      () =>
-        readStoredPages(
-          RECENTS_KEY,
-        ),
+      DEFAULT_SESSION_SNAPSHOT
+        .recentIds,
     );
 
   const [
@@ -312,7 +269,8 @@ export function App() {
     setOpenTabs,
   ] =
     useState<PageId[]>(
-      readTabs,
+      DEFAULT_SESSION_SNAPSHOT
+        .openTabs,
     );
 
   const activeModule =
@@ -377,28 +335,76 @@ export function App() {
       [recentIds],
     );
 
+  function applySessionSnapshot(
+    snapshot: SessionSnapshot,
+  ): void {
+    setActivityRailOpen(
+      snapshot.activityRailOpen,
+    );
+    setFocusMode(
+      snapshot.focusMode,
+    );
+    setOpenTabs(
+      snapshot.openTabs,
+    );
+    setRecentIds(
+      snapshot.recentIds,
+    );
+    setSidebarCollapsed(
+      snapshot.sidebarCollapsed,
+    );
+  }
+
   useEffect(() => {
     let mounted = true;
 
-    window.zeroHub.settings
-      .get()
-      .then(
-        (
+    async function initializeSettings():
+      Promise<void> {
+      try {
+        const loadedSettings =
+          await window.zeroHub
+            .settings
+            .get();
+
+        if (!mounted) {
+          return;
+        }
+
+        setSettings(
           loadedSettings,
-        ) => {
-          if (mounted) {
-            setSettings(
-              loadedSettings,
-            );
-          }
-        },
-      )
-      .catch((error) => {
+        );
+
+        if (
+          loadedSettings
+            .saveSessionOnClose
+        ) {
+          applySessionSnapshot(
+            readSessionSnapshot(),
+          );
+        } else {
+          clearSessionSnapshot();
+        }
+      } catch (error) {
         console.error(
           'Não foi possível carregar as configurações.',
           error,
         );
-      });
+
+        if (mounted) {
+          applySessionSnapshot(
+            readSessionSnapshot(),
+          );
+        }
+      } finally {
+        if (mounted) {
+          setSessionPersistenceReady(
+            true,
+          );
+        }
+      }
+    }
+
+    void initializeSettings();
 
     return () => {
       mounted = false;
@@ -474,49 +480,30 @@ export function App() {
   }, [favoriteIds]);
 
   useEffect(() => {
-    localStorage.setItem(
-      RECENTS_KEY,
-      JSON.stringify(
-        recentIds,
-      ),
-    );
-  }, [recentIds]);
+    if (
+      !sessionPersistenceReady ||
+      !settings
+        .saveSessionOnClose
+    ) {
+      return;
+    }
 
-  useEffect(() => {
-    localStorage.setItem(
-      SIDEBAR_KEY,
-      String(
-        sidebarCollapsed,
-      ),
-    );
-  }, [sidebarCollapsed]);
-
-  useEffect(() => {
-    localStorage.setItem(
-      RAIL_KEY,
-      String(
-        activityRailOpen,
-      ),
-    );
-  }, [activityRailOpen]);
-
-  useEffect(() => {
-    localStorage.setItem(
-      FOCUS_KEY,
-      String(
-        focusMode,
-      ),
-    );
-  }, [focusMode]);
-
-  useEffect(() => {
-    localStorage.setItem(
-      TABS_KEY,
-      JSON.stringify(
-        openTabs,
-      ),
-    );
-  }, [openTabs]);
+    saveSessionSnapshot({
+      activityRailOpen,
+      focusMode,
+      openTabs,
+      recentIds,
+      sidebarCollapsed,
+    });
+  }, [
+    activityRailOpen,
+    focusMode,
+    openTabs,
+    recentIds,
+    sessionPersistenceReady,
+    settings.saveSessionOnClose,
+    sidebarCollapsed,
+  ]);
 
   useEffect(() => {
     function handleKeyDown(
@@ -633,6 +620,15 @@ export function App() {
     setSettings(
       savedSettings,
     );
+
+    if (
+      !savedSettings
+        .saveSessionOnClose
+    ) {
+      clearSessionSnapshot();
+
+      await selectCase(null);
+    }
   }
 
   function ensureTab(
