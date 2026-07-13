@@ -1,40 +1,56 @@
+from __future__ import annotations
+
 import os
 import sys
-import tempfile
-import zipfile
+from pathlib import Path
 
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+import pyzipper
 
-from modules.file_cracker import zipcrack
+sys.path.insert(
+    0,
+    os.path.abspath(
+        os.path.join(
+            os.path.dirname(__file__),
+            "..",
+        )
+    ),
+)
+
+from modules.file_cracker import crack_zip
 
 
-def test_zipcrack_wordlist(tmp_path):
-    zip_path = tmp_path / 'sample.zip'
-    with zipfile.ZipFile(zip_path, 'w', compression=zipfile.ZIP_DEFLATED) as zf:
-        zf.writestr('secret.txt', 'data')
+def test_crack_zip_finds_aes_password_from_wordlist(
+    tmp_path: Path,
+) -> None:
+    zip_path = tmp_path / "sample.zip"
 
-    wordlist_path = tmp_path / 'words.txt'
-    wordlist_path.write_text('123456\nsecret\n', encoding='utf-8')
+    with pyzipper.AESZipFile(
+        zip_path,
+        "w",
+        compression=pyzipper.ZIP_DEFLATED,
+        encryption=pyzipper.WZ_AES,
+    ) as archive:
+        archive.setpassword(b"secret")
+        archive.writestr(
+            "secret.txt",
+            "ZeroHub test data",
+        )
 
-    class DummyLogger:
-        def info(self, *args, **kwargs):
-            pass
+    wordlist_path = tmp_path / "words.txt"
+    wordlist_path.write_text(
+        "incorrect\nsecret\n",
+        encoding="utf-8",
+    )
 
-        def error(self, *args, **kwargs):
-            pass
+    result = crack_zip(
+        {
+            "zipPath": str(zip_path),
+            "mode": "wordlist",
+            "wordlistPath": str(wordlist_path),
+        }
+    )
 
-        def warning(self, *args, **kwargs):
-            pass
-
-    import modules.file_cracker as file_cracker_module
-    file_cracker_module.logger = DummyLogger()
-
-    import types
-    import pyzipper
-
-    # Create a password-protected zip using pyzipper
-    with pyzipper.AESZipFile(zip_path, 'w', compression=pyzipper.ZIP_DEFLATED) as zf:
-        zf.setpassword(b'secret')
-        zf.writestr('secret.txt', 'data')
-
-    zipcrack(['-p', str(zip_path), '-w', str(wordlist_path), '-m', 'wordlist'])
+    assert result["found"] is True
+    assert result["password"] == "secret"
+    assert result["attempts"] >= 1
+    assert result["zipPath"] == str(zip_path)

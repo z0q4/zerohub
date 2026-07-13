@@ -172,7 +172,7 @@ class PythonService {
   ): void {
     this.outputBuffer += chunk;
 
-    while (true) {
+    while (this.outputBuffer.includes('\n')) {
       const lineEnd =
         this.outputBuffer.indexOf(
           '\n',

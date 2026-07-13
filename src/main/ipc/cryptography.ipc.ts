@@ -12,7 +12,6 @@ import type {
   HmacVerifyResult,
   JwtResult,
   Pbkdf2Result,
-  RandomRequest,
   RandomResult,
 } from '../../shared/cryptography/cryptography.types';
 
