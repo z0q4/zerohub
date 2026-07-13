@@ -1,4 +1,13 @@
 import type {
+  CaseActivity,
+  CaseActivityCreateInput,
+  CaseCreateInput,
+  CaseStatus,
+  CaseSummary,
+  InvestigationCase,
+} from '../cases/cases.types';
+
+import type {
   IocIntelligenceResult,
   IocKeyInput,
   IocKeyStatus,
@@ -386,6 +395,34 @@ type ZeroHubAPI = {
       request: FileCrackRequest,
     ): Promise<FileCrackResult>;
   };
+  cases: {
+    list(): Promise<CaseSummary[]>;
+
+    get(
+      caseId: string,
+    ): Promise<InvestigationCase>;
+
+    getActive():
+      Promise<InvestigationCase | null>;
+
+    create(
+      input: CaseCreateInput,
+    ): Promise<InvestigationCase>;
+
+    setActive(
+      caseId: string | null,
+    ): Promise<InvestigationCase | null>;
+
+    addActivity(
+      input: CaseActivityCreateInput,
+    ): Promise<CaseActivity>;
+
+    updateStatus(
+      caseId: string,
+      status: CaseStatus,
+    ): Promise<InvestigationCase>;
+  };
+
   settings: {
     get(): Promise<AppSettings>;
     save(

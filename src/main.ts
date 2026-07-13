@@ -1,4 +1,8 @@
 import {
+  registerCasesIpcHandlers,
+} from './main/ipc/cases.ipc';
+
+import {
   registerIocIntelligenceIpcHandlers,
 } from './main/ipc/ioc-intelligence.ipc';
 
@@ -148,6 +152,7 @@ app.whenReady().then(() => {
   registerHashIpcHandlers();
   registerNetworkIpcHandlers();
   registerOsintIpcHandlers();
+  registerCasesIpcHandlers();
   registerSettingsIpcHandlers();
   registerSecretScannerIpcHandlers();
   registerThreatIntelligenceIpcHandlers();
