@@ -1529,6 +1529,57 @@ textarea:focus-visible {
     rgb(66 216 130 / 22%);
 }
 
+:root[data-visual-profile="monochrome"] {
+  --background: #030303;
+  --sidebar: #070707;
+  --surface: #0c0c0c;
+  --surface-raised: #121212;
+  --surface-hover: #1a1a1a;
+  --border: #242424;
+  --border-strong: #4a4a4a;
+  --text: #f4f4f4;
+  --text-secondary: #b4b4b4;
+  --text-muted: #737373;
+  --primary: #f2f2f2;
+  --primary-soft: #191919;
+  --primary-deep: #8f8f8f;
+  --primary-glow:
+    rgb(255 255 255 / 16%);
+  --success: #e6e6e6;
+  --danger: #d8d8d8;
+}
+
+:root[data-visual-profile="monochrome"] body {
+  background: #030303;
+}
+
+:root[data-visual-profile="monochrome"] .application {
+  background:
+    radial-gradient(
+      circle at 78% 0%,
+      rgb(255 255 255 / 7%),
+      transparent 34%
+    ),
+    var(--background);
+}
+
+:root[data-visual-profile="monochrome"] .sidebar {
+  background: rgb(7 7 7 / 98%);
+}
+
+:root[data-visual-profile="monochrome"] .brandLogo {
+  border-color: rgb(255 255 255 / 62%);
+  color: #050505;
+  background:
+    linear-gradient(
+      145deg,
+      #f4f4f4,
+      #8d8d8d
+    );
+  box-shadow:
+    0 8px 24px rgb(255 255 255 / 12%);
+}
+
 .brandLogo {
   border-color:
     var(--primary);
@@ -1653,7 +1704,41 @@ textarea:focus-visible {
   gap: 10px;
 }
 
+.visualProfileGrid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(
+      2,
+      minmax(0, 1fr)
+    );
+
+  gap: 10px;
+  margin-top: 12px;
+}
+
 .accentOption {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  padding: 12px;
+
+  border:
+    1px solid
+    var(--border);
+
+  border-radius: 9px;
+
+  color:
+    var(--text-secondary);
+
+  background: #0b0e14;
+
+  text-align: left;
+}
+
+.visualProfileOption {
   display: flex;
   align-items: center;
   gap: 10px;
@@ -1679,6 +1764,11 @@ textarea:focus-visible {
     var(--border-strong);
 }
 
+.visualProfileOption:hover {
+  border-color:
+    var(--border-strong);
+}
+
 .accentOption.active {
   border-color:
     var(--primary);
@@ -1691,12 +1781,53 @@ textarea:focus-visible {
     );
 }
 
+.visualProfileOption.active {
+  border-color:
+    var(--primary);
+
+  background:
+    color-mix(
+      in srgb,
+      var(--primary) 10%,
+      #0b0e14
+    );
+}
+
 .accentPreview {
   width: 30px;
   height: 30px;
   flex: 0 0 auto;
 
   border-radius: 8px;
+}
+
+.visualProfilePreview {
+  width: 30px;
+  height: 30px;
+  flex: 0 0 auto;
+
+  border:
+    1px solid
+    rgb(255 255 255 / 16%);
+
+  border-radius: 8px;
+
+  background:
+    linear-gradient(
+      145deg,
+      var(--primary),
+      var(--primary-deep)
+    );
+}
+
+.visualProfilePreview.visual-monochrome {
+  background:
+    linear-gradient(
+      145deg,
+      #fff 0 34%,
+      #757575 34% 66%,
+      #050505 66%
+    );
 }
 
 .accent-blue {
@@ -1736,16 +1867,20 @@ textarea:focus-visible {
 }
 
 .accentOption strong,
-.accentOption small {
+.accentOption small,
+.visualProfileOption strong,
+.visualProfileOption small {
   display: block;
 }
 
-.accentOption strong {
+.accentOption strong,
+.visualProfileOption strong {
   color: var(--text);
   font-size: 11px;
 }
 
-.accentOption small {
+.accentOption small,
+.visualProfileOption small {
   margin-top: 3px;
 
   color:

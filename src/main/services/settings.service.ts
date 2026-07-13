@@ -18,11 +18,13 @@ import {
 import {
   ACCENT_COLORS,
   DEFAULT_APP_SETTINGS,
+  VISUAL_PROFILES,
 } from '../../shared/settings/settings.defaults';
 
 import type {
   AccentColor,
   AppSettings,
+  VisualProfile,
 } from '../../shared/settings/settings.types';
 
 function isAccentColor(
@@ -32,6 +34,17 @@ function isAccentColor(
     typeof value === 'string' &&
     ACCENT_COLORS.includes(
       value as AccentColor,
+    )
+  );
+}
+
+function isVisualProfile(
+  value: unknown,
+): value is VisualProfile {
+  return (
+    typeof value === 'string' &&
+    VISUAL_PROFILES.includes(
+      value as VisualProfile,
     )
   );
 }
@@ -59,6 +72,14 @@ function normalizeSettings(
         ? candidate.accentColor
         : DEFAULT_APP_SETTINGS
             .accentColor,
+
+    visualProfile:
+      isVisualProfile(
+        candidate.visualProfile,
+      )
+        ? candidate.visualProfile
+        : DEFAULT_APP_SETTINGS
+            .visualProfile,
 
     compactMode:
       typeof candidate.compactMode ===

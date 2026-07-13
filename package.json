@@ -31,6 +31,7 @@
     "@types/node": "^22.20.1",
     "@types/react": "^19.2.17",
     "@types/react-dom": "^19.2.3",
+    "@types/topojson-client": "^3.1.5",
     "@typescript-eslint/eslint-plugin": "^5.62.0",
     "@typescript-eslint/parser": "^5.62.0",
     "@vitejs/plugin-react": "^4.3.4",
@@ -42,7 +43,10 @@
   },
   "dependencies": {
     "electron-squirrel-startup": "^1.0.1",
+    "maplibre-gl": "^5.24.0",
     "react": "^19.2.7",
-    "react-dom": "^19.2.7"
+    "react-dom": "^19.2.7",
+    "topojson-client": "^3.1.0",
+    "world-atlas": "^2.0.2"
   }
 }
