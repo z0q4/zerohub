@@ -8,6 +8,10 @@ import type {
   DnsRecordType,
 } from '../../../../shared/network/dns.types';
 
+import {
+  useCaseResultRegistration,
+} from '../../cases/useCaseResultRegistration';
+
 const RECORD_TYPES:
   readonly DnsRecordType[] = [
     'A',
@@ -19,6 +23,23 @@ const RECORD_TYPES:
   ];
 
 export function DnsLookupTool() {
+  const {
+    activeCase,
+    isRegisteredForActiveCase,
+    lastRegisteredCase,
+    registerResult:
+      registerCaseResult,
+    registering,
+    registrationDisabled,
+    registrationError,
+    resetResultRegistration,
+  } = useCaseResultRegistration({
+    errorMessage:
+      'Não foi possível registrar a consulta DNS no perfil.',
+    missingCaseMessage:
+      'Selecione um perfil ativo antes de registrar a consulta DNS.',
+  });
+
   const [
     domain,
     setDomain,
@@ -58,6 +79,7 @@ export function DnsLookupTool() {
     Promise<void> {
     setError(null);
     setCopied(false);
+    resetResultRegistration();
 
     if (!domain.trim()) {
       setResult(null);
@@ -115,6 +137,36 @@ export function DnsLookupTool() {
     setResult(null);
     setError(null);
     setCopied(false);
+    resetResultRegistration();
+  }
+
+  async function registerResult():
+    Promise<void> {
+    if (
+      !result ||
+      busy
+    ) {
+      return;
+    }
+
+    await registerCaseResult({
+      moduleId: 'network',
+      action: 'dns-lookup',
+      title:
+        `Consulta DNS: ${result.domain} · ${result.recordType}`,
+      status: 'success',
+      input: {
+        domain:
+          result.domain,
+        recordType:
+          result.recordType,
+      },
+      output: result,
+      note:
+        `Consulta DNS ${result.recordType} concluída com ${result.records.length} ${result.records.length === 1 ? 'registro' : 'registros'}.`,
+      durationMs:
+        result.elapsedMs,
+    });
   }
 
   function handleKeyboard(
@@ -159,6 +211,7 @@ export function DnsLookupTool() {
           <input
             value={domain}
             type="text"
+            disabled={registering}
             spellCheck={false}
             placeholder="example.com"
             onChange={(event) => {
@@ -169,6 +222,7 @@ export function DnsLookupTool() {
               setResult(null);
               setError(null);
               setCopied(false);
+              resetResultRegistration();
             }}
             onKeyDown={
               handleKeyboard
@@ -181,6 +235,7 @@ export function DnsLookupTool() {
 
           <select
             value={recordType}
+            disabled={registering}
             onChange={(event) => {
               setRecordType(
                 event.target
@@ -190,6 +245,7 @@ export function DnsLookupTool() {
               setResult(null);
               setError(null);
               setCopied(false);
+              resetResultRegistration();
             }}
           >
             {RECORD_TYPES.map(
@@ -208,7 +264,9 @@ export function DnsLookupTool() {
         <button
           className="primaryButton dnsSubmit"
           type="button"
-          disabled={busy}
+          disabled={
+            busy || registering
+          }
           onClick={() => {
             void executeLookup();
           }}
@@ -289,15 +347,75 @@ export function DnsLookupTool() {
         )}
       </div>
 
+      {result && !activeCase && (
+        <div
+          className="toolMessage error"
+          role="status"
+        >
+          Nenhum perfil ativo. Selecione
+          um perfil para registrar esta
+          consulta na timeline.
+        </div>
+      )}
+
+      {result && lastRegisteredCase && (
+        <div
+          className="toolMessage success"
+          role="status"
+        >
+          Consulta registrada na timeline
+          de {lastRegisteredCase.name}.
+        </div>
+      )}
+
+      {registrationError && (
+        <div
+          className="toolMessage error"
+          role="alert"
+        >
+          {registrationError}
+        </div>
+      )}
+
       <div className="toolFooter">
         <span className="keyboardHint">
           Ctrl + Enter para consultar
         </span>
 
         <div className="toolActions">
+          {result && (
+            <button
+              className="primaryButton"
+              type="button"
+              disabled={
+                busy ||
+                registrationDisabled
+              }
+              onClick={() => {
+                registerResult().catch(
+                  (unknownError) => {
+                    console.error(
+                      'Falha inesperada ao registrar consulta DNS.',
+                      unknownError,
+                    );
+                  },
+                );
+              }}
+            >
+              {activeCase === null
+                ? 'Selecione um perfil'
+                : isRegisteredForActiveCase
+                  ? 'Registrado no perfil'
+                  : registering
+                    ? 'Registrando...'
+                    : 'Registrar no perfil'}
+            </button>
+          )}
+
           <button
             className="secondaryButton"
             type="button"
+            disabled={registering}
             onClick={clearLookup}
           >
             Limpar
@@ -306,7 +424,9 @@ export function DnsLookupTool() {
           <button
             className="secondaryButton"
             type="button"
-            disabled={!result}
+            disabled={
+              !result || registering
+            }
             onClick={copyRecords}
           >
             {copied
