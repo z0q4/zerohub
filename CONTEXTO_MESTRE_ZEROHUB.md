@@ -2,11 +2,11 @@
 
 ## 1. Referência deste documento
 
-Este documento descreve o estado real da branch `main` após o merge do PR #19.
+Este documento descreve o estado real da branch `main` após o merge do PR #20.
 
-- Commit de referência: `335be32ec81294687fcfc0212864e60d39be44b9`
+- Commit de referência: `a46c065433d291e6eeb384178c62dbb3d8ea59bc`
 - Versão declarada em `package.json`: `0.1.0`
-- Data da fotografia: 13 de julho de 2026
+- Data da fotografia: 15 de julho de 2026
 - Arquitetura preservada: Electron + React + TypeScript + backend Python
 
 O conteúdo abaixo foi conferido contra o código, a configuração de CI e o histórico Git. Ele não representa roadmap e não implica funcionalidades ausentes do repositório.
@@ -17,7 +17,7 @@ O ZeroHub é uma aplicação desktop Electron Forge empacotada com Vite.
 
 - `src/main.ts`: cria a janela, registra handlers IPC e controla o ciclo de vida do processo principal.
 - `src/preload.ts`: expõe ao renderer uma API limitada por `contextBridge`.
-- `src/renderer/`: aplicação React responsável pela shell, páginas, ferramentas e estado visual.
+- `src/renderer/`: aplicação React responsável pelo workspace cartográfico, páginas, ferramentas e estado visual.
 - `src/shared/`: tipos e registros compartilhados entre main, preload e renderer.
 - `src/main/python/python.service.ts`: inicia `python/main.py` sob demanda e troca mensagens JSON por `stdin`/`stdout`, com identificadores de requisição e timeout de 20 segundos.
 - `python/`: backend e módulos Python.
@@ -42,6 +42,26 @@ O registro compartilhado marca como operacionais os seguintes módulos:
 - System: Settings.
 
 O registro central fica em `src/shared/modules/module.registry.ts`.
+
+### 3.1 Modos do workspace
+
+Além das seções, cada módulo declara em quais modos do workspace está disponível:
+
+- OSINT: Network, OSINT, Threat Intelligence, Web Recon, Email Security e IOC Intelligence.
+- ATTACK: Encoding, Utilities, File Analysis, Secret Scanner, File Forensics, Log Analysis, System Audit, Cryptography, Network Toolkit e Developer Tools.
+- Compartilhados: Dashboard, Perfis do alvo e Settings.
+
+O seletor alterna entre OSINT e ATTACK. Se o módulo aberto não pertencer ao novo modo, a aplicação volta ao Dashboard. A command palette e a rail lateral também filtram os módulos conforme o modo ativo.
+
+### 3.2 Workspace cartográfico e perfil visual
+
+`MapWorkspaceShell` envolve a área principal da aplicação. O Dashboard é a visão inicial sobre o globo; as demais páginas são abertas em `ModuleWorkbenchDrawer`, mantendo o mapa ao fundo. A shell inclui rail compacta de módulos, busca, atalhos para perfis e configurações, recentralização do mapa e seletor OSINT/ATTACK.
+
+`WorldGlobeMap` usa MapLibre GL com projeção de globo e dados GeoJSON locais para países, divisões administrativas e cidades. Os dados compactados derivam do Natural Earth, têm atribuição em `src/renderer/assets/map/MAP_DATA_LICENSE.md` e podem ser regenerados por `scripts/prepare-map-data.py`. O mapa oferece zoom, recentralização, rotação automática, respeito a preferência de movimento reduzido e alternância visual em preto e branco.
+
+O mapa ainda não projeta alvos dos perfis: `MapWorkspaceShell` fornece `markerCount={0}`, portanto a interface informa que não há coordenadas cadastradas independentemente dos alvos existentes.
+
+As configurações persistentes agora também incluem `visualProfile`, com valores `default` e `monochrome`. O valor padrão continua usando a identidade escura com accent color; o perfil monocromático aplica a variante Black & White.
 
 ## 4. Sistema persistente de perfis e casos
 
@@ -158,13 +178,12 @@ O valor padrão é `true`. A normalização usa esse padrão quando o campo não
 
 ### 9.1 Opção ligada
 
-O renderer salva e restaura as chaves de sessão já existentes:
+O renderer salva e restaura:
 
-- abas abertas;
+- página ativa;
+- favoritos;
 - módulos recentes;
-- sidebar recolhida/expandida;
-- activity rail aberto/fechado;
-- Focus Mode.
+- modo do workspace (`osint` ou `attack`).
 
 O ponteiro `activeCaseId` também pode restaurar o perfil ativo.
 
@@ -172,7 +191,7 @@ O ponteiro `activeCaseId` também pode restaurar o perfil ativo.
 
 Ao salvar a opção desligada:
 
-- as cinco chaves transitórias são removidas imediatamente do `localStorage`;
+- as quatro chaves transitórias de página ativa, favoritos, recentes e modo do workspace são removidas imediatamente do `localStorage`;
 - novas gravações do snapshot ficam suspensas;
 - `activeCaseId` é definido como `null` sem remover qualquer perfil ou atividade;
 - uma limpeza defensiva do perfil ativo ocorre no `before-quit`;
@@ -182,9 +201,9 @@ Assim, mesmo quando um encerramento abrupto impede a execução do hook de saíd
 
 ### 9.3 Limites e dados preservados
 
-O estado atual não persiste o módulo ativo, filtros ou buscas. A aplicação inicia no Dashboard; as abas podem ser restauradas quando a opção está ligada.
+O estado atual não persiste busca, filtros, posição/zoom do globo, rotação do mapa ou o botão P/B local do mapa. Quando a opção está ligada, a página ativa e o modo do workspace podem ser restaurados; caso contrário, a aplicação usa Dashboard e modo OSINT.
 
-Favoritos usam a chave permanente `zerohub.ui.favorites.v1` e não fazem parte da limpeza da sessão. A opção também não remove:
+A opção não remove:
 
 - perfis, alvos ou timeline;
 - outras configurações;
@@ -227,7 +246,7 @@ Jobs atuais:
 
 O workflow usa `actions/checkout@v7`, `actions/setup-node@v6` e `actions/setup-python@v6`. Atualmente existe um arquivo de testes Python, `python/tests/test_file_cracker.py`; isso não deve ser interpretado como cobertura completa do produto.
 
-## 12. Histórico de Pull Requests até o #19
+## 12. Histórico de Pull Requests até o #20
 
 | PR | Commit em `main` | Título confirmado |
 | --- | --- | --- |
@@ -250,8 +269,9 @@ O workflow usa `actions/checkout@v7`, `actions/setup-node@v6` e `actions/setup-p
 | #17 | `1d6f968` | `feat: integrate DNS results with case timeline` |
 | #18 | `e7f08bd` | `feat: integrate Ping results with case timeline` |
 | #19 | `335be32` | `feat: add session persistence setting` |
+| #20 | `a46c065` | `Codex/dashboard earth 3d` |
 
-Os PRs #1 e #2 aparecem como merge commits no histórico. Do PR #3 em diante, os commits listados acima são os commits resultantes presentes linearmente em `main`.
+Os PRs #1, #2 e #20 aparecem como merge commits no histórico. Do PR #3 ao #19, os commits listados acima são os commits resultantes presentes linearmente em `main`. O PR #20 preserva dentro do merge os commits `ba35885` e `8347859`.
 
 ## 13. Outros commits presentes no histórico de `main`
 
@@ -268,6 +288,8 @@ Além dos commits de merge/squash relacionados na tabela, o histórico contém e
 | `d7800de` | `feat: Zip_cracker added with wordlists;` |
 | `ba8a269` | `feat: Zip_cracker added with wordlists included` |
 | `2f96979` | `feat: zip_cracker added with wordlist` |
+| `ba35885` | `feat: add globe workspace and monochrome profile` |
+| `8347859` | `Merge remote-tracking branch 'origin/main' into codex/dashboard-earth-3d` |
 
 ## 14. Regras operacionais do repositório
 

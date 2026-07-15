@@ -31,6 +31,14 @@ export type ModuleSection =
   | 'data-dev'
   | 'system';
 
+export type WorkspaceMode =
+  | 'osint'
+  | 'attack';
+
+export type ModuleMode =
+  | WorkspaceMode
+  | 'shared';
+
 export type ModuleDefinition = {
   id: ModuleId;
   name: string;
@@ -39,5 +47,6 @@ export type ModuleDefinition = {
   icon: string;
   status: ModuleStatus;
   section: ModuleSection;
+  modes: readonly ModuleMode[];
   showOnDashboard: boolean;
 };

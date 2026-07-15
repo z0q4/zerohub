@@ -1,0 +1,184 @@
+import {
+  useMemo,
+  useState,
+  type ReactNode,
+} from 'react';
+
+import {
+  getModulesByMode,
+} from '../../../shared/modules/module.registry';
+
+import {
+  CompactModuleRail,
+} from './CompactModuleRail';
+import {
+  ModuleWorkbenchDrawer,
+} from './ModuleWorkbenchDrawer';
+import {
+  TopRightControls,
+} from './TopRightControls';
+import {
+  WorldGlobeMap,
+} from './WorldGlobeMap';
+import {
+  WorkspaceModeSwitcher,
+} from './WorkspaceModeSwitcher';
+import {
+  WorkspaceSearch,
+} from './WorkspaceSearch';
+
+import type {
+  InvestigationCase,
+} from '../../../shared/cases/cases.types';
+import type {
+  ModuleDefinition,
+  WorkspaceMode,
+} from '../../../shared/modules/module.types';
+import type {
+  PageId,
+} from '../../app/types';
+
+type MapWorkspaceShellProps = {
+  activeCase: InvestigationCase | null;
+  activeModule: ModuleDefinition;
+  activePage: PageId;
+  children: ReactNode;
+  commandHint: string;
+  mode: WorkspaceMode;
+
+  onModeChange(
+    mode: WorkspaceMode,
+  ): void;
+
+  onNavigate(
+    page: PageId,
+  ): void;
+
+  onOpenCommandPalette(): void;
+};
+
+function isDrawerPage(
+  page: PageId,
+): boolean {
+  return page !== 'dashboard';
+}
+
+export function MapWorkspaceShell({
+  activeCase,
+  activeModule,
+  activePage,
+  children,
+  commandHint,
+  mode,
+  onModeChange,
+  onNavigate,
+  onOpenCommandPalette,
+}: MapWorkspaceShellProps) {
+  const [
+    resetSignal,
+    setResetSignal,
+  ] = useState(0);
+  const modulesForMode =
+    useMemo(
+      () =>
+        getModulesByMode(mode).filter(
+          (module) =>
+            module.id !==
+              'dashboard' &&
+            module.id !== 'cases' &&
+            module.id !== 'settings',
+        ),
+      [mode],
+    );
+
+  const activeModeLabel =
+    mode === 'osint'
+      ? 'OSINT'
+      : 'ATTACK';
+  const drawerOpen =
+    isDrawerPage(activePage);
+
+  return (
+    <div
+      className="mapWorkspaceShell"
+      data-workspace-mode={mode}
+    >
+      <WorldGlobeMap
+        drawerOpen={drawerOpen}
+        markerCount={0}
+        resetSignal={resetSignal}
+      />
+
+      <CompactModuleRail
+        activePage={activePage}
+        modules={modulesForMode}
+        onNavigate={onNavigate}
+      />
+
+      <WorkspaceSearch
+        commandHint={commandHint}
+        mode={mode}
+        onOpen={onOpenCommandPalette}
+      />
+
+      <TopRightControls
+        activeCase={activeCase}
+        onOpenCases={() => {
+          onNavigate('cases');
+        }}
+        onOpenSettings={() => {
+          onNavigate('settings');
+        }}
+        onRecenterMap={() => {
+          setResetSignal(
+            (current) =>
+              current + 1,
+          );
+        }}
+      />
+
+      {!drawerOpen && (
+        <section className="workspaceHomeOverlay">
+          <span>
+            ZEROHUB ·{' '}
+            {activeModeLabel}
+          </span>
+
+          <h1>ZeroHub</h1>
+
+          <p>
+            {modulesForMode.length}
+            {' '}
+            módulos disponíveis.
+            {' '}
+            {activeCase
+              ? `Case ativo: ${activeCase.name}.`
+              : 'Nenhum case ativo.'}
+          </p>
+
+          <small>
+            Use a busca ou a rail
+            lateral para abrir uma
+            ferramenta.
+          </small>
+        </section>
+      )}
+
+      {drawerOpen && (
+        <ModuleWorkbenchDrawer
+          module={activeModule}
+          onClose={() => {
+            onNavigate('dashboard');
+          }}
+        >
+          {children}
+        </ModuleWorkbenchDrawer>
+      )}
+
+      <WorkspaceModeSwitcher
+        mode={mode}
+        onChange={onModeChange}
+      />
+    </div>
+  );
+}

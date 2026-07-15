@@ -3,37 +3,37 @@ import {
 } from '../../shared/modules/module.registry';
 
 import type {
+  WorkspaceMode,
+} from '../../shared/modules/module.types';
+
+import type {
   PageId,
 } from './types';
 
 const SESSION_STORAGE_KEYS = {
-  activityRailOpen:
-    'zerohub.ui.activity-rail.v1',
-  focusMode:
-    'zerohub.ui.focus-mode.v1',
-  openTabs:
-    'zerohub.ui.workspace-tabs.v1',
+  activePage:
+    'zerohub.ui.active-page.v1',
+  favoriteIds:
+    'zerohub.ui.favorites.v1',
   recentIds:
     'zerohub.ui.recents.v1',
-  sidebarCollapsed:
-    'zerohub.ui.sidebar-collapsed.v1',
+  workspaceMode:
+    'zerohub.ui.workspace-mode.v1',
 } as const;
 
 export type SessionSnapshot = {
-  activityRailOpen: boolean;
-  focusMode: boolean;
-  openTabs: PageId[];
+  activePage: PageId;
+  favoriteIds: PageId[];
   recentIds: PageId[];
-  sidebarCollapsed: boolean;
+  workspaceMode: WorkspaceMode;
 };
 
 export const DEFAULT_SESSION_SNAPSHOT:
   SessionSnapshot = {
-    activityRailOpen: true,
-    focusMode: false,
-    openTabs: ['dashboard'],
+    activePage: 'dashboard',
+    favoriteIds: [],
     recentIds: [],
-    sidebarCollapsed: false,
+    workspaceMode: 'osint',
   };
 
 function isPageId(
@@ -71,65 +71,53 @@ function readStoredPages(
   }
 }
 
-function readBoolean(
+function readStoredPage(
   key: string,
-  fallback: boolean,
-): boolean {
+  fallback: PageId,
+): PageId {
   const value =
     localStorage.getItem(key);
 
-  if (value === null) {
-    return fallback;
-  }
-
-  return value === 'true';
+  return isPageId(value)
+    ? value
+    : fallback;
 }
 
-function readTabs(): PageId[] {
-  const stored =
-    readStoredPages(
+function readWorkspaceMode():
+  WorkspaceMode {
+  const value =
+    localStorage.getItem(
       SESSION_STORAGE_KEYS
-        .openTabs,
+        .workspaceMode,
     );
 
-  return Array.from(
-    new Set<PageId>([
-      'dashboard',
-      ...stored,
-    ]),
-  ).slice(0, 9);
+  return value === 'attack'
+    ? 'attack'
+    : 'osint';
 }
 
 export function readSessionSnapshot():
   SessionSnapshot {
   return {
-    activityRailOpen:
-      readBoolean(
+    activePage:
+      readStoredPage(
         SESSION_STORAGE_KEYS
-          .activityRailOpen,
+          .activePage,
         DEFAULT_SESSION_SNAPSHOT
-          .activityRailOpen,
+          .activePage,
       ),
-    focusMode:
-      readBoolean(
+    favoriteIds:
+      readStoredPages(
         SESSION_STORAGE_KEYS
-          .focusMode,
-        DEFAULT_SESSION_SNAPSHOT
-          .focusMode,
+          .favoriteIds,
       ),
-    openTabs: readTabs(),
     recentIds:
       readStoredPages(
         SESSION_STORAGE_KEYS
           .recentIds,
       ),
-    sidebarCollapsed:
-      readBoolean(
-        SESSION_STORAGE_KEYS
-          .sidebarCollapsed,
-        DEFAULT_SESSION_SNAPSHOT
-          .sidebarCollapsed,
-      ),
+    workspaceMode:
+      readWorkspaceMode(),
   };
 }
 
@@ -138,23 +126,15 @@ export function saveSessionSnapshot(
 ): void {
   localStorage.setItem(
     SESSION_STORAGE_KEYS
-      .activityRailOpen,
-    String(
-      snapshot.activityRailOpen,
-    ),
+      .activePage,
+    snapshot.activePage,
   );
 
   localStorage.setItem(
     SESSION_STORAGE_KEYS
-      .focusMode,
-    String(snapshot.focusMode),
-  );
-
-  localStorage.setItem(
-    SESSION_STORAGE_KEYS
-      .openTabs,
+      .favoriteIds,
     JSON.stringify(
-      snapshot.openTabs,
+      snapshot.favoriteIds,
     ),
   );
 
@@ -168,10 +148,8 @@ export function saveSessionSnapshot(
 
   localStorage.setItem(
     SESSION_STORAGE_KEYS
-      .sidebarCollapsed,
-    String(
-      snapshot.sidebarCollapsed,
-    ),
+      .workspaceMode,
+    snapshot.workspaceMode,
   );
 }
 

@@ -2,6 +2,7 @@ import type {
   ModuleDefinition,
   ModuleId,
   ModuleSection,
+  WorkspaceMode,
 } from './module.types';
 
 export const MODULE_REGISTRY: readonly ModuleDefinition[] = [
@@ -14,6 +15,7 @@ export const MODULE_REGISTRY: readonly ModuleDefinition[] = [
     icon: '⌂',
     status: 'operational',
     section: 'workspace',
+    modes: ['shared'],
     showOnDashboard: false,
   },
   {
@@ -25,6 +27,7 @@ export const MODULE_REGISTRY: readonly ModuleDefinition[] = [
     icon: '◉',
     status: 'operational',
     section: 'workspace',
+    modes: ['shared'],
     showOnDashboard: false,
   },
   {
@@ -36,6 +39,7 @@ export const MODULE_REGISTRY: readonly ModuleDefinition[] = [
     icon: '◇',
     status: 'operational',
     section: 'network',
+    modes: ['osint'],
     showOnDashboard: true,
   },
   {
@@ -47,6 +51,7 @@ export const MODULE_REGISTRY: readonly ModuleDefinition[] = [
     icon: '◎',
     status: 'operational',
     section: 'intelligence',
+    modes: ['osint'],
     showOnDashboard: true,
   },
   {
@@ -58,6 +63,7 @@ export const MODULE_REGISTRY: readonly ModuleDefinition[] = [
     icon: '⌘',
     status: 'operational',
     section: 'data-dev',
+    modes: ['attack'],
     showOnDashboard: true,
   },
   {
@@ -69,6 +75,7 @@ export const MODULE_REGISTRY: readonly ModuleDefinition[] = [
     icon: '□',
     status: 'operational',
     section: 'data-dev',
+    modes: ['attack'],
     showOnDashboard: true,
   },
   {
@@ -80,6 +87,7 @@ export const MODULE_REGISTRY: readonly ModuleDefinition[] = [
     abbreviation: 'FIL',
     section: 'analysis',
     status: 'operational',
+    modes: ['attack'],
     showOnDashboard: true,
   },
   {
@@ -91,6 +99,7 @@ export const MODULE_REGISTRY: readonly ModuleDefinition[] = [
     abbreviation: 'THR',
     section: 'intelligence',
     status: 'operational',
+    modes: ['osint'],
     showOnDashboard: true,
   },
   {
@@ -102,6 +111,7 @@ export const MODULE_REGISTRY: readonly ModuleDefinition[] = [
     abbreviation: 'SEC',
     section: 'analysis',
     status: 'operational',
+    modes: ['attack'],
     showOnDashboard: true,
   },
   {
@@ -113,6 +123,7 @@ export const MODULE_REGISTRY: readonly ModuleDefinition[] = [
     abbreviation: 'FOR',
     section: 'analysis',
     status: 'operational',
+    modes: ['attack'],
     showOnDashboard: true,
   },
   {
@@ -124,6 +135,7 @@ export const MODULE_REGISTRY: readonly ModuleDefinition[] = [
     abbreviation: 'LOG',
     section: 'analysis',
     status: 'operational',
+    modes: ['attack'],
     showOnDashboard: true,
   },
   {
@@ -135,6 +147,7 @@ export const MODULE_REGISTRY: readonly ModuleDefinition[] = [
     abbreviation: 'SYS',
     section: 'analysis',
     status: 'operational',
+    modes: ['attack'],
     showOnDashboard: true,
   },
   {
@@ -146,6 +159,7 @@ export const MODULE_REGISTRY: readonly ModuleDefinition[] = [
     abbreviation: 'CRY',
     section: 'data-dev',
     status: 'operational',
+    modes: ['attack'],
     showOnDashboard: true,
   },
   {
@@ -157,6 +171,7 @@ export const MODULE_REGISTRY: readonly ModuleDefinition[] = [
     abbreviation: 'WEB',
     section: 'intelligence',
     status: 'operational',
+    modes: ['osint'],
     showOnDashboard: true,
   },
   {
@@ -168,6 +183,7 @@ export const MODULE_REGISTRY: readonly ModuleDefinition[] = [
     abbreviation: 'MAIL',
     section: 'intelligence',
     status: 'operational',
+    modes: ['osint'],
     showOnDashboard: true,
   },
   {
@@ -179,6 +195,7 @@ export const MODULE_REGISTRY: readonly ModuleDefinition[] = [
     abbreviation: 'NET',
     section: 'network',
     status: 'operational',
+    modes: ['attack'],
     showOnDashboard: true,
   },
   {
@@ -190,6 +207,7 @@ export const MODULE_REGISTRY: readonly ModuleDefinition[] = [
     abbreviation: 'DEV',
     section: 'data-dev',
     status: 'operational',
+    modes: ['attack'],
     showOnDashboard: true,
   },
   {
@@ -201,6 +219,7 @@ export const MODULE_REGISTRY: readonly ModuleDefinition[] = [
     abbreviation: 'IOC',
     section: 'intelligence',
     status: 'operational',
+    modes: ['osint'],
     showOnDashboard: true,
   },
   {
@@ -212,6 +231,7 @@ export const MODULE_REGISTRY: readonly ModuleDefinition[] = [
     icon: '⚙',
     status: 'operational',
     section: 'system',
+    modes: ['shared'],
     showOnDashboard: false,
   },
 ] as const;
@@ -249,5 +269,27 @@ export function getDashboardModules(): ModuleDefinition[] {
 export function getOperationalModules(): ModuleDefinition[] {
   return MODULE_REGISTRY.filter(
     (module) => module.status === 'operational',
+  );
+}
+
+export function isModuleAvailableInMode(
+  module: ModuleDefinition,
+  mode: WorkspaceMode,
+): boolean {
+  return (
+    module.modes.includes(mode) ||
+    module.modes.includes('shared')
+  );
+}
+
+export function getModulesByMode(
+  mode: WorkspaceMode,
+): ModuleDefinition[] {
+  return MODULE_REGISTRY.filter(
+    (module) =>
+      isModuleAvailableInMode(
+        module,
+        mode,
+      ),
   );
 }

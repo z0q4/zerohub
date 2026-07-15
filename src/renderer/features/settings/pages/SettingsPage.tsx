@@ -16,6 +16,7 @@ import {
 import type {
   AccentColor,
   AppSettings,
+  VisualProfile,
 } from '../../../../shared/settings/settings.types';
 
 type SettingsPageProps = {
@@ -30,6 +31,12 @@ type SettingsPageProps = {
 
 type AccentOption = {
   id: AccentColor;
+  label: string;
+  description: string;
+};
+
+type VisualProfileOption = {
+  id: VisualProfile;
   label: string;
   description: string;
 };
@@ -59,6 +66,22 @@ const ACCENT_OPTIONS:
       label: 'Green',
       description:
         'Verde operacional com pegada security.',
+    },
+  ];
+
+const VISUAL_PROFILE_OPTIONS:
+  readonly VisualProfileOption[] = [
+    {
+      id: 'default',
+      label: 'Default',
+      description:
+        'Mantém a identidade escura com accent color ativo.',
+    },
+    {
+      id: 'monochrome',
+      label: 'Black & White',
+      description:
+        'Perfil preto e branco com contraste seco e minimalista.',
     },
   ];
 
@@ -113,6 +136,17 @@ export function SettingsPage({
             draft.accentColor,
         ) ?? ACCENT_OPTIONS[0],
       [draft.accentColor],
+    );
+
+  const currentVisualProfile =
+    useMemo(
+      () =>
+        VISUAL_PROFILE_OPTIONS.find(
+          (option) =>
+            option.id ===
+            draft.visualProfile,
+        ) ?? VISUAL_PROFILE_OPTIONS[0],
+      [draft.visualProfile],
     );
 
   const caseMetrics =
@@ -250,6 +284,52 @@ export function SettingsPage({
                   >
                     <span
                       className={`accentPreview accent-${option.id}`}
+                    />
+
+                    <span>
+                      <strong>
+                        {option.label}
+                      </strong>
+
+                      <small>
+                        {
+                          option.description
+                        }
+                      </small>
+                    </span>
+                  </button>
+                ),
+              )}
+            </div>
+
+            <div className="visualProfileGrid">
+              {VISUAL_PROFILE_OPTIONS.map(
+                (option) => (
+                  <button
+                    className={`visualProfileOption ${
+                      draft.visualProfile ===
+                      option.id
+                        ? 'active'
+                        : ''
+                    }`}
+                    key={option.id}
+                    type="button"
+                    onClick={() => {
+                      setDraft(
+                        (
+                          current,
+                        ) => ({
+                          ...current,
+                          visualProfile:
+                            option.id,
+                        }),
+                      );
+
+                      setMessage(null);
+                    }}
+                  >
+                    <span
+                      className={`visualProfilePreview visual-${option.id}`}
                     />
 
                     <span>
@@ -674,7 +754,7 @@ export function SettingsPage({
           </header>
 
           <div
-            className={`settingsPreviewCard accent-${currentAccent.id}`}
+            className={`settingsPreviewCard accent-${currentAccent.id} visual-${currentVisualProfile.id}`}
           >
             <div className="settingsPreviewSidebar">
               <span className="settingsPreviewLogo">
@@ -688,7 +768,7 @@ export function SettingsPage({
 
                 <small>
                   {
-                    currentAccent.label
+                    currentVisualProfile.label
                   }
                 </small>
               </div>
@@ -700,7 +780,9 @@ export function SettingsPage({
               </span>
 
               <strong>
-                {currentAccent.label}
+                {
+                  currentVisualProfile.label
+                }
               </strong>
             </div>
 
@@ -712,7 +794,7 @@ export function SettingsPage({
 
                 <strong>
                   {
-                    currentAccent.description
+                    currentVisualProfile.description
                   }
                 </strong>
               </div>

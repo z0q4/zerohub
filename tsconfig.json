@@ -9,6 +9,7 @@
     "sourceMap": true,
     "outDir": "dist",
     "moduleResolution": "Bundler",
+    "allowArbitraryExtensions": true,
     "resolveJsonModule": true,
     "jsx": "react-jsx",
     "allowSyntheticDefaultImports": true

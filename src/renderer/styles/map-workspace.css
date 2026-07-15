@@ -1,0 +1,925 @@
+.mapWorkspaceShell {
+  position: relative;
+  --workspace-rail-width: 56px;
+
+  width: 100vw;
+  height: 100dvh;
+  min-width: 320px;
+  overflow: hidden;
+
+  color: #f2f2f2;
+  background: #050505;
+}
+
+:root[data-visual-profile="monochrome"] .mapWorkspaceShell {
+  color: #f5f5f5;
+  background: #000;
+}
+
+:root[data-visual-profile="monochrome"] .worldGlobeMap {
+  background: #000;
+}
+
+.mapWorkspaceShell *,
+.mapWorkspaceShell *::before,
+.mapWorkspaceShell *::after {
+  box-sizing: border-box;
+}
+
+.worldGlobeMap {
+  position: absolute;
+  inset: 0;
+  background: #050505;
+}
+
+.worldGlobeMapCanvas {
+  position: absolute;
+  inset: 0;
+}
+
+.worldGlobeMapCanvas .maplibregl-canvas {
+  outline: none;
+}
+
+.worldGlobeMapCanvas .maplibregl-control-container,
+.worldGlobeMapCanvas .maplibregl-ctrl-attrib {
+  display: none;
+}
+
+.worldGlobeMapCanvas .maplibregl-canvas-container {
+  cursor: grab;
+  user-select: none;
+}
+
+.worldGlobeMapCanvas .maplibregl-canvas-container:active {
+  cursor: grabbing;
+}
+
+.worldMapSvg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  touch-action: none;
+}
+
+.worldMapTransform {
+  transition:
+    transform 180ms ease;
+}
+
+.worldMapLatitude line,
+.worldMapLongitude line {
+  stroke: #171717;
+  stroke-width: 1;
+}
+
+.worldMapCountries path {
+  fill: #101010;
+  stroke: #242424;
+  stroke-width: 0.8;
+  vector-effect:
+    non-scaling-stroke;
+}
+
+.worldMapCountries path:nth-child(3n) {
+  fill: #121212;
+}
+
+.worldMapCountries path:nth-child(5n) {
+  fill: #0d0d0d;
+}
+
+.worldMapMarkers circle {
+  fill: var(--primary);
+}
+
+.worldMapMarkerPulse {
+  fill: transparent;
+  stroke: var(--primary);
+  stroke-width: 1;
+  opacity: 0.62;
+}
+
+.worldMapMarkers text {
+  fill: #9a9a9a;
+  font-size: 8px;
+  letter-spacing: 0;
+  text-shadow:
+    0 1px 4px rgb(0 0 0 / 90%);
+}
+
+.worldMapEmptyState {
+  position: absolute;
+  left: 82px;
+  bottom: 82px;
+
+  padding: 8px 10px;
+
+  border: 1px solid
+    rgb(255 255 255 / 7%);
+
+  border-radius: 999px;
+
+  color: #8a8a8a;
+  background:
+    rgb(18 18 18 / 78%);
+
+  font-size: 10px;
+  backdrop-filter:
+    blur(12px);
+}
+
+.worldGlobeLabels {
+  position: absolute;
+  z-index: 2;
+  inset: 0;
+  pointer-events: none;
+}
+
+.worldGlobeLabel {
+  position: absolute;
+  left: 0;
+  top: 0;
+
+  color: rgb(255 255 255 / 72%);
+  font-size: 10px;
+  font-weight: 560;
+  letter-spacing: 0;
+  text-shadow:
+    0 1px 7px rgb(0 0 0 / 92%);
+
+  opacity: 0.86;
+  translate: -50% -50%;
+  white-space: nowrap;
+}
+
+.worldGlobeLabel.admin1 {
+  color: rgb(255 255 255 / 52%);
+  font-size: 8px;
+  opacity: 0.72;
+}
+
+.worldGlobeLabel.city {
+  color: rgb(255 255 255 / 62%);
+  font-size: 8px;
+  opacity: 0.78;
+}
+
+.worldGlobeLabel.city::before {
+  display: inline-block;
+  width: 3px;
+  height: 3px;
+  margin-right: 5px;
+
+  border-radius: 50%;
+  background: var(--primary);
+
+  box-shadow:
+    0 0 8px
+      color-mix(
+        in srgb,
+        var(--primary) 52%,
+        transparent
+      );
+
+  vertical-align: middle;
+  content: "";
+}
+
+.worldGlobeMap.isMonochrome .worldGlobeLabel {
+  color: rgb(255 255 255 / 82%);
+}
+
+.worldGlobeMap.isMonochrome .worldGlobeLabel.admin1 {
+  color: rgb(255 255 255 / 62%);
+}
+
+.worldGlobeMap.isMonochrome .worldGlobeLabel.city {
+  color: rgb(255 255 255 / 74%);
+}
+
+.worldGlobeMap.isMonochrome .worldGlobeLabel.city::before {
+  background: #fff;
+  box-shadow:
+    0 0 8px rgb(255 255 255 / 46%);
+}
+
+.worldGlobeControls {
+  position: absolute;
+  z-index: 21;
+  right: 14px;
+  bottom: 82px;
+
+  display: grid;
+  gap: 6px;
+}
+
+.worldGlobeControls button {
+  display: grid;
+  min-width: 34px;
+  width: max-content;
+  height: 34px;
+  padding-inline: 8px;
+  place-items: center;
+
+  border: 1px solid
+    rgb(255 255 255 / 7%);
+
+  border-radius: 10px;
+
+  color: #f2f2f2;
+  background:
+    rgb(18 18 18 / 86%);
+
+  font-size: 12px;
+  font-weight: 820;
+  backdrop-filter:
+    blur(16px);
+}
+
+.compactModuleRail {
+  position: absolute;
+  z-index: 20;
+  top: 12px;
+  bottom: 12px;
+  left: 12px;
+
+  display: grid;
+  grid-template-rows:
+    auto auto auto minmax(0, 1fr) auto;
+  gap: 8px;
+  align-items: start;
+
+  width: 56px;
+  padding: 8px;
+
+  border: 1px solid
+    rgb(255 255 255 / 7%);
+
+  border-radius: 18px;
+
+  background:
+    rgb(18 18 18 / 88%);
+
+  box-shadow:
+    0 18px 48px rgb(0 0 0 / 28%);
+  backdrop-filter:
+    blur(16px);
+}
+
+.compactRailBrand {
+  display: grid;
+  width: 38px;
+  height: 38px;
+  place-items: center;
+
+  border: 1px solid
+    rgb(255 255 255 / 10%);
+
+  border-radius: 13px;
+
+  color: #f2f2f2;
+  background: #050505;
+
+  font-size: 15px;
+  font-weight: 850;
+}
+
+.compactRailButton {
+  display: grid;
+  width: 38px;
+  height: 38px;
+  place-items: center;
+
+  border: 1px solid transparent;
+  border-radius: 12px;
+
+  color: #8a8a8a;
+  background: transparent;
+
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0;
+
+  transition:
+    border-color 140ms ease,
+    color 140ms ease,
+    background 140ms ease,
+    transform 140ms ease;
+}
+
+.compactRailButton:hover {
+  border-color:
+    rgb(255 255 255 / 8%);
+  color: #f2f2f2;
+  background: #171717;
+}
+
+.compactRailButton:focus-visible,
+.workspaceSearch:focus-visible,
+.topRightControls button:focus-visible,
+.workspaceModeSwitcher button:focus-visible,
+.moduleWorkbenchHeader button:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+.compactRailButton.active {
+  border-color:
+    rgb(255 255 255 / 10%);
+  color: #f2f2f2;
+  background: #272727;
+}
+
+.compactRailDivider {
+  width: 24px;
+  height: 1px;
+  margin: 2px auto;
+  background:
+    rgb(255 255 255 / 7%);
+}
+
+.compactRailModules,
+.compactRailBottom {
+  display: grid;
+  gap: 6px;
+}
+
+.compactRailModules {
+  overflow: hidden auto;
+  scrollbar-width: none;
+}
+
+.compactRailModules::-webkit-scrollbar {
+  display: none;
+}
+
+.compactRailBottom {
+  align-self: end;
+}
+
+.workspaceSearch {
+  position: absolute;
+  z-index: 22;
+  top: 14px;
+  left: 50%;
+
+  display: grid;
+  grid-template-columns:
+    auto minmax(0, 1fr) auto;
+  gap: 9px;
+  align-items: center;
+
+  width: clamp(300px, 34vw, 520px);
+  min-height: 38px;
+  padding: 0 11px;
+
+  border: 1px solid
+    rgb(255 255 255 / 7%);
+
+  border-radius: 10px;
+
+  color: #8a8a8a;
+  background:
+    rgb(18 18 18 / 86%);
+
+  text-align: left;
+  box-shadow:
+    0 16px 44px rgb(0 0 0 / 24%);
+  transform:
+    translateX(-50%);
+  backdrop-filter:
+    blur(16px);
+}
+
+.workspaceSearch strong {
+  overflow: hidden;
+  color: #bdbdbd;
+  font-size: 11px;
+  font-weight: 520;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.workspaceSearch kbd {
+  padding: 4px 6px;
+
+  border: 1px solid
+    rgb(255 255 255 / 7%);
+
+  border-radius: 6px;
+
+  color: #8a8a8a;
+  background: #090909;
+
+  font-size: 9px;
+}
+
+.topRightControls {
+  position: absolute;
+  z-index: 22;
+  top: 14px;
+  right: 14px;
+
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.topRightControls button {
+  min-width: 38px;
+  min-height: 38px;
+  padding: 0 11px;
+
+  border: 1px solid
+    rgb(255 255 255 / 7%);
+
+  border-radius: 10px;
+
+  color: #bdbdbd;
+  background:
+    rgb(18 18 18 / 86%);
+
+  font-size: 10px;
+  font-weight: 760;
+  backdrop-filter:
+    blur(16px);
+}
+
+.topRightCase {
+  display: grid;
+  gap: 2px;
+  align-content: center;
+
+  max-width: 210px;
+
+  text-align: left;
+}
+
+.topRightCase span {
+  color: var(--primary);
+  font-size: 7px;
+  font-weight: 850;
+}
+
+.topRightCase strong {
+  overflow: hidden;
+  color: #f2f2f2;
+  font-size: 10px;
+  font-weight: 620;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.workspaceHomeOverlay {
+  position: absolute;
+  z-index: 12;
+  top: 86px;
+  left: 86px;
+
+  max-width: 340px;
+  padding: 16px;
+
+  border: 1px solid
+    rgb(255 255 255 / 7%);
+
+  border-radius: 14px;
+
+  background:
+    rgb(18 18 18 / 72%);
+
+  backdrop-filter:
+    blur(14px);
+}
+
+.workspaceHomeOverlay span {
+  color: var(--primary);
+  font-size: 8px;
+  font-weight: 850;
+  letter-spacing: 0.12em;
+}
+
+.workspaceHomeOverlay h1 {
+  margin: 8px 0 6px;
+  font-size: 26px;
+  font-weight: 720;
+  letter-spacing: 0;
+}
+
+.workspaceHomeOverlay p,
+.workspaceHomeOverlay small {
+  color: #8a8a8a;
+  font-size: 11px;
+  line-height: 1.55;
+}
+
+.workspaceHomeOverlay p {
+  margin: 0 0 8px;
+}
+
+.moduleWorkbenchDrawer {
+  position: absolute;
+  z-index: 18;
+  inset-block: 16px;
+  right: 16px;
+
+  display: grid;
+  grid-template-rows:
+    auto minmax(0, 1fr);
+
+  width: clamp(420px, 48vw, 780px);
+  max-width:
+    calc(
+      100vw - var(--workspace-rail-width) - 32px
+    );
+  height: calc(100dvh - 32px);
+
+  border: 1px solid
+    rgb(255 255 255 / 7%);
+
+  border-radius: 18px;
+
+  color: var(--text);
+  background:
+    rgb(9 9 9 / 94%);
+
+  box-shadow:
+    0 28px 72px rgb(0 0 0 / 42%);
+  overflow: hidden;
+  backdrop-filter:
+    blur(18px);
+}
+
+.moduleWorkbenchHeader {
+  position: sticky;
+  z-index: 2;
+  top: 0;
+
+  display: grid;
+  grid-template-columns:
+    minmax(0, 1fr) auto;
+  gap: 14px;
+  align-items: start;
+
+  padding: 18px;
+
+  border-bottom: 1px solid
+    rgb(255 255 255 / 7%);
+
+  background:
+    rgb(9 9 9 / 97%);
+}
+
+.moduleWorkbenchHeader span {
+  color: var(--primary);
+  font-size: 8px;
+  font-weight: 850;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.moduleWorkbenchHeader h1 {
+  margin: 6px 0;
+  color: #f2f2f2;
+  font-size: 21px;
+  font-weight: 720;
+  letter-spacing: 0;
+}
+
+.moduleWorkbenchHeader p {
+  max-width: 620px;
+  margin: 0;
+  color: #8a8a8a;
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.moduleWorkbenchHeader button {
+  display: grid;
+  width: 34px;
+  height: 34px;
+  place-items: center;
+
+  border: 1px solid
+    rgb(255 255 255 / 8%);
+
+  border-radius: 10px;
+
+  color: #f2f2f2;
+  background: #171717;
+
+  font-size: 20px;
+}
+
+.moduleWorkbenchBody {
+  min-height: 0;
+  width: 100%;
+  max-width: 100%;
+  padding: 16px;
+  padding-bottom: 88px;
+  overflow-x: hidden;
+  overflow-y: auto;
+
+  container-name: module-workbench;
+  container-type: inline-size;
+}
+
+.moduleWorkbenchBody *,
+.moduleWorkbenchBody *::before,
+.moduleWorkbenchBody *::after {
+  box-sizing: border-box;
+  min-width: 0;
+}
+
+.moduleWorkbenchBody
+.moduleWorkspace,
+.moduleWorkbenchBody
+.settingsPanel,
+.moduleWorkbenchBody
+.casesWorkspace {
+  width: 100%;
+  min-width: 0;
+  max-width: none;
+}
+
+.moduleWorkbenchBody
+.moduleWorkspaceHeader,
+.moduleWorkbenchBody
+.settingsSection,
+.moduleWorkbenchBody
+.dashboardPanel,
+.moduleWorkbenchBody
+.casePanel,
+.moduleWorkbenchBody
+section,
+.moduleWorkbenchBody
+article,
+.moduleWorkbenchBody
+form {
+  max-width: 100%;
+  min-width: 0;
+}
+
+.moduleWorkbenchBody input,
+.moduleWorkbenchBody textarea,
+.moduleWorkbenchBody select,
+.moduleWorkbenchBody button {
+  max-width: 100%;
+}
+
+.moduleWorkbenchBody pre,
+.moduleWorkbenchBody code,
+.moduleWorkbenchBody table {
+  max-width: 100%;
+}
+
+.moduleWorkbenchBody pre,
+.moduleWorkbenchBody code {
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+
+.moduleWorkbenchBody table {
+  width: 100%;
+}
+
+.moduleWorkbenchBody
+.moduleSelectorWorkspace,
+.moduleWorkbenchBody
+.moduleWorkspaceHeaderMain,
+.moduleWorkbenchBody
+.toolLayout,
+.moduleWorkbenchBody
+.toolGrid,
+.moduleWorkbenchBody
+.resultGrid,
+.moduleWorkbenchBody
+.settingsStudio,
+.moduleWorkbenchBody
+.secretWorkspace,
+.moduleWorkbenchBody
+.caseWorkspaceGrid,
+.moduleWorkbenchBody
+.caseDetailGrid,
+.moduleWorkbenchBody
+.dashboardWorkbench {
+  grid-template-columns:
+    repeat(
+      auto-fit,
+      minmax(min(100%, 260px), 1fr)
+    );
+}
+
+.moduleWorkbenchBody
+.toolTableViewport,
+.moduleWorkbenchBody
+.tableViewport,
+.moduleWorkbenchBody
+.resultTableViewport {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+  overscroll-behavior-inline: contain;
+}
+
+@container module-workbench (max-width: 720px) {
+  .moduleWorkbenchBody
+  .moduleSelectorWorkspace,
+  .moduleWorkbenchBody
+  .moduleWorkspaceHeaderMain,
+  .moduleWorkbenchBody
+  .moduleWorkspaceHeaderVisual,
+  .moduleWorkbenchBody
+  .settingsStudio,
+  .moduleWorkbenchBody
+  .secretWorkspace,
+  .moduleWorkbenchBody
+  .caseWorkspaceGrid,
+  .moduleWorkbenchBody
+  .caseDetailGrid,
+  .moduleWorkbenchBody
+  .toolLayout,
+  .moduleWorkbenchBody
+  .toolGrid,
+  .moduleWorkbenchBody
+  .resultGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .moduleWorkbenchBody
+  .moduleWorkspaceHeaderMain {
+    padding: 18px;
+  }
+
+  .moduleWorkbenchBody
+  .moduleWorkspaceHeaderVisual {
+    justify-self: stretch;
+  }
+
+  .moduleWorkbenchBody
+  .toolSelector {
+    position: static;
+  }
+}
+
+@container module-workbench (max-width: 560px) {
+  .moduleWorkbenchHeader {
+    padding: 14px;
+  }
+
+  .moduleWorkbenchHeader h1 {
+    font-size: 18px;
+  }
+
+  .moduleWorkbenchBody {
+    padding: 12px;
+    padding-bottom: 88px;
+  }
+
+  .moduleWorkbenchBody
+  .moduleWorkspaceHeaderMain,
+  .moduleWorkbenchBody
+  .toolHeader,
+  .moduleWorkbenchBody
+  .secretToolbar,
+  .moduleWorkbenchBody
+  .caseToolbar,
+  .moduleWorkbenchBody
+  .settingsSection > header {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .moduleWorkbenchBody
+  .toolActions,
+  .moduleWorkbenchBody
+  .formActions,
+  .moduleWorkbenchBody
+  .secretToolbar > div:last-child {
+    display: grid;
+    grid-template-columns:
+      repeat(
+        auto-fit,
+        minmax(min(100%, 140px), 1fr)
+      );
+    width: 100%;
+  }
+
+  .moduleWorkbenchBody
+  .toolActions > button,
+  .moduleWorkbenchBody
+  .formActions > button,
+  .moduleWorkbenchBody
+  .secretToolbar button {
+    width: 100%;
+  }
+}
+
+.workspaceModeSwitcher {
+  position: absolute;
+  z-index: 21;
+  bottom: 22px;
+  left: 50%;
+
+  display: grid;
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+  gap: 4px;
+
+  width: min(260px, calc(100vw - 120px));
+  height: 46px;
+  padding: 4px;
+
+  border: 1px solid
+    rgb(255 255 255 / 7%);
+
+  border-radius: 999px;
+
+  background: #171717;
+  box-shadow:
+    0 16px 44px rgb(0 0 0 / 30%);
+  transform:
+    translateX(-50%);
+  backdrop-filter:
+    blur(14px);
+}
+
+.workspaceModeSwitcher button {
+  border: 0;
+  border-radius: 999px;
+
+  color: #8a8a8a;
+  background: transparent;
+
+  font-size: 10px;
+  font-weight: 850;
+  letter-spacing: 0.08em;
+
+  transition:
+    color 140ms ease,
+    background 140ms ease;
+}
+
+.workspaceModeSwitcher button[aria-pressed="true"] {
+  color: #f2f2f2;
+  background: #252525;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .worldMapTransform,
+  .compactRailButton,
+  .workspaceModeSwitcher button {
+    transition: none;
+  }
+}
+
+@media (max-width: 900px) {
+  .workspaceSearch {
+    top: 12px;
+    left: calc(50% + 28px);
+    width: min(420px, calc(100vw - 180px));
+  }
+
+  .topRightCase {
+    display: none;
+  }
+
+  .moduleWorkbenchDrawer {
+    left: calc(var(--workspace-rail-width) + 22px);
+    right: 12px;
+    width: auto;
+    max-width: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .compactModuleRail {
+    width: 52px;
+    left: 8px;
+  }
+
+  .workspaceSearch {
+    right: 8px;
+    left: 68px;
+    width: auto;
+    transform: none;
+  }
+
+  .topRightControls {
+    top: 62px;
+    right: 8px;
+  }
+
+  .workspaceHomeOverlay {
+    right: 12px;
+    left: 72px;
+  }
+
+  .moduleWorkbenchDrawer {
+    top: 108px;
+    right: 8px;
+    bottom: 72px;
+    left: 68px;
+    height: auto;
+  }
+}
