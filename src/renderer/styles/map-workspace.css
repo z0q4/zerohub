@@ -204,14 +204,315 @@
     0 0 8px rgb(255 255 255 / 46%);
 }
 
-.worldGlobeControls {
+.worldGlobeTools {
   position: absolute;
   z-index: 21;
   right: 14px;
   bottom: 82px;
 
+  display: flex;
+  gap: 8px;
+  align-items: flex-end;
+}
+
+.worldGlobeControls {
   display: grid;
   gap: 6px;
+}
+
+.workspaceMapMarkerPanel {
+  display: grid;
+  gap: 8px;
+
+  width: min(
+    320px,
+    calc(100vw - 126px)
+  );
+  max-height: min(
+    560px,
+    calc(100dvh - 190px)
+  );
+  padding: 8px;
+
+  border: 1px solid
+    rgb(255 255 255 / 7%);
+  border-radius: 14px;
+
+  background:
+    rgb(12 12 12 / 94%);
+  box-shadow:
+    0 18px 48px rgb(0 0 0 / 34%);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  backdrop-filter:
+    blur(18px);
+}
+
+.workspaceMapMarkerPanel[hidden] {
+  display: none;
+}
+
+.coordinateLocator,
+.mapMarkerEditor,
+.recentMapLocations {
+  display: grid;
+  gap: 7px;
+
+  padding: 8px;
+
+  border: 1px solid
+    rgb(255 255 255 / 7%);
+  border-radius: 10px;
+
+  background: #101010;
+}
+
+.coordinateLocator > input,
+.mapMarkerEditor input,
+.mapMarkerEditor select {
+  min-width: 0;
+  width: 100%;
+  height: 32px;
+  padding: 0 8px;
+
+  border: 1px solid
+    rgb(255 255 255 / 8%);
+  border-radius: 8px;
+
+  color: #f2f2f2;
+  background: #090909;
+  font-size: 10px;
+  outline: none;
+}
+
+.coordinateLocatorActions,
+.mapMarkerEditorActions,
+.recentMapLocationActions {
+  display: grid;
+  grid-template-columns:
+    repeat(3, minmax(0, 1fr));
+  gap: 5px;
+}
+
+.coordinateLocator input::placeholder {
+  color: #666;
+}
+
+.coordinateLocator input:focus-visible,
+.workspaceMapMarkerPanel button:focus-visible,
+.mapMarkerEditor input:focus-visible,
+.mapMarkerEditor select:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+.coordinateLocator input[aria-invalid="true"] {
+  border-color:
+    rgb(255 115 115 / 48%);
+}
+
+.workspaceMapMarkerPanel button {
+  display: grid;
+  min-width: 0;
+  min-height: 30px;
+  padding: 5px 7px;
+  place-items: center;
+
+  border: 1px solid
+    rgb(255 255 255 / 8%);
+  border-radius: 8px;
+
+  color: #f2f2f2;
+  background: #171717;
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.workspaceMapMarkerPanel button:disabled,
+.workspaceMapMarkerPanel input:disabled,
+.workspaceMapMarkerPanel select:disabled {
+  color: #5b5b5b;
+  cursor: not-allowed;
+  opacity: 0.58;
+}
+
+.coordinateLocator small,
+.mapMarkerEditor > small {
+  color: #ff9a9a;
+  font-size: 8px;
+  line-height: 1.35;
+}
+
+.coordinateLocator small.info,
+.mapMarkerEditor > small.info {
+  color: #8ca8c8;
+}
+
+.coordinateLocator small.success,
+.mapMarkerEditor > small.success {
+  color: #78ff63;
+}
+
+.mapMarkerEditor header,
+.recentMapLocations > header {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.mapMarkerEditor header > div {
+  display: grid;
+  gap: 2px;
+}
+
+.mapMarkerEditor header span {
+  color: var(--primary);
+  font-size: 7px;
+  font-weight: 850;
+  letter-spacing: 0.1em;
+}
+
+.mapMarkerEditor header strong,
+.recentMapLocations header strong {
+  font-size: 10px;
+}
+
+.mapMarkerEditor header small {
+  overflow: hidden;
+  max-width: 55%;
+  color: #777;
+  font-family: monospace;
+  font-size: 8px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mapMarkerEditor label {
+  display: grid;
+  gap: 4px;
+}
+
+.mapMarkerEditor label > span,
+.mapMarkerColorPicker legend {
+  color: #777;
+  font-size: 8px;
+  font-weight: 780;
+}
+
+.mapMarkerColorPicker {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.mapMarkerColorPicker > div {
+  display: grid;
+  grid-template-columns:
+    repeat(6, minmax(0, 1fr));
+  gap: 6px;
+  margin-top: 5px;
+}
+
+.workspaceMapMarkerPanel
+.mapMarkerColorPicker button {
+  min-height: 24px;
+  padding: 0;
+  border-color:
+    color-mix(
+      in srgb,
+      var(--marker-color) 46%,
+      transparent
+    );
+  background:
+    color-mix(
+      in srgb,
+      var(--marker-color) 72%,
+      #111
+    );
+}
+
+.mapMarkerColorPicker button[aria-pressed="true"] {
+  outline: 2px solid
+    var(--marker-color);
+  outline-offset: 2px;
+}
+
+.workspaceMapMarkerPanel
+.saveMapMarkerButton {
+  color: #dffff8;
+  background:
+    color-mix(
+      in srgb,
+      var(--primary) 22%,
+      #171717
+    );
+}
+
+.mapMarkerCaseHint,
+.mapMarkerEditorHint,
+.recentMapLocations > p {
+  margin: 0;
+  color: #777;
+  font-size: 8px;
+  line-height: 1.45;
+}
+
+.mapMarkerEditorHint {
+  padding: 8px 10px;
+  border: 1px dashed
+    rgb(255 255 255 / 8%);
+  border-radius: 9px;
+  background: #0e0e0e;
+}
+
+.recentMapLocations > header span {
+  color: #666;
+  font-size: 8px;
+}
+
+.recentMapLocationList {
+  display: grid;
+  gap: 6px;
+}
+
+.recentMapLocationList article {
+  display: grid;
+  gap: 6px;
+  padding: 7px;
+  border: 1px solid
+    rgb(255 255 255 / 6%);
+  border-radius: 8px;
+  background: #0b0b0b;
+}
+
+.recentMapLocationList article > div:first-child {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.recentMapLocationList strong,
+.recentMapLocationList code {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.recentMapLocationList strong {
+  color: #d2d2d2;
+  font-size: 9px;
+}
+
+.recentMapLocationList small {
+  color: #656565;
+  font-size: 7px;
+}
+
+.recentMapLocationList code {
+  color: #8b8b8b;
+  font-size: 8px;
 }
 
 .worldGlobeControls button {
@@ -235,6 +536,235 @@
   font-weight: 820;
   backdrop-filter:
     blur(16px);
+}
+
+.worldGlobeControls
+.coordinatePanelToggle[aria-expanded="true"] {
+  border-color:
+    color-mix(
+      in srgb,
+      var(--primary) 38%,
+      transparent
+    );
+  color: var(--primary);
+  background:
+    color-mix(
+      in srgb,
+      var(--primary) 13%,
+      rgb(18 18 18 / 92%)
+    );
+  box-shadow:
+    0 0 14px
+      color-mix(
+        in srgb,
+        var(--primary) 15%,
+        transparent
+      );
+}
+
+.coordinateLocationMarker {
+  position: relative;
+  width: 30px;
+  height: 30px;
+  --marker-color: #78ff63;
+
+  outline: none;
+  pointer-events: auto;
+}
+
+.coordinateLocationMarker > span {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  display: block;
+  border-radius: 50%;
+  transform:
+    translate(-50%, -50%);
+}
+
+.coordinateLocationMarkerPulse {
+  width: 16px;
+  height: 16px;
+  border: 1.5px solid
+    var(--marker-color);
+  box-shadow:
+    0 0 12px
+      color-mix(
+        in srgb,
+        var(--marker-color) 70%,
+        transparent
+      );
+  animation:
+    coordinateMarkerPulse
+    1.8s ease-out infinite;
+}
+
+.coordinateLocationMarkerGlow {
+  width: 17px;
+  height: 17px;
+  background:
+    color-mix(
+      in srgb,
+      var(--marker-color) 22%,
+      transparent
+    );
+  box-shadow:
+    0 0 16px 5px
+      color-mix(
+        in srgb,
+        var(--marker-color) 24%,
+        transparent
+      );
+  filter: blur(2px);
+}
+
+.coordinateLocationMarkerCore {
+  width: 8px;
+  height: 8px;
+  border: 1px solid
+    color-mix(
+      in srgb,
+      var(--marker-color) 38%,
+      #fff
+    );
+  background:
+    var(--marker-color);
+  box-shadow:
+    0 0 5px
+      var(--marker-color),
+    0 0 12px
+      color-mix(
+        in srgb,
+        var(--marker-color) 88%,
+        transparent
+      );
+}
+
+.coordinateLocationMarker:focus-visible
+.coordinateLocationMarkerCore {
+  outline: 2px solid #fff;
+  outline-offset: 3px;
+}
+
+.coordinateLocationMarkerTooltip {
+  position: absolute;
+  z-index: 30;
+  bottom: calc(100% - 2px);
+  left: 50%;
+
+  display: grid;
+  gap: 4px;
+
+  width: 210px;
+  padding: 9px;
+
+  border: 1px solid
+    color-mix(
+      in srgb,
+      var(--marker-color) 32%,
+      rgb(255 255 255 / 8%)
+    );
+  border-radius: 10px;
+
+  color: #efefef;
+  background:
+    rgb(8 8 8 / 96%);
+  box-shadow:
+    0 16px 38px rgb(0 0 0 / 42%);
+
+  opacity: 0;
+  pointer-events: none;
+  transform:
+    translate(-50%, 5px);
+  transition:
+    opacity 120ms ease,
+    transform 120ms ease;
+  backdrop-filter:
+    blur(14px);
+}
+
+.coordinateLocationMarker:hover
+.coordinateLocationMarkerTooltip,
+.coordinateLocationMarker:focus-within
+.coordinateLocationMarkerTooltip {
+  opacity: 1;
+  pointer-events: auto;
+  transform:
+    translate(-50%, 0);
+}
+
+.coordinateLocationMarkerTooltip strong,
+.coordinateLocationMarkerTooltip span,
+.coordinateLocationMarkerTooltip code,
+.coordinateLocationMarkerTooltip small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.coordinateLocationMarkerTooltip strong {
+  font-size: 10px;
+}
+
+.coordinateLocationMarkerTooltip span,
+.coordinateLocationMarkerTooltip small {
+  color: #777;
+  font-size: 8px;
+}
+
+.coordinateLocationMarkerTooltip code {
+  color: #aaa;
+  font-size: 8px;
+}
+
+.coordinateLocationMarkerActions {
+  display: grid;
+  grid-template-columns:
+    repeat(3, minmax(0, 1fr));
+  gap: 4px;
+  margin-top: 3px;
+}
+
+.coordinateLocationMarkerActions button {
+  min-width: 0;
+  min-height: 26px;
+  padding: 4px;
+
+  border: 1px solid
+    rgb(255 255 255 / 8%);
+  border-radius: 7px;
+
+  color: #d2d2d2;
+  background: #171717;
+  font-size: 7px;
+  font-weight: 750;
+}
+
+.coordinateLocationMarkerActions button:focus-visible {
+  outline: 2px solid
+    var(--marker-color);
+  outline-offset: 2px;
+}
+
+.coordinateLocationMarker.maplibregl-marker-covered {
+  pointer-events: none;
+}
+
+@keyframes coordinateMarkerPulse {
+  0% {
+    opacity: 0.95;
+    transform:
+      translate(-50%, -50%)
+      scale(0.55);
+  }
+
+  75%,
+  100% {
+    opacity: 0;
+    transform:
+      translate(-50%, -50%)
+      scale(2.1);
+  }
 }
 
 .compactModuleRail {
@@ -319,6 +849,7 @@
 .workspaceSearch:focus-visible,
 .topRightControls button:focus-visible,
 .workspaceModeSwitcher button:focus-visible,
+.workspaceModulePanel button:focus-visible,
 .moduleWorkbenchHeader button:focus-visible {
   outline: 2px solid var(--primary);
   outline-offset: 2px;
@@ -444,6 +975,47 @@
   font-weight: 760;
   backdrop-filter:
     blur(16px);
+}
+
+.topRightControls
+.topRightModules {
+  display: inline-flex;
+  gap: 7px;
+  align-items: center;
+
+  transition:
+    border-color 140ms ease,
+    color 140ms ease,
+    background 140ms ease;
+}
+
+.topRightModules span {
+  color: var(--primary);
+  font-size: 15px;
+  line-height: 1;
+}
+
+.topRightModules strong {
+  color: inherit;
+  font-size: inherit;
+  font-weight: inherit;
+}
+
+.topRightModules:hover,
+.topRightModules[aria-expanded="true"] {
+  border-color:
+    color-mix(
+      in srgb,
+      var(--primary) 34%,
+      transparent
+    );
+  color: #f2f2f2;
+  background:
+    color-mix(
+      in srgb,
+      var(--primary) 12%,
+      rgb(18 18 18 / 90%)
+    );
 }
 
 .topRightCase {
@@ -844,6 +1416,225 @@ form {
     blur(14px);
 }
 
+.workspaceModeNavigation {
+  position: absolute;
+  z-index: 24;
+  inset: 0;
+  pointer-events: none;
+}
+
+.workspaceModeNavigation
+> * {
+  pointer-events: auto;
+}
+
+.workspaceModulePanel {
+  position: absolute;
+  top: 64px;
+  bottom: 82px;
+  left: 78px;
+
+  display: grid;
+  grid-template-rows:
+    auto minmax(0, 1fr);
+
+  width: min(
+    320px,
+    calc(100vw - 104px)
+  );
+  min-height: 0;
+
+  border: 1px solid
+    rgb(255 255 255 / 8%);
+  border-radius: 16px;
+
+  color: #f2f2f2;
+  background:
+    rgb(9 9 9 / 95%);
+
+  box-shadow:
+    0 24px 64px rgb(0 0 0 / 42%);
+  overflow: hidden;
+  backdrop-filter:
+    blur(18px);
+}
+
+.workspaceModulePanelHeader {
+  display: grid;
+  grid-template-columns:
+    minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: start;
+
+  padding: 16px;
+
+  border-bottom: 1px solid
+    rgb(255 255 255 / 7%);
+}
+
+.workspaceModulePanelHeader span {
+  color: var(--primary);
+  font-size: 8px;
+  font-weight: 850;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.workspaceModulePanelHeader h2 {
+  margin: 5px 0 3px;
+  font-size: 19px;
+  font-weight: 720;
+}
+
+.workspaceModulePanelHeader p,
+.workspaceModulePanelEmpty p {
+  margin: 0;
+  color: #8a8a8a;
+  font-size: 10px;
+  line-height: 1.5;
+}
+
+.workspaceModulePanelHeader button {
+  display: grid;
+  width: 32px;
+  height: 32px;
+  place-items: center;
+
+  border: 1px solid
+    rgb(255 255 255 / 8%);
+  border-radius: 9px;
+
+  color: #f2f2f2;
+  background: #171717;
+  font-size: 18px;
+}
+
+.workspaceModulePanelList {
+  display: grid;
+  gap: 6px;
+  align-content: start;
+
+  min-height: 0;
+  padding: 10px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.workspaceModulePanelItem {
+  display: grid;
+  grid-template-columns:
+    40px minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: center;
+
+  width: 100%;
+  padding: 9px;
+
+  border: 1px solid transparent;
+  border-radius: 12px;
+
+  color: #a7a7a7;
+  background: transparent;
+  text-align: left;
+
+  transition:
+    border-color 140ms ease,
+    color 140ms ease,
+    background 140ms ease;
+}
+
+.workspaceModulePanelItem:hover {
+  border-color:
+    rgb(255 255 255 / 7%);
+  color: #f2f2f2;
+  background: #151515;
+}
+
+.workspaceModulePanelItem.active {
+  border-color:
+    color-mix(
+      in srgb,
+      var(--primary) 32%,
+      transparent
+    );
+  color: #f2f2f2;
+  background:
+    color-mix(
+      in srgb,
+      var(--primary) 10%,
+      #171717
+    );
+}
+
+.workspaceModulePanelIcon {
+  display: grid;
+  width: 40px;
+  height: 40px;
+  place-items: center;
+
+  border: 1px solid
+    rgb(255 255 255 / 8%);
+  border-radius: 11px;
+
+  color: var(--primary);
+  background: #0b0b0b;
+  font-size: 9px;
+  font-weight: 850;
+}
+
+.workspaceModulePanelText {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+
+.workspaceModulePanelText strong {
+  overflow: hidden;
+  color: inherit;
+  font-size: 11px;
+  font-weight: 680;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.workspaceModulePanelText small {
+  display: -webkit-box;
+  overflow: hidden;
+  color: #737373;
+  font-size: 9px;
+  line-height: 1.35;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.workspaceModulePanelArrow {
+  color: #555;
+  font-size: 12px;
+}
+
+.workspaceModulePanelItem.active
+.workspaceModulePanelArrow {
+  color: var(--primary);
+}
+
+.workspaceModulePanelEmpty {
+  align-self: start;
+  margin: 12px;
+  padding: 18px;
+
+  border: 1px dashed
+    rgb(255 255 255 / 10%);
+  border-radius: 12px;
+
+  background: #101010;
+}
+
+.workspaceModulePanelEmpty strong {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 12px;
+}
+
 .workspaceModeSwitcher button {
   border: 0;
   border-radius: 999px;
@@ -866,8 +1657,22 @@ form {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .coordinateLocationMarkerPulse {
+    opacity: 0.65;
+    animation: none;
+    transform:
+      translate(-50%, -50%)
+      scale(1.35);
+  }
+
+  .coordinateLocationMarkerTooltip {
+    transition: none;
+  }
+
   .worldMapTransform,
   .compactRailButton,
+  .topRightModules,
+  .workspaceModulePanelItem,
   .workspaceModeSwitcher button {
     transition: none;
   }
@@ -876,8 +1681,9 @@ form {
 @media (max-width: 900px) {
   .workspaceSearch {
     top: 12px;
-    left: calc(50% + 28px);
-    width: min(420px, calc(100vw - 180px));
+    left: 80px;
+    width: min(420px, calc(100vw - 280px));
+    transform: none;
   }
 
   .topRightCase {
@@ -893,6 +1699,28 @@ form {
 }
 
 @media (max-width: 640px) {
+  .worldGlobeTools {
+    right: 8px;
+    bottom: 74px;
+    gap: 14px;
+  }
+
+  .workspaceMapMarkerPanel {
+    width: min(
+      218px,
+      calc(100vw - 122px)
+    );
+    max-height:
+      calc(100dvh - 190px);
+    padding: 6px;
+  }
+
+  .coordinateLocatorActions,
+  .mapMarkerEditorActions,
+  .recentMapLocationActions {
+    grid-template-columns: 1fr;
+  }
+
   .compactModuleRail {
     width: 52px;
     left: 8px;
@@ -921,5 +1749,28 @@ form {
     bottom: 72px;
     left: 68px;
     height: auto;
+  }
+
+  .workspaceModulePanel {
+    top: 108px;
+    right: 56px;
+    bottom: 72px;
+    left: 68px;
+    width: auto;
+  }
+
+  .workspaceModulePanelHeader {
+    padding: 13px;
+  }
+
+  .workspaceModulePanelItem {
+    grid-template-columns:
+      36px minmax(0, 1fr) auto;
+    padding: 7px;
+  }
+
+  .workspaceModulePanelIcon {
+    width: 36px;
+    height: 36px;
   }
 }

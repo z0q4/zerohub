@@ -176,6 +176,12 @@ export function App() {
     );
 
   const [
+    workspaceModulePanelOpen,
+    setWorkspaceModulePanelOpen,
+  ] =
+    useState(false);
+
+  const [
     favoriteIds,
     setFavoriteIds,
   ] =
@@ -412,6 +418,14 @@ export function App() {
       if (
         event.key === 'Escape'
       ) {
+        if (workspaceModulePanelOpen) {
+          setWorkspaceModulePanelOpen(
+            false,
+          );
+
+          return;
+        }
+
         if (commandPaletteOpen) {
           setCommandPaletteOpen(
             false,
@@ -445,6 +459,7 @@ export function App() {
   }, [
     activePage,
     commandPaletteOpen,
+    workspaceModulePanelOpen,
   ]);
 
   async function saveSettings(
@@ -477,6 +492,7 @@ export function App() {
   ): void {
     setActivePage(page);
     setCommandPaletteOpen(false);
+    setWorkspaceModulePanelOpen(false);
 
     if (
       page === 'dashboard' ||
@@ -600,7 +616,13 @@ export function App() {
         activeModule={activeModule}
         activePage={activePage}
         commandHint={commandHint}
+        modulePanelOpen={
+          workspaceModulePanelOpen
+        }
         mode={workspaceMode}
+        onModulePanelOpenChange={
+          setWorkspaceModulePanelOpen
+        }
         onModeChange={setWorkspaceMode}
         onNavigate={navigate}
         onOpenCommandPalette={() => {

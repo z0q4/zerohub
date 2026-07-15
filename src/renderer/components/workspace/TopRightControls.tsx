@@ -1,22 +1,34 @@
 import type {
+  RefObject,
+} from 'react';
+
+import type {
   InvestigationCase,
 } from '../../../shared/cases/cases.types';
 
 type TopRightControlsProps = {
   activeCase: InvestigationCase | null;
+  modulePanelOpen: boolean;
+  modulesButtonRef:
+    RefObject<HTMLButtonElement | null>;
 
   onOpenCases(): void;
 
   onOpenSettings(): void;
 
   onRecenterMap(): void;
+
+  onToggleModulePanel(): void;
 };
 
 export function TopRightControls({
   activeCase,
+  modulePanelOpen,
+  modulesButtonRef,
   onOpenCases,
   onOpenSettings,
   onRecenterMap,
+  onToggleModulePanel,
 }: TopRightControlsProps) {
   return (
     <div className="topRightControls">
@@ -35,6 +47,31 @@ export function TopRightControls({
           {activeCase?.name ??
             'Sem case ativo'}
         </strong>
+      </button>
+
+      <button
+        ref={modulesButtonRef}
+        className="topRightModules"
+        id="workspace-modules-trigger"
+        type="button"
+        aria-controls="workspace-module-panel"
+        aria-expanded={modulePanelOpen}
+        aria-label={
+          modulePanelOpen
+            ? 'Recolher painel de módulos'
+            : 'Expandir painel de módulos'
+        }
+        title={
+          modulePanelOpen
+            ? 'Recolher módulos'
+            : 'Expandir módulos'
+        }
+        onClick={onToggleModulePanel}
+      >
+        <span aria-hidden="true">
+          □
+        </span>
+        <strong>Módulos</strong>
       </button>
 
       <button
