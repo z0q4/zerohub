@@ -1,5 +1,6 @@
 # Regras de trabalho do ZeroHub
 
+- Antes de qualquer alteração, leia integralmente `CONTEXTO_MESTRE_ZEROHUB.md` e confirme o estado real do repositório, incluindo branch atual, working tree, sincronização com `origin/main` e estrutura relevante para a tarefa.
 - Preserve a arquitetura atual: Electron + React + TypeScript + backend Python.
 - Nunca trabalhe diretamente na branch `main`.
 - Não invente arquivos ou dependências; confirme a estrutura real do projeto antes de agir.
