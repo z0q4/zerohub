@@ -215,6 +215,12 @@
   align-items: flex-end;
 }
 
+.worldGlobePanels {
+  display: flex;
+  gap: 8px;
+  align-items: flex-end;
+}
+
 .worldGlobeControls {
   display: grid;
   gap: 6px;
@@ -250,6 +256,273 @@
 
 .workspaceMapMarkerPanel[hidden] {
   display: none;
+}
+
+.mapLayerManager {
+  display: grid;
+  gap: 8px;
+
+  width: min(
+    264px,
+    calc(100vw - 126px)
+  );
+  max-height: min(
+    560px,
+    calc(100dvh - 190px)
+  );
+  padding: 10px;
+
+  border: 1px solid
+    rgb(255 255 255 / 7%);
+  border-radius: 14px;
+
+  background:
+    rgb(12 12 12 / 94%);
+  box-shadow:
+    0 18px 48px rgb(0 0 0 / 34%);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  backdrop-filter: blur(18px);
+}
+
+.mapLayerManager[hidden] {
+  display: none;
+}
+
+.mapLayerManager > header {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.mapLayerManager > header > div {
+  display: grid;
+  gap: 2px;
+}
+
+.mapLayerManager > header span {
+  color: var(--primary);
+  font-size: 7px;
+  font-weight: 850;
+  letter-spacing: 0.1em;
+}
+
+.mapLayerManager > header strong {
+  font-size: 11px;
+}
+
+.mapLayerManager button,
+.mapLayerManager select {
+  min-height: 30px;
+  border: 1px solid
+    rgb(255 255 255 / 8%);
+  border-radius: 8px;
+  color: #f2f2f2;
+  background: #171717;
+  font-size: 9px;
+  font-weight: 780;
+}
+
+.mapLayerManager button:focus-visible,
+.mapLayerManager select:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+.mapLayerManager > header button {
+  display: grid;
+  width: 30px;
+  min-width: 30px;
+  padding: 0;
+  place-items: center;
+}
+
+.mapLayerBulkActions {
+  display: grid;
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.mapLayerColorFilter {
+  display: grid;
+  gap: 4px;
+}
+
+.mapLayerColorFilter > span {
+  color: #777;
+  font-size: 8px;
+  font-weight: 780;
+}
+
+.mapLayerColorFilter select {
+  width: 100%;
+  padding: 0 8px;
+  outline: none;
+}
+
+.mapLayerCategoryList {
+  display: grid;
+  gap: 5px;
+}
+
+.mapLayerManager
+.mapLayerCategory {
+  display: grid;
+  grid-template-columns:
+    14px minmax(0, 1fr) auto;
+  gap: 5px;
+  align-items: center;
+  width: 100%;
+  padding: 6px 7px;
+  text-align: left;
+}
+
+.mapLayerCategory[aria-pressed="false"] {
+  color: #747474;
+  background: #0d0d0d;
+  opacity: 0.76;
+}
+
+.mapLayerVisibility {
+  color: var(--primary);
+  font-size: 8px;
+}
+
+.mapLayerCategoryName {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mapLayerCategory strong {
+  color: #f2f2f2;
+  font-family: monospace;
+  font-size: 9px;
+}
+
+.mapLayerCategory small {
+  grid-column: 2 / 4;
+  color: #686868;
+  font-size: 7px;
+  font-weight: 720;
+}
+
+.mapLayerLegend {
+  margin: 0;
+  color: #666;
+  font-size: 7px;
+  line-height: 1.4;
+}
+
+.mapOperationalHud {
+  position: absolute;
+  z-index: 18;
+  top: 76px;
+  left: 82px;
+
+  width: min(
+    244px,
+    calc(100vw - 102px)
+  );
+  padding: 8px 9px;
+
+  border: 1px solid
+    rgb(255 255 255 / 6%);
+  border-radius: 11px;
+  background:
+    rgb(9 9 9 / 76%);
+  box-shadow:
+    0 12px 34px rgb(0 0 0 / 20%);
+
+  pointer-events: none;
+  backdrop-filter: blur(12px);
+}
+
+.mapOperationalHud.isMinimized {
+  width: auto;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  backdrop-filter: none;
+}
+
+.mapOperationalHud header {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 7px;
+}
+
+.mapOperationalHud header span {
+  color: var(--primary);
+  font-size: 7px;
+  font-weight: 860;
+  letter-spacing: 0.12em;
+}
+
+.mapOperationalHud button {
+  min-width: 28px;
+  min-height: 25px;
+  padding: 3px 7px;
+  border: 1px solid
+    rgb(255 255 255 / 8%);
+  border-radius: 7px;
+  color: #d7d7d7;
+  background:
+    rgb(20 20 20 / 88%);
+  font-size: 8px;
+  font-weight: 820;
+  pointer-events: auto;
+}
+
+.mapOperationalHud button:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+.mapOperationalHud dl {
+  display: grid;
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+  gap: 6px 10px;
+  margin: 0;
+}
+
+.mapOperationalHud dl > div {
+  display: grid;
+  gap: 1px;
+  min-width: 0;
+}
+
+.mapOperationalHud
+.mapHudWideRow {
+  grid-column: 1 / -1;
+}
+
+.mapOperationalHud dt {
+  color: #686868;
+  font-size: 7px;
+  font-weight: 760;
+  text-transform: uppercase;
+}
+
+.mapOperationalHud dd {
+  overflow: hidden;
+  margin: 0;
+  color: #d2d2d2;
+  font-family: monospace;
+  font-size: 8px;
+  line-height: 1.35;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mapOperationalHud dd.isActive {
+  color: var(--primary);
 }
 
 .coordinateLocator,
@@ -539,7 +812,9 @@
 }
 
 .worldGlobeControls
-.coordinatePanelToggle[aria-expanded="true"] {
+.coordinatePanelToggle[aria-expanded="true"],
+.worldGlobeControls
+.layerManagerToggle[aria-expanded="true"] {
   border-color:
     color-mix(
       in srgb,
@@ -1715,6 +1990,29 @@ form {
     padding: 6px;
   }
 
+  .mapLayerManager {
+    width: min(
+      218px,
+      calc(100vw - 122px)
+    );
+    max-height:
+      calc(100dvh - 190px);
+    padding: 7px;
+  }
+
+  .worldGlobePanels {
+    gap: 6px;
+  }
+
+  .mapOperationalHud {
+    top: 112px;
+    left: 68px;
+    width: min(
+      218px,
+      calc(100vw - 84px)
+    );
+  }
+
   .coordinateLocatorActions,
   .mapMarkerEditorActions,
   .recentMapLocationActions {
@@ -1772,5 +2070,38 @@ form {
   .workspaceModulePanelIcon {
     width: 36px;
     height: 36px;
+  }
+}
+
+@media (max-width: 560px) {
+  .worldGlobeTools {
+    right: 8px;
+    left: 68px;
+    display: grid;
+    grid-template-columns:
+      minmax(0, 1fr) auto;
+    align-items: end;
+  }
+
+  .worldGlobePanels {
+    display: grid;
+    max-height:
+      calc(100dvh - 188px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+
+  .workspaceMapMarkerPanel,
+  .mapLayerManager {
+    width: 100%;
+    max-height: 260px;
+  }
+
+  .mapOperationalHud {
+    padding: 7px 8px;
+  }
+
+  .mapOperationalHud dl {
+    gap: 5px 8px;
   }
 }

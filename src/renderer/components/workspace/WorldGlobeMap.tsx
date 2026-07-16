@@ -4,6 +4,7 @@ import {
   useMemo,
   useRef,
   useState,
+  type SetStateAction,
 } from 'react';
 import maplibregl, {
   type GeoJSONSourceSpecification,
@@ -22,18 +23,33 @@ import {
 } from '../../features/cases/CaseWorkspaceContext';
 
 import {
-  MAP_MARKER_CATEGORIES,
-  MAP_MARKER_COLORS,
   WorkspaceMapMarkerPanel,
   formatCoordinates,
   parseCoordinateInput,
-  type GeographicMarker,
-  type MapMarkerCategory,
-  type MapMarkerColor,
-  type MapMarkerFeedback,
-  type MapMarkerSource,
-  type RecentMapLocation,
 } from './WorkspaceMapMarkerPanel';
+import {
+  MapLayerManager,
+} from './MapLayerManager';
+import {
+  MapOperationalHud,
+} from './MapOperationalHud';
+import {
+  MAP_MARKER_CATEGORIES,
+  MAP_MARKER_COLORS,
+} from './map-workspace.types';
+import {
+  useMapMarkerLayers,
+} from './useMapMarkerLayers';
+
+import type {
+  GeographicMarker,
+  MapMarkerCategory,
+  MapMarkerColor,
+  MapMarkerFeedback,
+  MapMarkerSource,
+  MapWorkspaceViewState,
+  RecentMapLocation,
+} from './map-workspace.types';
 
 import type {
   Feature,
@@ -47,6 +63,9 @@ import type {
 import type {
   CaseActivity,
 } from '../../../shared/cases/cases.types';
+import type {
+  WorkspaceMode,
+} from '../../../shared/modules/module.types';
 
 type MapLabelKind =
   | 'country'
@@ -63,9 +82,18 @@ type MapLabel = {
 };
 
 type WorldGlobeMapProps = {
+  activeMode: WorkspaceMode;
+  mapWorkspaceView:
+    MapWorkspaceViewState;
   markerCount: number;
   modulePanelOpen: boolean;
   resetSignal: number;
+
+  onMapWorkspaceViewChange(
+    viewState: SetStateAction<
+      MapWorkspaceViewState
+    >,
+  ): void;
 };
 
 type MarkerActionHandlers = {
@@ -1139,8 +1167,11 @@ function buildLabelData():
 }
 
 export function WorldGlobeMap({
+  activeMode,
+  mapWorkspaceView,
   markerCount,
   modulePanelOpen,
+  onMapWorkspaceViewChange,
   resetSignal,
 }: WorldGlobeMapProps) {
   const {
@@ -1289,7 +1320,7 @@ export function WorldGlobeMap({
 
       return markers;
     }, [activeCase]);
-  const visibleMarkers =
+  const profileMarkers =
     useMemo(() => {
       const persistentIds =
         new Set(
@@ -1314,17 +1345,31 @@ export function WorldGlobeMap({
       persistentMarkers,
       transientMarkers,
     ]);
+  const {
+    changeColorFilter,
+    closeLayerManager,
+    hideAllLayers,
+    setOperationalHudOpen,
+    showAllLayers,
+    toggleCategory,
+    toggleLayerManager,
+    visibleMarkers,
+  } = useMapMarkerLayers(
+    profileMarkers,
+    mapWorkspaceView,
+    onMapWorkspaceViewChange,
+  );
   const selectedMarker =
     useMemo(
       () =>
-        visibleMarkers.find(
+        profileMarkers.find(
           (marker) =>
             marker.id ===
             selectedMarkerId,
         ) ?? null,
       [
         selectedMarkerId,
-        visibleMarkers,
+        profileMarkers,
       ],
     );
   const recentLocations =
@@ -2441,15 +2486,44 @@ export function WorldGlobeMap({
       )}
 
       {markerCount === 0 &&
-        visibleMarkers.length === 0 &&
+        profileMarkers.length === 0 &&
         mapReady && (
           <div className="worldMapEmptyState">
             Nenhuma coordenada cadastrada nos cases.
           </div>
         )}
 
+      <MapOperationalHud
+        activeCaseName={
+          activeCase?.name ?? null
+        }
+        map={
+          mapReady
+            ? mapRef.current
+            : null
+        }
+        mode={activeMode}
+        open={
+          mapWorkspaceView
+            .operationalHudOpen
+        }
+        rotationEnabled={
+          rotationEnabled
+        }
+        totalMarkers={
+          profileMarkers.length
+        }
+        visibleMarkers={
+          visibleMarkers.length
+        }
+        onOpenChange={
+          setOperationalHudOpen
+        }
+      />
+
       <div className="worldGlobeTools">
-        <WorkspaceMapMarkerPanel
+        <div className="worldGlobePanels">
+          <WorkspaceMapMarkerPanel
             activeCaseName={
               activeCase?.name ?? null
             }
@@ -2529,7 +2603,39 @@ export function WorldGlobeMap({
             onUpdateMarker={
               updateTransientMarker
             }
-        />
+          />
+
+          <MapLayerManager
+            colorFilter={
+              mapWorkspaceView
+                .markerColorFilter
+            }
+            hiddenCategories={
+              mapWorkspaceView
+                .hiddenMarkerCategories
+            }
+            markers={profileMarkers}
+            open={
+              mapWorkspaceView
+                .layerManagerOpen
+            }
+            onClose={
+              closeLayerManager
+            }
+            onColorFilterChange={
+              changeColorFilter
+            }
+            onHideAll={
+              hideAllLayers
+            }
+            onShowAll={
+              showAllLayers
+            }
+            onToggleCategory={
+              toggleCategory
+            }
+          />
+        </div>
 
         <div
           className="worldGlobeControls"
@@ -2609,6 +2715,28 @@ export function WorldGlobeMap({
             }}
           >
             P/B
+          </button>
+
+          <button
+            className="layerManagerToggle"
+            type="button"
+            aria-controls="map-layer-manager"
+            aria-expanded={
+              mapWorkspaceView
+                .layerManagerOpen
+            }
+            aria-label={
+              mapWorkspaceView
+                .layerManagerOpen
+                ? 'Ocultar gerenciador de camadas'
+                : 'Mostrar gerenciador de camadas'
+            }
+            title="Gerenciador de camadas"
+            onClick={toggleLayerManager}
+          >
+            <span aria-hidden="true">
+              ◫
+            </span>
           </button>
 
           <button

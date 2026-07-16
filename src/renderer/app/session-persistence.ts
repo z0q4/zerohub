@@ -10,6 +10,18 @@ import type {
   PageId,
 } from './types';
 
+import {
+  DEFAULT_MAP_WORKSPACE_VIEW_STATE,
+  MAP_MARKER_CATEGORIES,
+  MAP_MARKER_COLORS,
+} from '../components/workspace/map-workspace.types';
+
+import type {
+  MapLayerColorFilter,
+  MapMarkerCategory,
+  MapWorkspaceViewState,
+} from '../components/workspace/map-workspace.types';
+
 const SESSION_STORAGE_KEYS = {
   activePage:
     'zerohub.ui.active-page.v1',
@@ -19,6 +31,8 @@ const SESSION_STORAGE_KEYS = {
     'zerohub.ui.recents.v1',
   workspaceMode:
     'zerohub.ui.workspace-mode.v1',
+  mapWorkspaceView:
+    'zerohub.ui.map-workspace-view.v1',
 } as const;
 
 export type SessionSnapshot = {
@@ -26,6 +40,8 @@ export type SessionSnapshot = {
   favoriteIds: PageId[];
   recentIds: PageId[];
   workspaceMode: WorkspaceMode;
+  mapWorkspaceView:
+    MapWorkspaceViewState;
 };
 
 export const DEFAULT_SESSION_SNAPSHOT:
@@ -34,6 +50,9 @@ export const DEFAULT_SESSION_SNAPSHOT:
     favoriteIds: [],
     recentIds: [],
     workspaceMode: 'osint',
+    mapWorkspaceView: {
+      ...DEFAULT_MAP_WORKSPACE_VIEW_STATE,
+    },
   };
 
 function isPageId(
@@ -96,6 +115,83 @@ function readWorkspaceMode():
     : 'osint';
 }
 
+function isMarkerCategory(
+  value: unknown,
+): value is MapMarkerCategory {
+  return (
+    typeof value === 'string' &&
+    MAP_MARKER_CATEGORIES.includes(
+      value as MapMarkerCategory,
+    )
+  );
+}
+
+function isColorFilter(
+  value: unknown,
+): value is MapLayerColorFilter {
+  return (
+    value === 'all' ||
+    (
+      typeof value === 'string' &&
+      MAP_MARKER_COLORS.some(
+        (color) =>
+          color.id === value,
+      )
+    )
+  );
+}
+
+function readMapWorkspaceView():
+  MapWorkspaceViewState {
+  try {
+    const parsed = JSON.parse(
+      localStorage.getItem(
+        SESSION_STORAGE_KEYS
+          .mapWorkspaceView,
+      ) ?? '{}',
+    ) as Partial<MapWorkspaceViewState>;
+
+    const hiddenMarkerCategories =
+      Array.isArray(
+        parsed.hiddenMarkerCategories,
+      )
+        ? parsed.hiddenMarkerCategories
+          .filter(isMarkerCategory)
+        : [];
+
+    return {
+      hiddenMarkerCategories: [
+        ...new Set(
+          hiddenMarkerCategories,
+        ),
+      ],
+      layerManagerOpen:
+        typeof parsed.layerManagerOpen ===
+          'boolean'
+          ? parsed.layerManagerOpen
+          : DEFAULT_MAP_WORKSPACE_VIEW_STATE
+            .layerManagerOpen,
+      markerColorFilter:
+        isColorFilter(
+          parsed.markerColorFilter,
+        )
+          ? parsed.markerColorFilter
+          : DEFAULT_MAP_WORKSPACE_VIEW_STATE
+            .markerColorFilter,
+      operationalHudOpen:
+        typeof parsed.operationalHudOpen ===
+          'boolean'
+          ? parsed.operationalHudOpen
+          : DEFAULT_MAP_WORKSPACE_VIEW_STATE
+            .operationalHudOpen,
+    };
+  } catch {
+    return {
+      ...DEFAULT_MAP_WORKSPACE_VIEW_STATE,
+    };
+  }
+}
+
 export function readSessionSnapshot():
   SessionSnapshot {
   return {
@@ -118,6 +214,8 @@ export function readSessionSnapshot():
       ),
     workspaceMode:
       readWorkspaceMode(),
+    mapWorkspaceView:
+      readMapWorkspaceView(),
   };
 }
 
@@ -150,6 +248,14 @@ export function saveSessionSnapshot(
     SESSION_STORAGE_KEYS
       .workspaceMode,
     snapshot.workspaceMode,
+  );
+
+  localStorage.setItem(
+    SESSION_STORAGE_KEYS
+      .mapWorkspaceView,
+    JSON.stringify(
+      snapshot.mapWorkspaceView,
+    ),
   );
 }
 
