@@ -1,5 +1,7 @@
 import {
+  useEffect,
   useMemo,
+  useRef,
   useState,
   type FormEvent,
 } from 'react';
@@ -51,8 +53,13 @@ const EMPTY_DRAFT:
     tags: '',
     targetKind: 'domain',
     targetValue: '',
-    targetLabel: '',
-  };
+  targetLabel: '',
+};
+
+type CasesPageProps = {
+  focusActivityId?: string | null;
+  onFocusActivityHandled?(): void;
+};
 
 function formatDate(
   value: string,
@@ -93,7 +100,10 @@ function stringifyValue(
   }
 }
 
-export function CasesPage() {
+export function CasesPage({
+  focusActivityId = null,
+  onFocusActivityHandled,
+}: CasesPageProps) {
   const {
     summaries,
     activeCase,
@@ -131,6 +141,13 @@ export function CasesPage() {
     useState<string | null>(
       null,
     );
+
+  const [
+    highlightedActivityId,
+    setHighlightedActivityId,
+  ] = useState<string | null>(null);
+  const highlightTimerRef =
+    useRef<number | null>(null);
 
   const [
     noteTitle,
@@ -194,6 +211,93 @@ export function CasesPage() {
         summary.status ===
         'active',
     ).length;
+
+  useEffect(() => {
+    if (
+      !focusActivityId ||
+      !activeCase?.activities.some(
+        (activity) =>
+          activity.id ===
+          focusActivityId,
+      )
+    ) {
+      return undefined;
+    }
+
+    const frame =
+      window.requestAnimationFrame(
+        () => {
+          const activityElement =
+            document.getElementById(
+              `case-activity-${focusActivityId}`,
+            );
+
+          if (!activityElement) {
+            return;
+          }
+
+          activityElement
+            .scrollIntoView({
+              behavior:
+                window.matchMedia(
+                  '(prefers-reduced-motion: reduce)',
+                ).matches
+                  ? 'auto'
+                  : 'smooth',
+              block: 'center',
+            });
+          activityElement.focus({
+            preventScroll: true,
+          });
+          setHighlightedActivityId(
+            focusActivityId,
+          );
+          onFocusActivityHandled?.();
+
+          if (
+            highlightTimerRef.current !==
+            null
+          ) {
+            window.clearTimeout(
+              highlightTimerRef.current,
+            );
+          }
+
+          highlightTimerRef.current =
+            window.setTimeout(() => {
+              setHighlightedActivityId(
+                null,
+              );
+              highlightTimerRef.current =
+                null;
+            }, 3000);
+        },
+      );
+
+    return () => {
+      window.cancelAnimationFrame(
+        frame,
+      );
+    };
+  }, [
+    activeCase,
+    focusActivityId,
+    onFocusActivityHandled,
+  ]);
+
+  useEffect(
+    () => () => {
+      if (
+        highlightTimerRef.current !==
+        null
+      ) {
+        window.clearTimeout(
+          highlightTimerRef.current,
+        );
+      }
+    },
+    [],
+  );
 
   async function handleCreate(
     event:
@@ -968,10 +1072,17 @@ export function CasesPage() {
                           activity,
                         ) => (
                           <article
-                            className="caseTimelineItem"
+                            className={`caseTimelineItem ${
+                              highlightedActivityId ===
+                              activity.id
+                                ? 'isFocused'
+                                : ''
+                            }`}
+                            id={`case-activity-${activity.id}`}
                             key={
                               activity.id
                             }
+                            tabIndex={-1}
                           >
                             <div className="caseTimelineRail">
                               <span

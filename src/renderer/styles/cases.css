@@ -672,6 +672,25 @@
   display: grid;
   grid-template-columns: 18px minmax(0, 1fr);
   gap: 9px;
+  outline: none;
+}
+
+.caseTimelineItem.isFocused
+.caseTimelineContent {
+  border-color:
+    color-mix(
+      in srgb,
+      var(--primary) 52%,
+      var(--border)
+    );
+  background:
+    color-mix(
+      in srgb,
+      var(--primary) 9%,
+      rgb(0 0 0 / 12%)
+    );
+  box-shadow:
+    0 0 0 2px var(--primary-soft);
 }
 
 .caseTimelineRail {

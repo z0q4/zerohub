@@ -1,3 +1,8 @@
+import {
+  useEffect,
+  useState,
+} from 'react';
+
 import type {
   FormEvent,
 } from 'react';
@@ -11,18 +16,14 @@ import type {
   CoordinateParseResult,
   GeographicMarker,
   MapMarkerCategory,
+  MapMarkerDetailsUpdate,
   MapMarkerFeedback,
   MapMarkerSource,
   RecentMapLocation,
 } from './map-workspace.types';
 
 type MarkerUpdate =
-  Partial<
-    Pick<
-      GeographicMarker,
-      'category' | 'color' | 'name'
-    >
-  >;
+  Partial<MapMarkerDetailsUpdate>;
 
 type WorkspaceMapMarkerPanelProps = {
   activeCaseName: string | null;
@@ -219,6 +220,15 @@ export function WorkspaceMapMarkerPanel({
   onSaveMarker,
   onUpdateMarker,
 }: WorkspaceMapMarkerPanelProps) {
+  const [
+    confirmingRemovalId,
+    setConfirmingRemovalId,
+  ] = useState<string | null>(null);
+
+  useEffect(() => {
+    setConfirmingRemovalId(null);
+  }, [selectedMarker?.id]);
+
   function handleSubmit(
     event: FormEvent<HTMLFormElement>,
   ): void {
@@ -445,7 +455,7 @@ export function WorkspaceMapMarkerPanel({
               <button
                 type="button"
                 onClick={() => {
-                  onRemoveMarker(
+                  setConfirmingRemovalId(
                     selectedMarker.id,
                   );
                 }}
@@ -454,6 +464,45 @@ export function WorkspaceMapMarkerPanel({
               </button>
             )}
           </div>
+
+          {confirmingRemovalId ===
+            selectedMarker.id && (
+            <section className="mapMarkerPanelRemoveConfirmation">
+              <p>
+                Este marcador transitório será
+                removido somente da sessão atual.
+                O perfil e a timeline não serão
+                alterados.
+              </p>
+
+              <div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setConfirmingRemovalId(
+                      null,
+                    );
+                  }}
+                >
+                  Cancelar
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    onRemoveMarker(
+                      selectedMarker.id,
+                    );
+                    setConfirmingRemovalId(
+                      null,
+                    );
+                  }}
+                >
+                  Confirmar remoção
+                </button>
+              </div>
+            </section>
+          )}
 
           {!selectedMarker.saved && (
             <button

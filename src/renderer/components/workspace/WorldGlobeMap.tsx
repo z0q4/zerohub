@@ -34,7 +34,16 @@ import {
   MapOperationalHud,
 } from './MapOperationalHud';
 import {
-  MAP_MARKER_CATEGORIES,
+  MapMarkerDetailsPopover,
+} from './MapMarkerDetailsPopover';
+import {
+  buildPersistentMapMarkers,
+  createMapMarkerRemovedActivity,
+  createMapMarkerSavedActivity,
+  createMapMarkerUpdatedActivity,
+  normalizeMapMarkerDetails,
+} from './map-marker-activities';
+import {
   MAP_MARKER_COLORS,
 } from './map-workspace.types';
 import {
@@ -43,8 +52,8 @@ import {
 
 import type {
   GeographicMarker,
-  MapMarkerCategory,
   MapMarkerColor,
+  MapMarkerDetailsUpdate,
   MapMarkerFeedback,
   MapMarkerSource,
   MapWorkspaceViewState,
@@ -60,9 +69,6 @@ import type {
   Polygon,
   Position,
 } from 'geojson';
-import type {
-  CaseActivity,
-} from '../../../shared/cases/cases.types';
 import type {
   WorkspaceMode,
 } from '../../../shared/modules/module.types';
@@ -94,12 +100,13 @@ type WorldGlobeMapProps = {
       MapWorkspaceViewState
     >,
   ): void;
+
+  onOpenCaseActivity(
+    activityId: string,
+  ): void;
 };
 
 type MarkerActionHandlers = {
-  center(markerId: string): void;
-  copy(markerId: string): void;
-  remove(markerId: string): void;
   select(markerId: string): void;
 };
 
@@ -110,8 +117,6 @@ type MapMarkerView = {
   metadata: HTMLElement;
   coordinates: HTMLElement;
   status: HTMLElement;
-  copyButton: HTMLButtonElement;
-  removeButton: HTMLButtonElement;
   cleanup(): void;
 };
 
@@ -209,101 +214,6 @@ function calculateMapViewportPadding(
   };
 }
 
-function isRecord(
-  value: unknown,
-): value is Record<string, unknown> {
-  return (
-    typeof value === 'object' &&
-    value !== null &&
-    !Array.isArray(value)
-  );
-}
-
-function isMarkerCategory(
-  value: unknown,
-): value is MapMarkerCategory {
-  return (
-    typeof value === 'string' &&
-    MAP_MARKER_CATEGORIES.includes(
-      value as MapMarkerCategory,
-    )
-  );
-}
-
-function isMarkerColor(
-  value: unknown,
-): value is MapMarkerColor {
-  return (
-    typeof value === 'string' &&
-    MAP_MARKER_COLORS.some(
-      (preset) =>
-        preset.id === value,
-    )
-  );
-}
-
-function markerFromActivity(
-  activity: CaseActivity,
-): GeographicMarker | null {
-  if (
-    activity.moduleId !==
-      'map-workspace' ||
-    activity.action !==
-      'map-marker-saved' ||
-    !isRecord(activity.output)
-  ) {
-    return null;
-  }
-
-  const output = activity.output;
-  const {
-    id,
-    latitude,
-    longitude,
-    name,
-    category,
-    color,
-    createdAt,
-  } = output;
-
-  if (
-    typeof id !== 'string' ||
-    !id ||
-    typeof latitude !== 'number' ||
-    !Number.isFinite(latitude) ||
-    latitude < -90 ||
-    latitude > 90 ||
-    typeof longitude !== 'number' ||
-    !Number.isFinite(longitude) ||
-    longitude < -180 ||
-    longitude > 180 ||
-    typeof name !== 'string' ||
-    !name.trim() ||
-    !isMarkerCategory(category) ||
-    !isMarkerColor(color) ||
-    typeof createdAt !== 'string' ||
-    !createdAt ||
-    !Number.isFinite(
-      Date.parse(createdAt),
-    )
-  ) {
-    return null;
-  }
-
-  return {
-    id,
-    latitude,
-    longitude,
-    name: name.trim(),
-    category,
-    color,
-    createdAt,
-    saved: true,
-    caseId: activity.caseId,
-    source: 'saved',
-  };
-}
-
 function markerColorValue(
   color: MapMarkerColor,
 ): string {
@@ -340,19 +250,15 @@ function createMapMarkerView(
     document.createElement('code');
   const status =
     document.createElement('small');
-  const actionList =
-    document.createElement('div');
-  const centerButton =
-    document.createElement('button');
-  const copyButton =
-    document.createElement('button');
-  const removeButton =
-    document.createElement('button');
 
   element.className =
     'coordinateLocationMarker';
   element.tabIndex = 0;
-  element.setAttribute('role', 'group');
+  element.setAttribute('role', 'button');
+  element.setAttribute(
+    'aria-haspopup',
+    'dialog',
+  );
   pulse.className =
     'coordinateLocationMarkerPulse';
   glow.className =
@@ -361,38 +267,11 @@ function createMapMarkerView(
     'coordinateLocationMarkerCore';
   tooltip.className =
     'coordinateLocationMarkerTooltip';
-  actionList.className =
-    'coordinateLocationMarkerActions';
-  centerButton.type = 'button';
-  centerButton.textContent =
-    'Centralizar';
-  centerButton.setAttribute(
-    'aria-label',
-    'Centralizar câmera neste marcador',
-  );
-  copyButton.type = 'button';
-  copyButton.textContent = 'Copiar';
-  copyButton.setAttribute(
-    'aria-label',
-    'Copiar coordenadas deste marcador',
-  );
-  removeButton.type = 'button';
-  removeButton.textContent = 'Remover';
-  removeButton.setAttribute(
-    'aria-label',
-    'Remover marcador transitório',
-  );
-  actionList.append(
-    centerButton,
-    copyButton,
-    removeButton,
-  );
   tooltip.append(
     name,
     metadata,
     coordinates,
     status,
-    actionList,
   );
   element.append(
     pulse,
@@ -425,31 +304,6 @@ function createMapMarkerView(
       markerData.id,
     );
   };
-  const handleCenter = (
-    event: MouseEvent,
-  ): void => {
-    event.stopPropagation();
-    actionsRef.current.center(
-      markerData.id,
-    );
-  };
-  const handleCopy = (
-    event: MouseEvent,
-  ): void => {
-    event.stopPropagation();
-    actionsRef.current.copy(
-      markerData.id,
-    );
-  };
-  const handleRemove = (
-    event: MouseEvent,
-  ): void => {
-    event.stopPropagation();
-    actionsRef.current.remove(
-      markerData.id,
-    );
-  };
-
   element.addEventListener(
     'click',
     handleSelect,
@@ -458,19 +312,6 @@ function createMapMarkerView(
     'keydown',
     handleKeyDown,
   );
-  centerButton.addEventListener(
-    'click',
-    handleCenter,
-  );
-  copyButton.addEventListener(
-    'click',
-    handleCopy,
-  );
-  removeButton.addEventListener(
-    'click',
-    handleRemove,
-  );
-
   return {
     marker:
       new maplibregl.Marker({
@@ -484,8 +325,6 @@ function createMapMarkerView(
     metadata,
     coordinates,
     status,
-    copyButton,
-    removeButton,
     cleanup: () => {
       element.removeEventListener(
         'click',
@@ -495,18 +334,6 @@ function createMapMarkerView(
         'keydown',
         handleKeyDown,
       );
-      centerButton.removeEventListener(
-        'click',
-        handleCenter,
-      );
-      copyButton.removeEventListener(
-        'click',
-        handleCopy,
-      );
-      removeButton.removeEventListener(
-        'click',
-        handleRemove,
-      );
     },
   };
 }
@@ -514,7 +341,7 @@ function createMapMarkerView(
 function updateMapMarkerView(
   view: MapMarkerView,
   marker: GeographicMarker,
-  copied: boolean,
+  expanded: boolean,
 ): void {
   const coordinateText =
     formatCoordinates(
@@ -533,6 +360,14 @@ function updateMapMarkerView(
     'aria-label',
     `${displayName}, ${marker.category}, ${coordinateText}`,
   );
+  view.element.setAttribute(
+    'aria-expanded',
+    String(expanded),
+  );
+  view.element.classList.toggle(
+    'isSelected',
+    expanded,
+  );
   view.name.textContent = displayName;
   view.metadata.textContent =
     marker.category;
@@ -542,12 +377,6 @@ function updateMapMarkerView(
     marker.saved
       ? 'Salvo no perfil'
       : 'Transitório';
-  view.copyButton.textContent =
-    copied
-      ? 'Copiado'
-      : 'Copiar';
-  view.removeButton.hidden =
-    marker.saved;
   view.marker.setLngLat([
     marker.longitude,
     marker.latitude,
@@ -1172,6 +1001,7 @@ export function WorldGlobeMap({
   markerCount,
   modulePanelOpen,
   onMapWorkspaceViewChange,
+  onOpenCaseActivity,
   resetSignal,
 }: WorldGlobeMapProps) {
   const {
@@ -1190,8 +1020,6 @@ export function WorldGlobeMap({
     useRef(
       new Map<string, MapMarkerView>(),
     );
-  const visibleMarkersRef =
-    useRef<GeographicMarker[]>([]);
   const captureCoordinateRef =
     useRef<
       (
@@ -1203,9 +1031,6 @@ export function WorldGlobeMap({
     );
   const markerActionsRef =
     useRef<MarkerActionHandlers>({
-      center: () => undefined,
-      copy: () => undefined,
-      remove: () => undefined,
       select: () => undefined,
     });
   const copyFeedbackTimerRef =
@@ -1277,6 +1102,10 @@ export function WorldGlobeMap({
     setSelectedMarkerId,
   ] = useState<string | null>(null);
   const [
+    popoverMarkerId,
+    setPopoverMarkerId,
+  ] = useState<string | null>(null);
+  const [
     copiedTarget,
     setCopiedTarget,
   ] = useState<string | null>(null);
@@ -1293,32 +1122,9 @@ export function WorldGlobeMap({
         return [];
       }
 
-      const seenIds =
-        new Set<string>();
-      const markers:
-        GeographicMarker[] = [];
-
-      for (
-        const activity of
-        activeCase.activities
-      ) {
-        const marker =
-          markerFromActivity(
-            activity,
-          );
-
-        if (
-          !marker ||
-          seenIds.has(marker.id)
-        ) {
-          continue;
-        }
-
-        seenIds.add(marker.id);
-        markers.push(marker);
-      }
-
-      return markers;
+      return buildPersistentMapMarkers(
+        activeCase.activities,
+      );
     }, [activeCase]);
   const profileMarkers =
     useMemo(() => {
@@ -1370,6 +1176,19 @@ export function WorldGlobeMap({
       [
         selectedMarkerId,
         profileMarkers,
+      ],
+    );
+  const popoverMarker =
+    useMemo(
+      () =>
+        visibleMarkers.find(
+          (marker) =>
+            marker.id ===
+            popoverMarkerId,
+        ) ?? null,
+      [
+        popoverMarkerId,
+        visibleMarkers,
       ],
     );
   const recentLocations =
@@ -1622,6 +1441,7 @@ export function WorldGlobeMap({
         const marker:
           GeographicMarker = {
           id,
+          activityId: null,
           latitude,
           longitude,
           name,
@@ -1793,9 +1613,132 @@ export function WorldGlobeMap({
                   : marker,
             ),
         );
+
+        if (update.name !== undefined) {
+          setTransientRecentLocations(
+            (current) =>
+              current.map(
+                (location) =>
+                  location.id ===
+                  `recent-${markerId}`
+                    ? {
+                        ...location,
+                        name:
+                          update.name ??
+                          location.name,
+                      }
+                    : location,
+              ),
+          );
+        }
+
         setEditorFeedback(null);
       },
       [],
+    );
+
+  const updateMarkerDetails =
+    useCallback(
+      async (
+        marker: GeographicMarker,
+        update: MapMarkerDetailsUpdate,
+      ): Promise<void> => {
+        const normalized =
+          normalizeMapMarkerDetails(
+            marker,
+            update,
+          );
+
+        if (!marker.saved) {
+          updateTransientMarker(
+            marker.id,
+            {
+              category:
+                normalized.category,
+              color: normalized.color,
+              name: normalized.name,
+            },
+          );
+          return;
+        }
+
+        if (
+          !activeCase ||
+          marker.caseId !== activeCase.id
+        ) {
+          throw new Error(
+            'O perfil relacionado ao marcador não está ativo.',
+          );
+        }
+
+        await addActivity(
+          createMapMarkerUpdatedActivity(
+            activeCase.id,
+            marker,
+            normalized,
+          ),
+        );
+
+        setEditorFeedback({
+          message:
+            `Marcador atualizado em ${activeCase.name}.`,
+          tone: 'success',
+        });
+      },
+      [
+        activeCase,
+        addActivity,
+        updateTransientMarker,
+      ],
+    );
+
+  const removeMarker =
+    useCallback(
+      async (
+        marker: GeographicMarker,
+      ): Promise<void> => {
+        if (!marker.saved) {
+          removeTransientMarker(
+            marker.id,
+          );
+          setPopoverMarkerId(null);
+          return;
+        }
+
+        if (
+          !activeCase ||
+          marker.caseId !== activeCase.id
+        ) {
+          throw new Error(
+            'O perfil relacionado ao marcador não está ativo.',
+          );
+        }
+
+        await addActivity(
+          createMapMarkerRemovedActivity(
+            activeCase.id,
+            marker,
+          ),
+        );
+
+        setPopoverMarkerId(null);
+        setSelectedMarkerId(
+          (current) =>
+            current === marker.id
+              ? null
+              : current,
+        );
+        setEditorFeedback({
+          message:
+            `Remoção registrada em ${activeCase.name}.`,
+          tone: 'success',
+        });
+      },
+      [
+        activeCase,
+        addActivity,
+        removeTransientMarker,
+      ],
     );
 
   const saveSelectedMarker =
@@ -1812,34 +1755,6 @@ export function WorldGlobeMap({
         setEditorFeedback({
           message:
             'Selecione um perfil ativo antes de salvar o marcador.',
-          tone: 'error',
-        });
-        return;
-      }
-
-      const name =
-        selectedMarker.name.trim();
-
-      if (!name) {
-        setEditorFeedback({
-          message:
-            'Informe um nome para o marcador.',
-          tone: 'error',
-        });
-        return;
-      }
-
-      if (
-        !isMarkerCategory(
-          selectedMarker.category,
-        ) ||
-        !isMarkerColor(
-          selectedMarker.color,
-        )
-      ) {
-        setEditorFeedback({
-          message:
-            'Selecione categoria e cor válidas.',
           tone: 'error',
         });
         return;
@@ -1864,34 +1779,36 @@ export function WorldGlobeMap({
         id: activeCase.id,
         name: activeCase.name,
       };
-      const output = {
-        id: selectedMarker.id,
-        latitude:
-          selectedMarker.latitude,
-        longitude:
-          selectedMarker.longitude,
-        name,
-        category:
-          selectedMarker.category,
-        color: selectedMarker.color,
-        createdAt:
-          selectedMarker.createdAt,
-      };
+      let activityInput:
+        ReturnType<
+          typeof createMapMarkerSavedActivity
+        >;
+
+      try {
+        activityInput =
+          createMapMarkerSavedActivity(
+            targetCase.id,
+            selectedMarker,
+          );
+      } catch (unknownError) {
+        setEditorFeedback({
+          message:
+            unknownError instanceof Error
+              ? unknownError.message
+              : 'Não foi possível validar o marcador.',
+          tone: 'error',
+        });
+        return;
+      }
 
       savingMarkerRef.current = true;
       setSavingMarker(true);
       setEditorFeedback(null);
 
       try {
-        await addActivity({
-          caseId: targetCase.id,
-          moduleId: 'map-workspace',
-          action: 'map-marker-saved',
-          title:
-            `Marcador geográfico: ${name}`,
-          status: 'success',
-          output,
-        });
+        await addActivity(
+          activityInput,
+        );
 
         setTransientMarkers(
           (current) =>
@@ -1899,6 +1816,14 @@ export function WorldGlobeMap({
               (marker) =>
                 marker.id !==
                 selectedMarker.id,
+            ),
+        );
+        setTransientRecentLocations(
+          (current) =>
+            current.filter(
+              (location) =>
+                location.id !==
+                `recent-${selectedMarker.id}`,
             ),
         );
         setEditorFeedback({
@@ -1924,57 +1849,6 @@ export function WorldGlobeMap({
       persistentMarkers,
       selectedMarker,
     ]);
-
-  const findVisibleMarker =
-    useCallback(
-      (
-        markerId: string,
-      ): GeographicMarker | null =>
-        visibleMarkersRef.current.find(
-          (marker) =>
-            marker.id === markerId,
-        ) ?? null,
-      [],
-    );
-
-  const centerMarkerById =
-    useCallback(
-      (markerId: string): void => {
-        const marker =
-          findVisibleMarker(markerId);
-
-        if (marker) {
-          centerCoordinates(
-            marker.latitude,
-            marker.longitude,
-          );
-        }
-      },
-      [
-        centerCoordinates,
-        findVisibleMarker,
-      ],
-    );
-
-  const copyMarkerById =
-    useCallback(
-      (markerId: string): void => {
-        const marker =
-          findVisibleMarker(markerId);
-
-        if (marker) {
-          copyCoordinates(
-            marker.latitude,
-            marker.longitude,
-            `marker:${marker.id}`,
-          );
-        }
-      },
-      [
-        copyCoordinates,
-        findVisibleMarker,
-      ],
-    );
 
   const copyCoordinateInput =
     useCallback(() => {
@@ -2022,8 +1896,6 @@ export function WorldGlobeMap({
       [],
     );
 
-  visibleMarkersRef.current =
-    visibleMarkers;
   startAutoRotationRef.current =
     startAutoRotation;
   updateViewportPaddingRef.current =
@@ -2031,10 +1903,10 @@ export function WorldGlobeMap({
   captureCoordinateRef.current =
     captureCoordinate;
   markerActionsRef.current = {
-    center: centerMarkerById,
-    copy: copyMarkerById,
-    remove: removeTransientMarker,
-    select: setSelectedMarkerId,
+    select: (markerId) => {
+      setSelectedMarkerId(markerId);
+      setPopoverMarkerId(markerId);
+    },
   };
 
   useEffect(() => {
@@ -2220,8 +2092,21 @@ export function WorldGlobeMap({
 
   useEffect(() => {
     setSelectedMarkerId(null);
+    setPopoverMarkerId(null);
     setEditorFeedback(null);
   }, [activeCaseId]);
+
+  useEffect(() => {
+    if (
+      popoverMarkerId &&
+      !popoverMarker
+    ) {
+      setPopoverMarkerId(null);
+    }
+  }, [
+    popoverMarker,
+    popoverMarkerId,
+  ]);
 
   useEffect(() => {
     if (
@@ -2303,8 +2188,8 @@ export function WorldGlobeMap({
       updateMapMarkerView(
         view,
         markerData,
-        copiedTarget ===
-          `marker:${markerData.id}`,
+        popoverMarkerId ===
+          markerData.id,
       );
     }
 
@@ -2324,8 +2209,8 @@ export function WorldGlobeMap({
         .delete(markerId);
     }
   }, [
-    copiedTarget,
     mapReady,
+    popoverMarkerId,
     visibleMarkers,
   ]);
 
@@ -2466,6 +2351,55 @@ export function WorldGlobeMap({
     resetSignal,
   ]);
 
+  const popoverMarkerView =
+    popoverMarker
+      ? mapMarkerViewsRef.current
+        .get(popoverMarker.id) ?? null
+      : null;
+
+  const centerPopoverMarker =
+    useCallback(
+      (
+        marker: GeographicMarker,
+      ): void => {
+        centerCoordinates(
+          marker.latitude,
+          marker.longitude,
+        );
+      },
+      [centerCoordinates],
+    );
+
+  const closeMarkerPopover =
+    useCallback((): void => {
+      setPopoverMarkerId(null);
+    }, []);
+
+  const copyPopoverMarker =
+    useCallback(
+      (
+        marker: GeographicMarker,
+      ): void => {
+        copyCoordinates(
+          marker.latitude,
+          marker.longitude,
+          `marker:${marker.id}`,
+        );
+      },
+      [copyCoordinates],
+    );
+
+  const openPopoverMarkerTimeline =
+    useCallback(
+      (activityId: string): void => {
+        setPopoverMarkerId(null);
+        onOpenCaseActivity(
+          activityId,
+        );
+      },
+      [onOpenCaseActivity],
+    );
+
   return (
     <div
       className={`worldGlobeMap ${
@@ -2520,6 +2454,54 @@ export function WorldGlobeMap({
           setOperationalHudOpen
         }
       />
+
+      {mapReady &&
+        popoverMarker &&
+        popoverMarkerView &&
+        mapRef.current &&
+        containerRef.current && (
+          <MapMarkerDetailsPopover
+            key={popoverMarker.id}
+            anchorElement={
+              popoverMarkerView.element
+            }
+            caseBusy={
+              caseLoading ||
+              caseMutating
+            }
+            caseName={
+              popoverMarker.caseId ===
+                activeCase?.id
+                ? activeCase.name
+                : null
+            }
+            copied={
+              copiedTarget ===
+              `marker:${popoverMarker.id}`
+            }
+            map={mapRef.current}
+            marker={popoverMarker}
+            viewportElement={
+              containerRef.current
+            }
+            onCenter={
+              centerPopoverMarker
+            }
+            onClose={
+              closeMarkerPopover
+            }
+            onCopy={
+              copyPopoverMarker
+            }
+            onOpenTimeline={
+              openPopoverMarkerTimeline
+            }
+            onRemove={removeMarker}
+            onUpdate={
+              updateMarkerDetails
+            }
+          />
+        )}
 
       <div className="worldGlobeTools">
         <div className="worldGlobePanels">

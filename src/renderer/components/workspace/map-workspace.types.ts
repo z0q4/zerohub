@@ -53,6 +53,7 @@ export type MapMarkerSource =
 
 export type GeographicMarker = {
   id: string;
+  activityId: string | null;
   latitude: number;
   longitude: number;
   name: string;
@@ -63,6 +64,12 @@ export type GeographicMarker = {
   caseId: string | null;
   source: MapMarkerSource;
 };
+
+export type MapMarkerDetailsUpdate =
+  Pick<
+    GeographicMarker,
+    'category' | 'color' | 'name'
+  >;
 
 export type RecentMapLocation = {
   id: string;
