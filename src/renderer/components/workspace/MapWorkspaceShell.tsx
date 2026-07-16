@@ -46,6 +46,9 @@ import type {
 import type {
   MapWorkspaceViewState,
 } from './map-workspace.types';
+import type {
+  GeographicTimelineEvent,
+} from './map-marker-activities';
 
 type MapWorkspaceShellProps = {
   activeCase: InvestigationCase | null;
@@ -53,6 +56,10 @@ type MapWorkspaceShellProps = {
   activePage: PageId;
   children: ReactNode;
   commandHint: string;
+  focusGeographicActivityId:
+    string | null;
+  geographicTimelineEvents:
+    GeographicTimelineEvent[];
   modulePanelOpen: boolean;
   mode: WorkspaceMode;
   mapWorkspaceView:
@@ -63,6 +70,8 @@ type MapWorkspaceShellProps = {
       MapWorkspaceViewState
     >,
   ): void;
+
+  onFocusGeographicActivityHandled(): void;
 
   onOpenCaseActivity(
     activityId: string,
@@ -104,10 +113,13 @@ export function MapWorkspaceShell({
   activePage,
   children,
   commandHint,
+  focusGeographicActivityId,
+  geographicTimelineEvents,
   modulePanelOpen,
   mode,
   mapWorkspaceView,
   onMapWorkspaceViewChange,
+  onFocusGeographicActivityHandled,
   onOpenCaseActivity,
   onModulePanelOpenChange,
   onModeChange,
@@ -180,6 +192,12 @@ export function MapWorkspaceShell({
     >
       <WorldGlobeMap
         activeMode={mode}
+        focusGeographicActivityId={
+          focusGeographicActivityId
+        }
+        geographicTimelineEvents={
+          geographicTimelineEvents
+        }
         mapWorkspaceView={
           mapWorkspaceView
         }
@@ -190,6 +208,9 @@ export function MapWorkspaceShell({
         resetSignal={resetSignal}
         onMapWorkspaceViewChange={
           onMapWorkspaceViewChange
+        }
+        onFocusGeographicActivityHandled={
+          onFocusGeographicActivityHandled
         }
         onOpenCaseActivity={
           onOpenCaseActivity

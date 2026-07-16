@@ -13,12 +13,23 @@ import type {
   WorkspaceMode,
 } from '../../../shared/modules/module.types';
 
+export type MapOperationalHudTimelinePlayback = {
+  currentEvent: number;
+  eventType: string;
+  isPlaying: boolean;
+  speed: number;
+  totalEvents: number;
+};
+
 type MapOperationalHudProps = {
   activeCaseName: string | null;
   map: MapLibreMap | null;
   mode: WorkspaceMode;
   open: boolean;
   rotationEnabled: boolean;
+  rotationTemporarilyPaused: boolean;
+  timelinePlayback:
+    MapOperationalHudTimelinePlayback | null;
   totalMarkers: number;
   visibleMarkers: number;
 
@@ -75,6 +86,8 @@ export const MapOperationalHud = memo(
     onOpenChange,
     open,
     rotationEnabled,
+    rotationTemporarilyPaused,
+    timelinePlayback,
     totalMarkers,
     visibleMarkers,
   }: MapOperationalHudProps) {
@@ -278,16 +291,67 @@ export const MapOperationalHud = memo(
             <dt>Rotação</dt>
             <dd
               className={
-                rotationEnabled
+                rotationEnabled &&
+                !rotationTemporarilyPaused
                   ? 'isActive'
                   : undefined
               }
             >
-              {rotationEnabled
-                ? 'Ligada'
-                : 'Desligada'}
+              {rotationTemporarilyPaused
+                ? 'Pausada pela timeline'
+                : rotationEnabled
+                  ? 'Ligada'
+                  : 'Desligada'}
             </dd>
           </div>
+
+          {timelinePlayback && (
+            <>
+              <div className="mapHudWideRow">
+                <dt>Timeline geográfica</dt>
+                <dd
+                  className={
+                    timelinePlayback
+                      .isPlaying
+                      ? 'isActive'
+                      : undefined
+                  }
+                >
+                  {timelinePlayback
+                    .isPlaying
+                    ? 'Reproduzindo'
+                    : 'Parado'}
+                  {' · '}
+                  {
+                    timelinePlayback
+                      .currentEvent
+                  }
+                  {' / '}
+                  {
+                    timelinePlayback
+                      .totalEvents
+                  }
+                </dd>
+              </div>
+
+              <div>
+                <dt>Velocidade</dt>
+                <dd>
+                  {timelinePlayback.speed}x
+                </dd>
+              </div>
+
+              <div>
+                <dt>Evento</dt>
+                <dd>
+                  {
+                    timelinePlayback
+                      .eventType
+                  }
+                </dd>
+              </div>
+            </>
+          )}
         </dl>
       </aside>
     );

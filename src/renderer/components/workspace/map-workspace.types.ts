@@ -46,6 +46,17 @@ export type MapMarkerCategory =
 export type MapMarkerColor =
   typeof MAP_MARKER_COLORS[number]['id'];
 
+export function getMapMarkerColorValue(
+  color: MapMarkerColor,
+): string {
+  return (
+    MAP_MARKER_COLORS.find(
+      (preset) =>
+        preset.id === color,
+    )?.value ?? '#78ff63'
+  );
+}
+
 export type MapMarkerSource =
   | 'captured'
   | 'typed'

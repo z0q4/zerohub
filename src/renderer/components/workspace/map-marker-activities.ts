@@ -30,6 +30,30 @@ export type MapMarkerActivityOutput = {
   createdAt: string;
 };
 
+export type GeographicTimelineEventType =
+  | 'saved'
+  | 'updated'
+  | 'removed';
+
+export type GeographicTimelineEvent = {
+  activityId: string;
+  caseId: string;
+  marker: GeographicMarker;
+  occurredAt: string;
+  title: string;
+  type: GeographicTimelineEventType;
+};
+
+export const GEOGRAPHIC_TIMELINE_EVENT_LABELS:
+  Record<
+    GeographicTimelineEventType,
+    string
+  > = {
+    saved: 'Criação',
+    updated: 'Atualização',
+    removed: 'Remoção',
+  };
+
 function isRecord(
   value: unknown,
 ): value is Record<string, unknown> {
@@ -96,7 +120,7 @@ function markerOutputFromActivity(
 
   if (
     typeof id !== 'string' ||
-    !id ||
+    !id.trim() ||
     typeof latitude !== 'number' ||
     typeof longitude !== 'number' ||
     !isValidMarkerCoordinates(
@@ -139,7 +163,7 @@ function removedMarkerId(
 
   return (
     typeof markerId === 'string' &&
-    markerId
+    markerId.trim()
   )
     ? markerId
     : null;
@@ -257,54 +281,116 @@ export function createMapMarkerRemovedActivity(
   };
 }
 
-export function buildPersistentMapMarkers(
+function geographicTimelineEventType(
+  activity: CaseActivity,
+): GeographicTimelineEventType | null {
+  if (
+    activity.moduleId !==
+    'map-workspace'
+  ) {
+    return null;
+  }
+
+  if (
+    activity.action ===
+    MAP_MARKER_ACTIVITY_ACTIONS.saved
+  ) {
+    return 'saved';
+  }
+
+  if (
+    activity.action ===
+    MAP_MARKER_ACTIVITY_ACTIONS.updated
+  ) {
+    return 'updated';
+  }
+
+  if (
+    activity.action ===
+    MAP_MARKER_ACTIVITY_ACTIONS.removed
+  ) {
+    return 'removed';
+  }
+
+  return null;
+}
+
+export function buildGeographicTimelineEvents(
   activities: CaseActivity[],
-): GeographicMarker[] {
-  const markers =
-    new Map<
-      string,
-      GeographicMarker
-    >();
+): GeographicTimelineEvent[] {
+  const markerState =
+    new Map<string, GeographicMarker>();
+  const events:
+    GeographicTimelineEvent[] = [];
+  const chronologicalActivities =
+    activities
+      .map(
+        (activity, sourceIndex) => ({
+          activity,
+          sourceIndex,
+          timestamp:
+            Date.parse(
+              activity.createdAt,
+            ),
+          type:
+            geographicTimelineEventType(
+              activity,
+            ),
+        }),
+      )
+      .filter(
+        (
+          entry,
+        ): entry is typeof entry & {
+          type: GeographicTimelineEventType;
+        } =>
+          entry.type !== null &&
+          Number.isFinite(
+            entry.timestamp,
+          ),
+      )
+      .sort(
+        (left, right) =>
+          left.timestamp -
+            right.timestamp ||
+          right.sourceIndex -
+            left.sourceIndex,
+      );
 
   for (
-    let index =
-      activities.length - 1;
-    index >= 0;
-    index -= 1
+    const entry of
+    chronologicalActivities
   ) {
-    const activity =
-      activities[index];
+    const {
+      activity,
+      type,
+    } = entry;
 
-    if (
-      activity.moduleId !==
-      'map-workspace'
-    ) {
-      continue;
-    }
-
-    if (
-      activity.action ===
-      MAP_MARKER_ACTIVITY_ACTIONS
-        .removed
-    ) {
+    if (type === 'removed') {
       const markerId =
         removedMarkerId(activity);
+      const currentMarker = markerId
+        ? markerState.get(markerId)
+        : null;
 
-      if (markerId) {
-        markers.delete(markerId);
+      if (!currentMarker) {
+        continue;
       }
 
-      continue;
-    }
-
-    if (
-      activity.action !==
-        MAP_MARKER_ACTIVITY_ACTIONS
-          .saved &&
-      activity.action !==
-        MAP_MARKER_ACTIVITY_ACTIONS
-          .updated
-    ) {
+      events.push({
+        activityId: activity.id,
+        caseId: activity.caseId,
+        marker: {
+          ...currentMarker,
+          activityId: activity.id,
+        },
+        occurredAt: activity.createdAt,
+        title: activity.title,
+        type,
+      });
+      markerState.delete(
+        currentMarker.id,
+      );
       continue;
     }
 
@@ -313,26 +399,60 @@ export function buildPersistentMapMarkers(
         activity,
       );
 
-    if (!output) {
-      continue;
-    }
-
     if (
-      activity.action ===
-        MAP_MARKER_ACTIVITY_ACTIONS
-          .updated &&
-      !markers.has(output.id)
+      !output ||
+      (
+        type === 'updated' &&
+        !markerState.has(output.id)
+      )
     ) {
       continue;
     }
 
-    markers.set(output.id, {
+    const marker:
+      GeographicMarker = {
       ...output,
       activityId: activity.id,
       saved: true,
       caseId: activity.caseId,
       source: 'saved',
+    };
+
+    markerState.set(
+      marker.id,
+      marker,
+    );
+    events.push({
+      activityId: activity.id,
+      caseId: activity.caseId,
+      marker,
+      occurredAt: activity.createdAt,
+      title: activity.title,
+      type,
     });
+  }
+
+  return events;
+}
+
+export function buildPersistentMapMarkersFromEvents(
+  events: GeographicTimelineEvent[],
+): GeographicMarker[] {
+  const markers =
+    new Map<
+      string,
+      GeographicMarker
+    >();
+
+  for (const event of events) {
+    if (event.type === 'removed') {
+      markers.delete(event.marker.id);
+    } else {
+      markers.set(
+        event.marker.id,
+        event.marker,
+      );
+    }
   }
 
   return [...markers.values()]
@@ -341,4 +461,14 @@ export function buildPersistentMapMarkers(
         Date.parse(right.createdAt) -
         Date.parse(left.createdAt),
     );
+}
+
+export function buildPersistentMapMarkers(
+  activities: CaseActivity[],
+): GeographicMarker[] {
+  return buildPersistentMapMarkersFromEvents(
+    buildGeographicTimelineEvents(
+      activities,
+    ),
+  );
 }

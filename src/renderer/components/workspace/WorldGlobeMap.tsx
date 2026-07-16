@@ -37,22 +37,31 @@ import {
   MapMarkerDetailsPopover,
 } from './MapMarkerDetailsPopover';
 import {
-  buildPersistentMapMarkers,
+  GeographicTimelineMapLayer,
+} from './GeographicTimelineMapLayer';
+import {
+  GeographicTimelinePanel,
+} from './GeographicTimelinePanel';
+import {
+  GEOGRAPHIC_TIMELINE_EVENT_LABELS,
+  buildPersistentMapMarkersFromEvents,
   createMapMarkerRemovedActivity,
   createMapMarkerSavedActivity,
   createMapMarkerUpdatedActivity,
   normalizeMapMarkerDetails,
 } from './map-marker-activities';
 import {
-  MAP_MARKER_COLORS,
+  getMapMarkerColorValue,
 } from './map-workspace.types';
 import {
   useMapMarkerLayers,
 } from './useMapMarkerLayers';
+import {
+  useGeographicTimelinePlayback,
+} from './useGeographicTimelinePlayback';
 
 import type {
   GeographicMarker,
-  MapMarkerColor,
   MapMarkerDetailsUpdate,
   MapMarkerFeedback,
   MapMarkerSource,
@@ -72,6 +81,9 @@ import type {
 import type {
   WorkspaceMode,
 } from '../../../shared/modules/module.types';
+import type {
+  GeographicTimelineEvent,
+} from './map-marker-activities';
 
 type MapLabelKind =
   | 'country'
@@ -89,6 +101,10 @@ type MapLabel = {
 
 type WorldGlobeMapProps = {
   activeMode: WorkspaceMode;
+  focusGeographicActivityId:
+    string | null;
+  geographicTimelineEvents:
+    GeographicTimelineEvent[];
   mapWorkspaceView:
     MapWorkspaceViewState;
   markerCount: number;
@@ -100,6 +116,8 @@ type WorldGlobeMapProps = {
       MapWorkspaceViewState
     >,
   ): void;
+
+  onFocusGeographicActivityHandled(): void;
 
   onOpenCaseActivity(
     activityId: string,
@@ -142,7 +160,6 @@ const AUTO_ROTATION_STEP_DURATION_MS =
 const COPY_FEEDBACK_MS = 1500;
 const MAX_TRANSIENT_RECENT_LOCATIONS =
   20;
-
 const countriesData =
   JSON.parse(
     countriesDataRaw,
@@ -212,17 +229,6 @@ function calculateMapViewportPadding(
     bottom: 0,
     left: availableLeft - bounds.left,
   };
-}
-
-function markerColorValue(
-  color: MapMarkerColor,
-): string {
-  return (
-    MAP_MARKER_COLORS.find(
-      (preset) =>
-        preset.id === color,
-    )?.value ?? '#78ff63'
-  );
 }
 
 function createMapMarkerView(
@@ -354,7 +360,9 @@ function updateMapMarkerView(
 
   view.element.style.setProperty(
     '--marker-color',
-    markerColorValue(marker.color),
+    getMapMarkerColorValue(
+      marker.color,
+    ),
   );
   view.element.setAttribute(
     'aria-label',
@@ -997,9 +1005,12 @@ function buildLabelData():
 
 export function WorldGlobeMap({
   activeMode,
+  focusGeographicActivityId,
+  geographicTimelineEvents,
   mapWorkspaceView,
   markerCount,
   modulePanelOpen,
+  onFocusGeographicActivityHandled,
   onMapWorkspaceViewChange,
   onOpenCaseActivity,
   resetSignal,
@@ -1048,6 +1059,8 @@ export function WorldGlobeMap({
   const rotationResumeFrameRef =
     useRef<number | null>(null);
   const rotationEnabledRef =
+    useRef(false);
+  const timelineCameraMovingRef =
     useRef(false);
   const startAutoRotationRef =
     useRef<() => void>(
@@ -1113,19 +1126,29 @@ export function WorldGlobeMap({
     savingMarker,
     setSavingMarker,
   ] = useState(false);
+  const [
+    timelineCameraMoving,
+    setTimelineCameraMoving,
+  ] = useState(false);
 
   const activeCaseId =
     activeCase?.id ?? null;
+  const geographicTimeline =
+    useGeographicTimelinePlayback({
+      caseId: activeCaseId,
+      events:
+        geographicTimelineEvents,
+      focusActivityId:
+        focusGeographicActivityId,
+      onFocusActivityHandled:
+        onFocusGeographicActivityHandled,
+    });
   const persistentMarkers =
     useMemo(() => {
-      if (!activeCase) {
-        return [];
-      }
-
-      return buildPersistentMapMarkers(
-        activeCase.activities,
+      return buildPersistentMapMarkersFromEvents(
+        geographicTimeline.events,
       );
-    }, [activeCase]);
+    }, [geographicTimeline.events]);
   const profileMarkers =
     useMemo(() => {
       const persistentIds =
@@ -1248,6 +1271,7 @@ export function WorldGlobeMap({
         !map ||
         !mapReadyRef.current ||
         !rotationEnabledRef.current ||
+        timelineCameraMovingRef.current ||
         map.isMoving()
       ) {
         return;
@@ -1272,6 +1296,46 @@ export function WorldGlobeMap({
         },
       );
     }, []);
+
+  const handleTimelineCameraMotionChange =
+    useCallback(
+      (moving: boolean): void => {
+        timelineCameraMovingRef.current =
+          moving;
+        setTimelineCameraMoving(
+          (current) =>
+            current === moving
+              ? current
+              : moving,
+        );
+
+        if (
+          rotationResumeFrameRef.current !==
+          null
+        ) {
+          window.cancelAnimationFrame(
+            rotationResumeFrameRef.current,
+          );
+          rotationResumeFrameRef.current =
+            null;
+        }
+
+        if (
+          !moving &&
+          rotationEnabledRef.current
+        ) {
+          rotationResumeFrameRef.current =
+            window.requestAnimationFrame(
+              () => {
+                rotationResumeFrameRef.current =
+                  null;
+                startAutoRotationRef.current();
+              },
+            );
+        }
+      },
+      [],
+    );
 
   const updateViewportPadding =
     useCallback(() => {
@@ -2356,6 +2420,41 @@ export function WorldGlobeMap({
       ? mapMarkerViewsRef.current
         .get(popoverMarker.id) ?? null
       : null;
+  const timelineHudPlayback =
+    useMemo(() => {
+      if (
+        !geographicTimeline.panelOpen ||
+        !geographicTimeline.currentEvent ||
+        geographicTimeline.events.length ===
+          0
+      ) {
+        return null;
+      }
+
+      return {
+        currentEvent:
+          geographicTimeline.currentIndex +
+          1,
+        eventType:
+          GEOGRAPHIC_TIMELINE_EVENT_LABELS[
+            geographicTimeline
+              .currentEvent.type
+          ],
+        isPlaying:
+          geographicTimeline.isPlaying,
+        speed:
+          geographicTimeline.speed,
+        totalEvents:
+          geographicTimeline.events.length,
+      };
+    }, [
+      geographicTimeline.currentEvent,
+      geographicTimeline.currentIndex,
+      geographicTimeline.events.length,
+      geographicTimeline.isPlaying,
+      geographicTimeline.panelOpen,
+      geographicTimeline.speed,
+    ]);
 
   const centerPopoverMarker =
     useCallback(
@@ -2413,6 +2512,24 @@ export function WorldGlobeMap({
         ref={containerRef}
       />
 
+      <GeographicTimelineMapLayer
+        event={
+          geographicTimeline.activeEvent
+        }
+        map={
+          mapReady
+            ? mapRef.current
+            : null
+        }
+        selectionRevision={
+          geographicTimeline
+            .selectionRevision
+        }
+        onCameraMotionChange={
+          handleTimelineCameraMotionChange
+        }
+      />
+
       {!mapReady && (
         <div className="worldMapEmptyState">
           Inicializando globo local...
@@ -2444,6 +2561,13 @@ export function WorldGlobeMap({
         rotationEnabled={
           rotationEnabled
         }
+        rotationTemporarilyPaused={
+          rotationEnabled &&
+          timelineCameraMoving
+        }
+        timelinePlayback={
+          timelineHudPlayback
+        }
         totalMarkers={
           profileMarkers.length
         }
@@ -2452,6 +2576,54 @@ export function WorldGlobeMap({
         }
         onOpenChange={
           setOperationalHudOpen
+        }
+      />
+
+      <GeographicTimelinePanel
+        currentEvent={
+          geographicTimeline.currentEvent
+        }
+        currentIndex={
+          geographicTimeline.currentIndex
+        }
+        isPlaying={
+          geographicTimeline.isPlaying
+        }
+        open={
+          geographicTimeline.panelOpen
+        }
+        speed={
+          geographicTimeline.speed
+        }
+        totalEvents={
+          geographicTimeline.events.length
+        }
+        onMinimize={
+          geographicTimeline.minimizePanel
+        }
+        onNext={
+          geographicTimeline.next
+        }
+        onOpen={
+          geographicTimeline.openPanel
+        }
+        onPause={
+          geographicTimeline.pause
+        }
+        onPlay={
+          geographicTimeline.play
+        }
+        onPrevious={
+          geographicTimeline.previous
+        }
+        onRestart={
+          geographicTimeline.restart
+        }
+        onSeek={
+          geographicTimeline.seek
+        }
+        onSpeedChange={
+          geographicTimeline.setSpeed
         }
       />
 
@@ -2662,9 +2834,18 @@ export function WorldGlobeMap({
           </button>
 
           <button
+            className={
+              rotationEnabled &&
+              timelineCameraMoving
+                ? 'isTimelinePaused'
+                : undefined
+            }
             type="button"
             aria-label={
-              rotationEnabled
+              rotationEnabled &&
+              timelineCameraMoving
+                ? 'Desativar rotação automática pausada pela Timeline Geográfica'
+                : rotationEnabled
                 ? 'Pausar rotação automática'
                 : 'Iniciar rotação automática'
             }
@@ -2676,7 +2857,10 @@ export function WorldGlobeMap({
               );
             }}
           >
-            {rotationEnabled
+            {rotationEnabled &&
+            timelineCameraMoving
+              ? '…'
+              : rotationEnabled
               ? 'Ⅱ'
               : '▶'}
           </button>
