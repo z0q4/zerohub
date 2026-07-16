@@ -58,7 +58,12 @@ const EMPTY_DRAFT:
 
 type CasesPageProps = {
   focusActivityId?: string | null;
+  geographicActivityIds:
+    ReadonlySet<string>;
   onFocusActivityHandled?(): void;
+  onViewActivityOnMap(
+    activityId: string,
+  ): void;
 };
 
 function formatDate(
@@ -102,7 +107,9 @@ function stringifyValue(
 
 export function CasesPage({
   focusActivityId = null,
+  geographicActivityIds,
   onFocusActivityHandled,
+  onViewActivityOnMap,
 }: CasesPageProps) {
   const {
     summaries,
@@ -211,7 +218,6 @@ export function CasesPage({
         summary.status ===
         'active',
     ).length;
-
   useEffect(() => {
     if (
       !focusActivityId ||
@@ -1112,11 +1118,29 @@ export function CasesPage({
                                   </strong>
                                 </div>
 
-                                <time>
-                                  {formatDate(
-                                    activity.createdAt,
+                                <div className="caseTimelineMeta">
+                                  <time>
+                                    {formatDate(
+                                      activity.createdAt,
+                                    )}
+                                  </time>
+
+                                  {geographicActivityIds
+                                    .has(
+                                      activity.id,
+                                    ) && (
+                                    <button
+                                      type="button"
+                                      onClick={() => {
+                                        onViewActivityOnMap(
+                                          activity.id,
+                                        );
+                                      }}
+                                    >
+                                      Ver no mapa
+                                    </button>
                                   )}
-                                </time>
+                                </div>
                               </header>
 
                               {activity.note && (

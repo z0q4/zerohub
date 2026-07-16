@@ -772,6 +772,33 @@
   font-size: 7px;
 }
 
+.caseTimelineMeta {
+  display: grid;
+  gap: 6px;
+  justify-items: end;
+}
+
+.caseTimelineMeta button {
+  min-height: 25px;
+  padding: 4px 8px;
+  border: 1px solid
+    color-mix(
+      in srgb,
+      var(--primary) 28%,
+      var(--border)
+    );
+  border-radius: 7px;
+  color: var(--primary);
+  background: var(--primary-soft);
+  font-size: 7px;
+  font-weight: 800;
+}
+
+.caseTimelineMeta button:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
 .caseTimelineContent > p {
   margin: 0;
   color: var(--text-secondary);

@@ -68,6 +68,7 @@ const MAP_OVERLAY_SELECTORS = [
   '.workspaceSearch',
   '.topRightControls',
   '.mapOperationalHud',
+  '.geographicTimelinePanel',
   '.worldGlobeTools',
   '.moduleWorkbenchDrawer',
   '.workspaceModulePanel',

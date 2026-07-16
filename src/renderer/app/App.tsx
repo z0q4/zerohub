@@ -57,6 +57,9 @@ import {
 import {
   MapWorkspaceShell,
 } from '../components/workspace/MapWorkspaceShell';
+import {
+  buildGeographicTimelineEvents,
+} from '../components/workspace/map-marker-activities';
 
 import {
   EncodingPage,
@@ -200,6 +203,11 @@ export function App() {
   ] = useState<string | null>(null);
 
   const [
+    focusedMapActivityId,
+    setFocusedMapActivityId,
+  ] = useState<string | null>(null);
+
+  const [
     favoriteIds,
     setFavoriteIds,
   ] =
@@ -219,6 +227,27 @@ export function App() {
 
   const activeModule =
     getModuleById(activePage);
+  const geographicTimelineEvents =
+    useMemo(
+      () =>
+        activeCase
+          ? buildGeographicTimelineEvents(
+            activeCase.activities,
+          )
+          : [],
+      [activeCase],
+    );
+  const geographicActivityIds =
+    useMemo(
+      () =>
+        new Set(
+          geographicTimelineEvents.map(
+            (event) =>
+              event.activityId,
+          ),
+        ),
+      [geographicTimelineEvents],
+    );
 
   const commandHint =
     useMemo(
@@ -551,6 +580,22 @@ export function App() {
       [navigate],
     );
 
+  const clearFocusedMapActivity =
+    useCallback((): void => {
+      setFocusedMapActivityId(null);
+    }, []);
+
+  const viewCaseActivityOnMap =
+    useCallback(
+      (activityId: string): void => {
+        setFocusedMapActivityId(
+          activityId,
+        );
+        navigate('dashboard');
+      },
+      [navigate],
+    );
+
   function toggleFavorite(
     page: PageId,
   ): void {
@@ -583,8 +628,14 @@ export function App() {
             focusActivityId={
               focusedCaseActivityId
             }
+            geographicActivityIds={
+              geographicActivityIds
+            }
             onFocusActivityHandled={
               clearFocusedCaseActivity
+            }
+            onViewActivityOnMap={
+              viewCaseActivityOnMap
             }
           />
         );
@@ -671,8 +722,17 @@ export function App() {
         mapWorkspaceView={
           mapWorkspaceView
         }
+        focusGeographicActivityId={
+          focusedMapActivityId
+        }
+        geographicTimelineEvents={
+          geographicTimelineEvents
+        }
         onMapWorkspaceViewChange={
           setMapWorkspaceView
+        }
+        onFocusGeographicActivityHandled={
+          clearFocusedMapActivity
         }
         onModulePanelOpenChange={
           setWorkspaceModulePanelOpen
