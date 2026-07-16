@@ -108,6 +108,10 @@ import type {
 } from '../../shared/modules/module.types';
 
 import type {
+  MapWorkspaceViewState,
+} from '../components/workspace/map-workspace.types';
+
+import type {
   PageId,
 } from './types';
 
@@ -182,6 +186,14 @@ export function App() {
     useState(false);
 
   const [
+    mapWorkspaceView,
+    setMapWorkspaceView,
+  ] = useState<MapWorkspaceViewState>(
+    DEFAULT_SESSION_SNAPSHOT
+      .mapWorkspaceView,
+  );
+
+  const [
     favoriteIds,
     setFavoriteIds,
   ] =
@@ -229,6 +241,9 @@ export function App() {
     );
     setWorkspaceMode(
       snapshot.workspaceMode,
+    );
+    setMapWorkspaceView(
+      snapshot.mapWorkspaceView,
     );
   }
   useEffect(() => {
@@ -346,10 +361,12 @@ export function App() {
       favoriteIds,
       recentIds,
       workspaceMode,
+      mapWorkspaceView,
     });
   }, [
     activePage,
     favoriteIds,
+    mapWorkspaceView,
     recentIds,
     sessionPersistenceReady,
     settings.saveSessionOnClose,
@@ -620,6 +637,12 @@ export function App() {
           workspaceModulePanelOpen
         }
         mode={workspaceMode}
+        mapWorkspaceView={
+          mapWorkspaceView
+        }
+        onMapWorkspaceViewChange={
+          setMapWorkspaceView
+        }
         onModulePanelOpenChange={
           setWorkspaceModulePanelOpen
         }

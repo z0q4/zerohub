@@ -4,6 +4,7 @@ import {
   useRef,
   useState,
   type ReactNode,
+  type SetStateAction,
 } from 'react';
 
 import {
@@ -42,6 +43,9 @@ import type {
 import type {
   PageId,
 } from '../../app/types';
+import type {
+  MapWorkspaceViewState,
+} from './map-workspace.types';
 
 type MapWorkspaceShellProps = {
   activeCase: InvestigationCase | null;
@@ -51,6 +55,14 @@ type MapWorkspaceShellProps = {
   commandHint: string;
   modulePanelOpen: boolean;
   mode: WorkspaceMode;
+  mapWorkspaceView:
+    MapWorkspaceViewState;
+
+  onMapWorkspaceViewChange(
+    viewState: SetStateAction<
+      MapWorkspaceViewState
+    >,
+  ): void;
 
   onModeChange(
     mode: WorkspaceMode,
@@ -90,6 +102,8 @@ export function MapWorkspaceShell({
   commandHint,
   modulePanelOpen,
   mode,
+  mapWorkspaceView,
+  onMapWorkspaceViewChange,
   onModulePanelOpenChange,
   onModeChange,
   onNavigate,
@@ -160,11 +174,18 @@ export function MapWorkspaceShell({
       data-workspace-mode={mode}
     >
       <WorldGlobeMap
+        activeMode={mode}
+        mapWorkspaceView={
+          mapWorkspaceView
+        }
         markerCount={0}
         modulePanelOpen={
           modulePanelOpen
         }
         resetSignal={resetSignal}
+        onMapWorkspaceViewChange={
+          onMapWorkspaceViewChange
+        }
       />
 
       <CompactModuleRail
