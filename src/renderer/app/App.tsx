@@ -1,4 +1,5 @@
 import {
+  useCallback,
   useEffect,
   useMemo,
   useState,
@@ -192,6 +193,11 @@ export function App() {
     DEFAULT_SESSION_SNAPSHOT
       .mapWorkspaceView,
   );
+
+  const [
+    focusedCaseActivityId,
+    setFocusedCaseActivityId,
+  ] = useState<string | null>(null);
 
   const [
     favoriteIds,
@@ -504,9 +510,9 @@ export function App() {
     }
   }
 
-  function navigate(
+  const navigate = useCallback((
     page: PageId,
-  ): void {
+  ): void => {
     setActivePage(page);
     setCommandPaletteOpen(false);
     setWorkspaceModulePanelOpen(false);
@@ -527,7 +533,23 @@ export function App() {
         ),
       ].slice(0, 10),
     );
-  }
+  }, []);
+
+  const clearFocusedCaseActivity =
+    useCallback((): void => {
+      setFocusedCaseActivityId(null);
+    }, []);
+
+  const openCaseActivity =
+    useCallback(
+      (activityId: string): void => {
+        setFocusedCaseActivityId(
+          activityId,
+        );
+        navigate('cases');
+      },
+      [navigate],
+    );
 
   function toggleFavorite(
     page: PageId,
@@ -556,7 +578,16 @@ export function App() {
   function renderPage() {
     switch (activePage) {
       case 'cases':
-        return <CasesPage />;
+        return (
+          <CasesPage
+            focusActivityId={
+              focusedCaseActivityId
+            }
+            onFocusActivityHandled={
+              clearFocusedCaseActivity
+            }
+          />
+        );
 
       case 'dashboard':
         return null;
@@ -645,6 +676,9 @@ export function App() {
         }
         onModulePanelOpenChange={
           setWorkspaceModulePanelOpen
+        }
+        onOpenCaseActivity={
+          openCaseActivity
         }
         onModeChange={setWorkspaceMode}
         onNavigate={navigate}

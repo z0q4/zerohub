@@ -64,6 +64,10 @@ type MapWorkspaceShellProps = {
     >,
   ): void;
 
+  onOpenCaseActivity(
+    activityId: string,
+  ): void;
+
   onModeChange(
     mode: WorkspaceMode,
   ): void;
@@ -104,6 +108,7 @@ export function MapWorkspaceShell({
   mode,
   mapWorkspaceView,
   onMapWorkspaceViewChange,
+  onOpenCaseActivity,
   onModulePanelOpenChange,
   onModeChange,
   onNavigate,
@@ -185,6 +190,9 @@ export function MapWorkspaceShell({
         resetSignal={resetSignal}
         onMapWorkspaceViewChange={
           onMapWorkspaceViewChange
+        }
+        onOpenCaseActivity={
+          onOpenCaseActivity
         }
       />
 

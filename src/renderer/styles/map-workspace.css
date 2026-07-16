@@ -525,6 +525,319 @@
   color: var(--primary);
 }
 
+.mapMarkerDetailsPopover {
+  position: absolute;
+  z-index: 25;
+
+  display: grid;
+  gap: 10px;
+
+  width: min(
+    310px,
+    calc(100vw - 24px)
+  );
+  max-width: calc(100% - 16px);
+  max-height:
+    min(
+      calc(100dvh - 16px),
+      calc(100% - 16px)
+    );
+  padding: 11px;
+
+  border: 1px solid
+    color-mix(
+      in srgb,
+      var(--marker-color) 34%,
+      rgb(255 255 255 / 8%)
+    );
+  border-radius: 13px;
+
+  color: #eeeeee;
+  background:
+    rgb(8 8 8 / 96%);
+  box-shadow:
+    0 20px 54px rgb(0 0 0 / 52%);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  pointer-events: auto;
+  backdrop-filter: blur(18px);
+}
+
+.mapMarkerDetailsPopover > header {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.mapMarkerDetailsPopover > header > div {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+
+.mapMarkerDetailsPopover > header span {
+  color: var(--marker-color);
+  font-size: 7px;
+  font-weight: 860;
+  letter-spacing: 0.12em;
+}
+
+.mapMarkerDetailsPopover > header strong {
+  overflow: hidden;
+  font-size: 12px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mapMarkerDetailsPopover button,
+.mapMarkerDetailsPopover input,
+.mapMarkerDetailsPopover select {
+  min-height: 31px;
+  border: 1px solid
+    rgb(255 255 255 / 9%);
+  border-radius: 8px;
+  color: #e5e5e5;
+  background: #171717;
+  font-size: 8px;
+  font-weight: 760;
+}
+
+.mapMarkerDetailsPopover button:focus-visible,
+.mapMarkerDetailsPopover input:focus-visible,
+.mapMarkerDetailsPopover select:focus-visible,
+.mapMarkerDetailsPopover fieldset:focus-within {
+  outline: 2px solid
+    var(--marker-color);
+  outline-offset: 2px;
+}
+
+.mapMarkerDetailsPopover button:disabled {
+  cursor: wait;
+  opacity: 0.55;
+}
+
+.mapMarkerDetailsPopover > header button {
+  display: grid;
+  width: 31px;
+  min-width: 31px;
+  padding: 0;
+  place-items: center;
+  font-size: 14px;
+}
+
+.mapMarkerDetailsPopover dl {
+  display: grid;
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+  gap: 7px;
+  margin: 0;
+}
+
+.mapMarkerDetailsPopover dl > div {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+  padding: 7px;
+  border: 1px solid
+    rgb(255 255 255 / 6%);
+  border-radius: 8px;
+  background: rgb(0 0 0 / 18%);
+}
+
+.mapMarkerDetailsPopover
+.mapMarkerDetailWide {
+  grid-column: 1 / -1;
+}
+
+.mapMarkerDetailsPopover dt {
+  color: #696969;
+  font-size: 7px;
+  font-weight: 780;
+  text-transform: uppercase;
+}
+
+.mapMarkerDetailsPopover dd {
+  overflow: hidden;
+  margin: 0;
+  color: #d5d5d5;
+  font-family: monospace;
+  font-size: 8px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mapMarkerColorValue {
+  display: flex;
+  gap: 5px;
+  align-items: center;
+}
+
+.mapMarkerColorValue > span {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--marker-color);
+  box-shadow:
+    0 0 7px var(--marker-color);
+}
+
+.mapMarkerPopoverActions {
+  display: grid;
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.mapMarkerPopoverActions button {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  justify-content: center;
+  padding: 5px 7px;
+}
+
+.mapMarkerPopoverActions button > span {
+  color: var(--marker-color);
+  font-size: 10px;
+}
+
+.mapMarkerDetailsPopover
+button.isDanger {
+  border-color: rgb(255 93 104 / 24%);
+  color: #ff9098;
+  background: rgb(74 17 22 / 46%);
+}
+
+.mapMarkerPopoverEditor {
+  display: grid;
+  gap: 8px;
+}
+
+.mapMarkerPopoverEditor label {
+  display: grid;
+  gap: 4px;
+}
+
+.mapMarkerPopoverEditor label > span,
+.mapMarkerPopoverEditor legend {
+  color: #747474;
+  font-size: 7px;
+  font-weight: 780;
+}
+
+.mapMarkerPopoverEditor input,
+.mapMarkerPopoverEditor select {
+  width: 100%;
+  padding: 0 8px;
+}
+
+.mapMarkerPopoverEditor fieldset {
+  min-width: 0;
+  margin: 0;
+  padding: 7px;
+  border: 1px solid
+    rgb(255 255 255 / 7%);
+  border-radius: 8px;
+}
+
+.mapMarkerPopoverColors {
+  display: grid;
+  grid-template-columns:
+    repeat(6, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.mapMarkerPopoverColors button {
+  min-width: 0;
+  padding: 0;
+  background:
+    var(--marker-color);
+  opacity: 0.55;
+}
+
+.mapMarkerPopoverColors
+button[aria-pressed="true"] {
+  border-color: #ffffff;
+  box-shadow:
+    0 0 12px var(--marker-color);
+  opacity: 1;
+}
+
+.mapMarkerPopoverFormActions {
+  display: grid;
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.mapMarkerDetailsPopover
+button.isPrimary {
+  border-color:
+    color-mix(
+      in srgb,
+      var(--marker-color) 34%,
+      transparent
+    );
+  color: var(--marker-color);
+  background:
+    color-mix(
+      in srgb,
+      var(--marker-color) 12%,
+      #171717
+    );
+}
+
+.mapMarkerRemoveConfirmation {
+  display: grid;
+  gap: 8px;
+  padding: 9px;
+  border: 1px solid
+    rgb(255 93 104 / 20%);
+  border-radius: 9px;
+  background: rgb(72 14 19 / 28%);
+}
+
+.mapMarkerRemoveConfirmation strong {
+  font-size: 10px;
+}
+
+.mapMarkerRemoveConfirmation p,
+.mapMarkerPopoverFeedback {
+  margin: 0;
+  color: #9b9b9b;
+  font-size: 8px;
+  line-height: 1.5;
+}
+
+.mapMarkerPopoverFeedback {
+  color: var(--marker-color);
+}
+
+.mapMarkerPanelRemoveConfirmation {
+  display: grid;
+  gap: 6px;
+  padding: 7px;
+  border: 1px solid
+    rgb(255 93 104 / 18%);
+  border-radius: 8px;
+  background: rgb(72 14 19 / 24%);
+}
+
+.mapMarkerPanelRemoveConfirmation p {
+  margin: 0;
+  color: #9a7779;
+  font-size: 7px;
+  line-height: 1.45;
+}
+
+.mapMarkerPanelRemoveConfirmation > div {
+  display: grid;
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+  gap: 5px;
+}
+
 .coordinateLocator,
 .mapMarkerEditor,
 .recentMapLocations {
@@ -968,6 +1281,12 @@
     translate(-50%, 0);
 }
 
+.coordinateLocationMarker.isSelected
+.coordinateLocationMarkerTooltip {
+  opacity: 0;
+  pointer-events: none;
+}
+
 .coordinateLocationMarkerTooltip strong,
 .coordinateLocationMarkerTooltip span,
 .coordinateLocationMarkerTooltip code,
@@ -990,35 +1309,6 @@
 .coordinateLocationMarkerTooltip code {
   color: #aaa;
   font-size: 8px;
-}
-
-.coordinateLocationMarkerActions {
-  display: grid;
-  grid-template-columns:
-    repeat(3, minmax(0, 1fr));
-  gap: 4px;
-  margin-top: 3px;
-}
-
-.coordinateLocationMarkerActions button {
-  min-width: 0;
-  min-height: 26px;
-  padding: 4px;
-
-  border: 1px solid
-    rgb(255 255 255 / 8%);
-  border-radius: 7px;
-
-  color: #d2d2d2;
-  background: #171717;
-  font-size: 7px;
-  font-weight: 750;
-}
-
-.coordinateLocationMarkerActions button:focus-visible {
-  outline: 2px solid
-    var(--marker-color);
-  outline-offset: 2px;
 }
 
 .coordinateLocationMarker.maplibregl-marker-covered {
@@ -1974,6 +2264,14 @@ form {
 }
 
 @media (max-width: 640px) {
+  .mapMarkerDetailsPopover {
+    width: min(
+      280px,
+      calc(100vw - 16px)
+    );
+    padding: 9px;
+  }
+
   .worldGlobeTools {
     right: 8px;
     bottom: 74px;
@@ -2074,6 +2372,17 @@ form {
 }
 
 @media (max-width: 560px) {
+  .mapMarkerDetailsPopover {
+    width: min(
+      260px,
+      calc(100vw - 16px)
+    );
+  }
+
+  .mapMarkerDetailsPopover dl {
+    gap: 5px;
+  }
+
   .worldGlobeTools {
     right: 8px;
     left: 68px;
