@@ -114,19 +114,64 @@ export type MapLayerColorFilter =
   | MapMarkerColor
   | 'all';
 
+export const MAP_OPERATIONAL_LAYER_IDS = [
+  'geographic-search',
+  'geographic-timeline',
+  'measurements',
+  'imported-geojson',
+  'comparison',
+] as const;
+
+export type MapOperationalLayerId =
+  typeof MAP_OPERATIONAL_LAYER_IDS[number];
+
+export type MapCameraState = {
+  bearing: number;
+  latitude: number;
+  longitude: number;
+  pitch: number;
+  zoom: number;
+};
+
+export const MAP_BASEMAP_STYLES = [
+  'tactical',
+  'streets-dark',
+  'streets-light',
+] as const;
+
+export type MapBasemapStyle =
+  typeof MAP_BASEMAP_STYLES[number];
+
 export type MapWorkspaceViewState = {
+  basemapStyle: MapBasemapStyle;
+  camera: MapCameraState;
   hiddenMarkerCategories:
     MapMarkerCategory[];
+  hiddenOperationalLayers:
+    MapOperationalLayerId[];
+  ipIntelligenceVisible: boolean;
   layerManagerOpen: boolean;
   markerColorFilter:
     MapLayerColorFilter;
+  monochromeMode: boolean;
   operationalHudOpen: boolean;
 };
 
 export const DEFAULT_MAP_WORKSPACE_VIEW_STATE:
   MapWorkspaceViewState = {
+    basemapStyle: 'tactical',
+    camera: {
+      bearing: 0,
+      latitude: 0,
+      longitude: -20,
+      pitch: 0,
+      zoom: 0.7,
+    },
     hiddenMarkerCategories: [],
+    hiddenOperationalLayers: [],
+    ipIntelligenceVisible: true,
     layerManagerOpen: false,
     markerColorFilter: 'all',
-    operationalHudOpen: true,
+    monochromeMode: true,
+    operationalHudOpen: false,
   };

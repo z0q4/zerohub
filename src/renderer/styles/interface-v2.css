@@ -14,7 +14,7 @@
   --text: #f4f6fb;
   --text-secondary: #98a2b5;
   --text-muted: #626d81;
-  --primary: #7185ff;
+  --primary: #ff0000;
   --primary-soft:
     color-mix(
       in srgb,
@@ -40,9 +40,10 @@
   --sidebar-width: 272px;
 }
 
+:root[data-accent="red"],
 :root[data-accent="blue"] {
-  --primary: #6f8cff;
-  --primary-deep: #3654c7;
+  --primary: #ff0000;
+  --primary-deep: #940000;
 }
 
 :root[data-accent="violet"] {
@@ -1901,4 +1902,3 @@ input[type="radio"] {
     transition-duration: 0.01ms !important;
   }
 }
-

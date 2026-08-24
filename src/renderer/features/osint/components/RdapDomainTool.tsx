@@ -1,5 +1,6 @@
 import {
   type KeyboardEvent,
+  useEffect,
   useState,
 } from 'react';
 
@@ -34,7 +35,15 @@ function formatDate(
   ).format(date);
 }
 
-export function RdapDomainTool() {
+type RdapDomainToolProps = {
+  contextDomain?: string | null;
+  contextIp?: string | null;
+};
+
+export function RdapDomainTool({
+  contextDomain = null,
+  contextIp = null,
+}: RdapDomainToolProps) {
   const {
     activeCase,
     isRegisteredForActiveCase,
@@ -82,6 +91,21 @@ export function RdapDomainTool() {
     copied,
     setCopied,
   ] = useState(false);
+
+  useEffect(() => {
+    if (!contextDomain) {
+      return;
+    }
+
+    setDomain(contextDomain);
+    setResult(null);
+    setError(null);
+    setCopied(false);
+    resetResultRegistration();
+  }, [
+    contextDomain,
+    resetResultRegistration,
+  ]);
 
   async function executeLookup():
     Promise<void> {
@@ -257,6 +281,20 @@ export function RdapDomainTool() {
             : 'Consultar domínio'}
         </button>
       </div>
+
+      {contextIp && (
+        <div
+          className="toolMessage info"
+          role="status"
+        >
+          Contexto vindo do mapa: IP{' '}
+          <strong>{contextIp}</strong>.
+          {' '}Este módulo RDAP existente
+          consulta domínios; use o IP como
+          referência para a investigação
+          complementar.
+        </div>
+      )}
 
       {error && (
         <div

@@ -6,7 +6,7 @@ import type {
 
 export const ACCENT_COLORS:
   readonly AccentColor[] = [
-    'blue',
+    'red',
     'violet',
     'cyan',
     'green',
@@ -20,7 +20,7 @@ export const VISUAL_PROFILES:
 
 export const DEFAULT_APP_SETTINGS:
   AppSettings = {
-    accentColor: 'blue',
+    accentColor: 'red',
     visualProfile: 'default',
     compactMode: false,
     saveSessionOnClose: true,

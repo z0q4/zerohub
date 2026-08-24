@@ -3,6 +3,7 @@ import {
   useEffect,
   useMemo,
   useState,
+  type SetStateAction,
 } from 'react';
 
 import {
@@ -54,12 +55,22 @@ import {
   CommandPalette,
 } from '../components/layout/CommandPalette';
 
+import type {
+  UniversalCommand,
+} from '../components/layout/CommandPalette';
+
 import {
   MapWorkspaceShell,
 } from '../components/workspace/MapWorkspaceShell';
 import {
   buildGeographicTimelineEvents,
-} from '../components/workspace/map-marker-activities';
+} from '../components/workspace/geographic-timeline-activities';
+import {
+  useUniversalSearch,
+} from '../components/workspace/useUniversalSearch';
+import {
+  useScopedWorkspaceState,
+} from '../components/workspace/useScopedWorkspaceState';
 
 import {
   EncodingPage,
@@ -114,6 +125,13 @@ import type {
 import type {
   MapWorkspaceViewState,
 } from '../components/workspace/map-workspace.types';
+import type {
+  GeographicBoundingBox,
+  GeographicSearchResult,
+} from '../../shared/geographic-search/geographic-search.types';
+import type {
+  UniversalMapCommand,
+} from '../components/workspace/universal-search.types';
 
 import type {
   PageId,
@@ -121,12 +139,15 @@ import type {
 
 import {
   DEFAULT_SESSION_SNAPSHOT,
+  MAP_WORKSPACE_DEFAULT_SCOPE,
+  MAP_WORKSPACE_NO_CASE_SCOPE,
   clearSessionSnapshot,
   readSessionSnapshot,
   saveSessionSnapshot,
 } from './session-persistence';
 
 import type {
+  MapWorkspaceViews,
   SessionSnapshot,
 } from './session-persistence';
 function isPageId(
@@ -146,6 +167,9 @@ export function App() {
     activeCase,
     selectCase,
   } = useCaseWorkspace();
+  const mapWorkspaceScope =
+    activeCase?.id ??
+    MAP_WORKSPACE_NO_CASE_SCOPE;
 
   const [
     activePage,
@@ -190,11 +214,11 @@ export function App() {
     useState(false);
 
   const [
-    mapWorkspaceView,
-    setMapWorkspaceView,
-  ] = useState<MapWorkspaceViewState>(
+    mapWorkspaceViews,
+    setMapWorkspaceViews,
+  ] = useState<MapWorkspaceViews>(
     DEFAULT_SESSION_SNAPSHOT
-      .mapWorkspaceView,
+      .mapWorkspaceViews,
   );
 
   const [
@@ -206,6 +230,43 @@ export function App() {
     focusedMapActivityId,
     setFocusedMapActivityId,
   ] = useState<string | null>(null);
+
+  const [
+    rdapContextIp,
+    setRdapContextIp,
+  ] = useState<string | null>(null);
+
+  const [
+    rdapContextDomain,
+    setRdapContextDomain,
+  ] = useState<string | null>(null);
+
+  const [
+    mapViewport,
+    setMapViewport,
+  ] = useScopedWorkspaceState<
+    GeographicBoundingBox | null
+  >(
+    mapWorkspaceScope,
+    null,
+  );
+
+  const [
+    geographicSearchResult,
+    setGeographicSearchResult,
+  ] = useScopedWorkspaceState<
+    GeographicSearchResult | null
+  >(
+    mapWorkspaceScope,
+    null,
+  );
+
+  const [
+    universalMapCommand,
+    setUniversalMapCommand,
+  ] = useState<UniversalMapCommand | null>(
+    null,
+  );
 
   const [
     favoriteIds,
@@ -223,6 +284,11 @@ export function App() {
     useState<PageId[]>(
       DEFAULT_SESSION_SNAPSHOT
         .recentIds,
+    );
+  const universalSearch =
+    useUniversalSearch(
+      mapViewport,
+      workspaceMode,
     );
 
   const activeModule =
@@ -277,8 +343,8 @@ export function App() {
     setWorkspaceMode(
       snapshot.workspaceMode,
     );
-    setMapWorkspaceView(
-      snapshot.mapWorkspaceView,
+    setMapWorkspaceViews(
+      snapshot.mapWorkspaceViews,
     );
   }
   useEffect(() => {
@@ -396,17 +462,64 @@ export function App() {
       favoriteIds,
       recentIds,
       workspaceMode,
-      mapWorkspaceView,
+      mapWorkspaceViews,
     });
   }, [
     activePage,
     favoriteIds,
-    mapWorkspaceView,
+    mapWorkspaceViews,
     recentIds,
     sessionPersistenceReady,
     settings.saveSessionOnClose,
     workspaceMode,
   ]);
+
+  const mapWorkspaceView =
+    mapWorkspaceViews[
+      mapWorkspaceScope
+    ] ??
+    mapWorkspaceViews[
+      MAP_WORKSPACE_DEFAULT_SCOPE
+    ] ??
+    DEFAULT_SESSION_SNAPSHOT
+      .mapWorkspaceViews[
+        MAP_WORKSPACE_DEFAULT_SCOPE
+      ];
+  const setMapWorkspaceView =
+    useCallback(
+      (
+        update: SetStateAction<
+          MapWorkspaceViewState
+        >,
+      ): void => {
+        setMapWorkspaceViews(
+          (current) => {
+            const currentView =
+              current[
+                mapWorkspaceScope
+              ] ??
+              current[
+                MAP_WORKSPACE_DEFAULT_SCOPE
+              ] ??
+              DEFAULT_SESSION_SNAPSHOT
+                .mapWorkspaceViews[
+                  MAP_WORKSPACE_DEFAULT_SCOPE
+                ];
+            const nextView =
+              typeof update === 'function'
+                ? update(currentView)
+                : update;
+
+            return {
+              ...current,
+              [mapWorkspaceScope]:
+                nextView,
+            };
+          },
+        );
+      },
+      [mapWorkspaceScope],
+    );
 
   useEffect(() => {
     if (
@@ -546,6 +659,11 @@ export function App() {
     setCommandPaletteOpen(false);
     setWorkspaceModulePanelOpen(false);
 
+    if (page !== 'osint') {
+      setRdapContextIp(null);
+      setRdapContextDomain(null);
+    }
+
     if (
       page === 'dashboard' ||
       page === 'settings'
@@ -595,6 +713,70 @@ export function App() {
       },
       [navigate],
     );
+
+  const openIpRdap = useCallback(
+    (ip: string): void => {
+      setRdapContextIp(ip);
+      navigate('osint');
+    },
+    [navigate],
+  );
+
+  const openDomainRdap = useCallback(
+    (domain: string): void => {
+      setRdapContextIp(null);
+      setRdapContextDomain(domain);
+      navigate('osint');
+    },
+    [navigate],
+  );
+
+  const selectGeographicResult =
+    useCallback(
+      (
+        result:
+          GeographicSearchResult,
+      ): void => {
+        setGeographicSearchResult(
+          result,
+        );
+        setActivePage('dashboard');
+        setCommandPaletteOpen(false);
+        setWorkspaceModulePanelOpen(false);
+      },
+      [],
+    );
+
+  const executeUniversalCommand =
+    useCallback(
+      (command: UniversalCommand): void => {
+        if (command === 'clear-search') {
+          setGeographicSearchResult(null);
+          universalSearch.setQuery('');
+          setCommandPaletteOpen(false);
+          return;
+        }
+
+        setUniversalMapCommand({
+          id: crypto.randomUUID(),
+          kind: command,
+        });
+        setActivePage('dashboard');
+        setCommandPaletteOpen(false);
+      },
+      [universalSearch],
+    );
+
+  const lookupUniversalIp =
+    useCallback((ip: string): void => {
+      setUniversalMapCommand({
+        id: crypto.randomUUID(),
+        kind: 'lookup-ip',
+        value: ip,
+      });
+      setActivePage('dashboard');
+      setCommandPaletteOpen(false);
+    }, []);
 
   function toggleFavorite(
     page: PageId,
@@ -677,7 +859,14 @@ export function App() {
         return <NetworkPage />;
 
       case 'osint':
-        return <OsintPage />;
+        return (
+          <OsintPage
+            contextIp={rdapContextIp}
+            contextDomain={
+              rdapContextDomain
+            }
+          />
+        );
 
       case 'encoding':
         return <EncodingPage />;
@@ -697,9 +886,25 @@ export function App() {
             settings={
               settings
             }
+            searchHistoryEnabled={
+              universalSearch
+                .historyEnabled
+            }
+            onClearSearchHistory={
+              universalSearch
+                .clearHistory
+            }
+            onClearSearchCache={
+              universalSearch
+                .clearCache
+            }
             onOpenCases={() => {
               navigate('cases');
             }}
+            onSearchHistoryEnabledChange={
+              universalSearch
+                .setHistoryEnabled
+            }
             onSave={
               saveSettings
             }
@@ -722,6 +927,22 @@ export function App() {
         mapWorkspaceView={
           mapWorkspaceView
         }
+        geographicSearchResult={
+          geographicSearchResult
+        }
+        geographicSearchResultFavorite={
+          geographicSearchResult
+            ? universalSearch.isFavorite(
+              geographicSearchResult.id,
+            )
+            : false
+        }
+        geographicSearchBusy={
+          universalSearch.busy
+        }
+        universalMapCommand={
+          universalMapCommand
+        }
         focusGeographicActivityId={
           focusedMapActivityId
         }
@@ -740,6 +961,35 @@ export function App() {
         onOpenCaseActivity={
           openCaseActivity
         }
+        onOpenIpRdap={openIpRdap}
+        onMapViewportChange={
+          setMapViewport
+        }
+        onClearGeographicSearch={() => {
+          setGeographicSearchResult(null);
+        }}
+        onReverseGeographicSearch={
+          async (latitude, longitude) => {
+            const result =
+              await universalSearch.reverse(
+                latitude,
+                longitude,
+              );
+
+            if (result) {
+              setGeographicSearchResult(
+                result,
+              );
+            }
+          }
+        }
+        onToggleGeographicFavorite={() => {
+          if (geographicSearchResult) {
+            universalSearch.toggleFavorite(
+              geographicSearchResult,
+            );
+          }
+        }}
         onModeChange={setWorkspaceMode}
         onNavigate={navigate}
         onOpenCommandPalette={() => {
@@ -767,6 +1017,7 @@ export function App() {
           recentIds={
             recentIds
           }
+          search={universalSearch}
           workspaceMode={
             workspaceMode
           }
@@ -775,6 +1026,14 @@ export function App() {
               false,
             );
           }}
+          onDomain={openDomainRdap}
+          onExecuteCommand={
+            executeUniversalCommand
+          }
+          onGeographicResult={
+            selectGeographicResult
+          }
+          onIp={lookupUniversalIp}
           onNavigate={
             navigate
           }

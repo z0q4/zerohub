@@ -21,8 +21,14 @@ import type {
 
 type SettingsPageProps = {
   settings: AppSettings;
+  searchHistoryEnabled: boolean;
 
+  onClearSearchHistory(): void;
+  onClearSearchCache(): Promise<boolean>;
   onOpenCases(): void;
+  onSearchHistoryEnabledChange(
+    enabled: boolean,
+  ): void;
 
   onSave(
     settings: AppSettings,
@@ -44,10 +50,10 @@ type VisualProfileOption = {
 const ACCENT_OPTIONS:
   readonly AccentOption[] = [
     {
-      id: 'blue',
-      label: 'Blue',
+      id: 'red',
+      label: 'Red',
       description:
-        'Azul técnico e corporativo.',
+        'Vermelho puro, intenso e operacional.',
     },
     {
       id: 'violet',
@@ -87,7 +93,11 @@ const VISUAL_PROFILE_OPTIONS:
 
 export function SettingsPage({
   settings,
+  searchHistoryEnabled,
+  onClearSearchHistory,
+  onClearSearchCache,
   onOpenCases,
+  onSearchHistoryEnabledChange,
   onSave,
 }: SettingsPageProps) {
   const {
@@ -110,6 +120,8 @@ export function SettingsPage({
     saving,
     setSaving,
   ] = useState(false);
+  const [privacyBusy, setPrivacyBusy] =
+    useState(false);
 
   const [
     message,
@@ -212,6 +224,30 @@ export function SettingsPage({
 
     setMessage(null);
     setError(null);
+  }
+
+  async function clearSearchCache():
+    Promise<void> {
+    setPrivacyBusy(true);
+    setMessage(null);
+    setError(null);
+
+    try {
+      const cleared =
+        await onClearSearchCache();
+
+      if (cleared) {
+        setMessage(
+          'Cache geográfico limpo com sucesso.',
+        );
+      } else {
+        setError(
+          'Não foi possível limpar o cache geográfico.',
+        );
+      }
+    } finally {
+      setPrivacyBusy(false);
+    }
   }
 
   const hasChanges =
@@ -484,6 +520,97 @@ export function SettingsPage({
                 <span />
               </span>
             </label>
+          </div>
+
+          <div className="settingsSection settingsPrivacySection">
+            <div className="settingsSectionHeader">
+              <div>
+                <span>PRIVACIDADE LOCAL</span>
+
+                <h2>Busca e sessão</h2>
+
+                <p>
+                  Controle dados transitórios sem
+                  remover perfis, casos ou atividades.
+                </p>
+              </div>
+
+              <span className="settingsPrivacyBadge">
+                {searchHistoryEnabled
+                  ? 'Histórico ativo'
+                  : 'Privado por padrão'}
+              </span>
+            </div>
+
+            <label className="settingToggle">
+              <div>
+                <strong>
+                  Histórico de lugares
+                </strong>
+
+                <span>
+                  Guarda somente locais selecionados.
+                  Consultas digitadas não são salvas.
+                </span>
+              </div>
+
+              <input
+                type="checkbox"
+                checked={searchHistoryEnabled}
+                onChange={(event) => {
+                  onSearchHistoryEnabledChange(
+                    event.target.checked,
+                  );
+                  setMessage(
+                    event.target.checked
+                      ? 'Histórico local de lugares ativado.'
+                      : 'Histórico local desativado e removido.',
+                  );
+                  setError(null);
+                }}
+              />
+
+              <span className="toggleTrack">
+                <span />
+              </span>
+            </label>
+
+            <div className="settingsPrivacyActions">
+              <button
+                className="secondaryButton"
+                type="button"
+                disabled={privacyBusy}
+                onClick={() => {
+                  onClearSearchHistory();
+                  setMessage(
+                    'Histórico geográfico removido.',
+                  );
+                  setError(null);
+                }}
+              >
+                Limpar histórico
+              </button>
+
+              <button
+                className="secondaryButton"
+                type="button"
+                disabled={privacyBusy}
+                onClick={() => {
+                  void clearSearchCache();
+                }}
+              >
+                {privacyBusy
+                  ? 'Limpando cache…'
+                  : 'Limpar cache geográfico'}
+              </button>
+            </div>
+
+            <p className="settingsPrivacyNote">
+              Desative “Salvar sessão ao fechar” e salve
+              para remover o snapshot restaurável da
+              interface. Dados permanentes dos casos não
+              são apagados.
+            </p>
           </div>
 
           <div className="settingsSection settingsCasesSection">

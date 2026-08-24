@@ -9,16 +9,33 @@ import {
 } from './map-workspace.types';
 
 import type {
+  IpGeolocationResult,
+} from './ip-geolocation.types';
+import type {
   GeographicMarker,
   MapLayerColorFilter,
   MapMarkerCategory,
+  MapOperationalLayerId,
 } from './map-workspace.types';
+
+export type MapOperationalLayerSummary = {
+  detail: string;
+  id: MapOperationalLayerId;
+  label: string;
+  total: number;
+};
 
 type MapLayerManagerProps = {
   colorFilter: MapLayerColorFilter;
   hiddenCategories:
     MapMarkerCategory[];
+  hiddenOperationalLayers:
+    MapOperationalLayerId[];
+  ipIntelligenceVisible: boolean;
+  ipResults: IpGeolocationResult[];
   markers: GeographicMarker[];
+  operationalLayers:
+    MapOperationalLayerSummary[];
   open: boolean;
 
   onClose(): void;
@@ -33,6 +50,12 @@ type MapLayerManagerProps = {
 
   onToggleCategory(
     category: MapMarkerCategory,
+  ): void;
+
+  onToggleIpIntelligence(): void;
+
+  onToggleOperationalLayer(
+    layerId: MapOperationalLayerId,
   ): void;
 };
 
@@ -53,13 +76,19 @@ export const MapLayerManager = memo(
   function MapLayerManager({
     colorFilter,
     hiddenCategories,
+    hiddenOperationalLayers,
+    ipIntelligenceVisible,
+    ipResults,
     markers,
     onClose,
     onColorFilterChange,
     onHideAll,
     onShowAll,
     onToggleCategory,
+    onToggleIpIntelligence,
+    onToggleOperationalLayer,
     open,
+    operationalLayers,
   }: MapLayerManagerProps) {
     const categorySummaries =
       useMemo(() => {
@@ -105,6 +134,27 @@ export const MapLayerManager = memo(
             hiddenCategories,
           ),
         [hiddenCategories],
+      );
+    const ipSummary = useMemo(
+      () => ({
+        persisted:
+          ipResults.filter(
+            (result) => result.saved,
+          ).length,
+        total: ipResults.length,
+        transient:
+          ipResults.filter(
+            (result) => !result.saved,
+          ).length,
+      }),
+      [ipResults],
+    );
+    const hiddenOperationalLayerSet =
+      useMemo(
+        () => new Set(
+          hiddenOperationalLayers,
+        ),
+        [hiddenOperationalLayers],
       );
 
     return (
@@ -180,6 +230,83 @@ export const MapLayerManager = memo(
           className="mapLayerCategoryList"
           role="list"
         >
+          {operationalLayers.map(
+            (layer) => {
+              const visible =
+                !hiddenOperationalLayerSet
+                  .has(layer.id);
+
+              return (
+                <button
+                  type="button"
+                  className="mapLayerCategory isOperational"
+                  key={layer.id}
+                  role="listitem"
+                  aria-pressed={visible}
+                  onClick={() => {
+                    onToggleOperationalLayer(
+                      layer.id,
+                    );
+                  }}
+                >
+                  <span
+                    className="mapLayerVisibility"
+                    aria-hidden="true"
+                  >
+                    {visible ? '●' : '○'}
+                  </span>
+
+                  <span className="mapLayerCategoryName">
+                    {layer.label}
+                  </span>
+
+                  <strong>
+                    {layer.total}
+                  </strong>
+
+                  <small>
+                    {layer.detail}
+                  </small>
+                </button>
+              );
+            },
+          )}
+
+          <button
+            type="button"
+            className="mapLayerCategory isIpIntelligence"
+            role="listitem"
+            aria-pressed={
+              ipIntelligenceVisible
+            }
+            onClick={
+              onToggleIpIntelligence
+            }
+          >
+            <span
+              className="mapLayerVisibility"
+              aria-hidden="true"
+            >
+              {ipIntelligenceVisible
+                ? '▲'
+                : '△'}
+            </span>
+
+            <span className="mapLayerCategoryName">
+              IP Intelligence
+            </span>
+
+            <strong>
+              {ipSummary.total}
+            </strong>
+
+            <small>
+              {ipSummary.persisted} P
+              {' · '}
+              {ipSummary.transient} T
+            </small>
+          </button>
+
           {MAP_MARKER_CATEGORIES.map(
             (category) => {
               const summary =

@@ -9,14 +9,15 @@ import maplibregl, {
 
 import {
   GEOGRAPHIC_TIMELINE_EVENT_LABELS,
-} from './map-marker-activities';
+  getGeographicTimelineLocation,
+} from './geographic-timeline-activities';
 import {
   getMapMarkerColorValue,
 } from './map-workspace.types';
 
 import type {
   GeographicTimelineEvent,
-} from './map-marker-activities';
+} from './geographic-timeline-activities';
 
 type GeographicTimelineMapLayerProps = {
   event:
@@ -144,10 +145,11 @@ export const GeographicTimelineMapLayer =
           return undefined;
         }
 
-        const {
-          marker,
-          type,
-        } = event;
+        const { type } = event;
+        const location =
+          getGeographicTimelineLocation(
+            event,
+          );
         const eventLabel =
           GEOGRAPHIC_TIMELINE_EVENT_LABELS[
             type
@@ -169,6 +171,7 @@ export const GeographicTimelineMapLayer =
           'issaved',
           'isupdated',
           'isremoved',
+          'isip-saved',
           'isRemoved',
         );
         view.element.classList.add(
@@ -177,22 +180,22 @@ export const GeographicTimelineMapLayer =
         view.element.style.setProperty(
           '--marker-color',
           getMapMarkerColorValue(
-            marker.color,
+            location.color,
           ),
         );
         view.element.setAttribute(
           'aria-label',
-          `${eventLabel}: ${marker.name}, ${marker.category}`,
+          `${eventLabel}: ${location.name}, ${location.category}`,
         );
         view.name.textContent =
-          marker.name;
+          location.name;
         view.metadata.textContent =
-          `${marker.category} · ${eventLabel}`;
+          `${location.category} · ${eventLabel}`;
         view.status.textContent =
-          `${marker.latitude.toFixed(5)}, ${marker.longitude.toFixed(5)}`;
+          `${location.latitude.toFixed(5)}, ${location.longitude.toFixed(5)}`;
         view.marker.setLngLat([
-          marker.longitude,
-          marker.latitude,
+          location.longitude,
+          location.latitude,
         ]);
 
         if (!view.visible) {
@@ -239,8 +242,8 @@ export const GeographicTimelineMapLayer =
           );
         map.flyTo({
           center: [
-            marker.longitude,
-            marker.latitude,
+            location.longitude,
+            location.latitude,
           ],
           zoom: Math.max(
             map.getZoom(),

@@ -19,6 +19,19 @@ import type {
 } from '../ioc-intelligence/ioc-intelligence.types';
 
 import type {
+  IpGeolocationLookupRequest,
+  IpGeolocationLookupResponse,
+  IpPublicLookupResponse,
+} from '../ip-geolocation/ip-geolocation.types';
+
+import type {
+  GeographicReverseRequest,
+  GeographicReverseResponse,
+  GeographicSearchRequest,
+  GeographicSearchResponse,
+} from '../geographic-search/geographic-search.types';
+
+import type {
   DiffResult,
   JsonFormatResult,
   RegexTestResult,
@@ -106,6 +119,15 @@ import type {
 } from '../settings/settings.types';
 
 import type {
+  AuthAttemptResult,
+  AuthCredentialsInput,
+  AuthSetupInput,
+  AuthStatus,
+  AuthUnlockInput,
+  AuthUnlockSetupInput,
+} from '../auth/auth.types';
+
+import type {
   VirusTotalSecretStatus,
   VirusTotalTargetResult,
 } from '../threat-intelligence/threat-intelligence.types';
@@ -125,6 +147,34 @@ type RuntimeInfo = {
 };
 
 type ZeroHubAPI = {
+  auth: {
+    getStatus(): Promise<AuthStatus>;
+
+    setup(
+      input: AuthSetupInput,
+    ): Promise<AuthAttemptResult>;
+
+    login(
+      input: AuthCredentialsInput,
+    ): Promise<AuthAttemptResult>;
+
+    setupUnlock(
+      input: AuthUnlockSetupInput,
+    ): Promise<AuthAttemptResult>;
+
+    unlock(
+      input: AuthUnlockInput,
+    ): Promise<AuthAttemptResult>;
+
+    lock(): Promise<AuthStatus>;
+
+    onLocked(
+      listener: (
+        status: AuthStatus,
+      ) => void,
+    ): () => void;
+  };
+
   system: {
     getRuntimeInfo():
       RuntimeInfo;
@@ -133,7 +183,40 @@ type ZeroHubAPI = {
   clipboard: {
     writeText(
       text: string,
-    ): void;
+    ): Promise<void>;
+  };
+
+  geographicSearch: {
+    search(
+      request:
+        GeographicSearchRequest,
+    ): Promise<GeographicSearchResponse>;
+
+    reverse(
+      request:
+        GeographicReverseRequest,
+    ): Promise<GeographicReverseResponse>;
+
+    cancel(
+      requestId: string,
+    ): Promise<boolean>;
+
+    clearCache(): Promise<boolean>;
+  };
+
+  ipGeolocation: {
+    lookup(
+      request:
+        IpGeolocationLookupRequest,
+    ): Promise<IpGeolocationLookupResponse>;
+
+    lookupPublic(
+      requestId: string,
+    ): Promise<IpPublicLookupResponse>;
+
+    cancel(
+      requestId: string,
+    ): Promise<boolean>;
   };
 
   encoding: {

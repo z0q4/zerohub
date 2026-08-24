@@ -14,6 +14,8 @@ npm run lint
 
 if [[ -x "${REPOSITORY_ROOT}/.venv/bin/python" ]]; then
   readonly PYTHON="${REPOSITORY_ROOT}/.venv/bin/python"
+elif [[ -x "${REPOSITORY_ROOT}/.venv/Scripts/python.exe" ]]; then
+  readonly PYTHON="${REPOSITORY_ROOT}/.venv/Scripts/python.exe"
 else
   readonly PYTHON="python3"
 fi

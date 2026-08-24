@@ -30,29 +30,10 @@ export type MapMarkerActivityOutput = {
   createdAt: string;
 };
 
-export type GeographicTimelineEventType =
+export type MapMarkerActivityEventType =
   | 'saved'
   | 'updated'
   | 'removed';
-
-export type GeographicTimelineEvent = {
-  activityId: string;
-  caseId: string;
-  marker: GeographicMarker;
-  occurredAt: string;
-  title: string;
-  type: GeographicTimelineEventType;
-};
-
-export const GEOGRAPHIC_TIMELINE_EVENT_LABELS:
-  Record<
-    GeographicTimelineEventType,
-    string
-  > = {
-    saved: 'Criação',
-    updated: 'Atualização',
-    removed: 'Remoção',
-  };
 
 function isRecord(
   value: unknown,
@@ -101,7 +82,7 @@ export function isValidMarkerCoordinates(
   );
 }
 
-function markerOutputFromActivity(
+export function markerOutputFromActivity(
   activity: CaseActivity,
 ): MapMarkerActivityOutput | null {
   if (!isRecord(activity.output)) {
@@ -151,7 +132,7 @@ function markerOutputFromActivity(
   };
 }
 
-function removedMarkerId(
+export function removedMarkerId(
   activity: CaseActivity,
 ): string | null {
   if (!isRecord(activity.output)) {
@@ -281,9 +262,9 @@ export function createMapMarkerRemovedActivity(
   };
 }
 
-function geographicTimelineEventType(
+export function mapMarkerActivityEventType(
   activity: CaseActivity,
-): GeographicTimelineEventType | null {
+): MapMarkerActivityEventType | null {
   if (
     activity.moduleId !==
     'map-workspace'
@@ -313,162 +294,4 @@ function geographicTimelineEventType(
   }
 
   return null;
-}
-
-export function buildGeographicTimelineEvents(
-  activities: CaseActivity[],
-): GeographicTimelineEvent[] {
-  const markerState =
-    new Map<string, GeographicMarker>();
-  const events:
-    GeographicTimelineEvent[] = [];
-  const chronologicalActivities =
-    activities
-      .map(
-        (activity, sourceIndex) => ({
-          activity,
-          sourceIndex,
-          timestamp:
-            Date.parse(
-              activity.createdAt,
-            ),
-          type:
-            geographicTimelineEventType(
-              activity,
-            ),
-        }),
-      )
-      .filter(
-        (
-          entry,
-        ): entry is typeof entry & {
-          type: GeographicTimelineEventType;
-        } =>
-          entry.type !== null &&
-          Number.isFinite(
-            entry.timestamp,
-          ),
-      )
-      .sort(
-        (left, right) =>
-          left.timestamp -
-            right.timestamp ||
-          right.sourceIndex -
-            left.sourceIndex,
-      );
-
-  for (
-    const entry of
-    chronologicalActivities
-  ) {
-    const {
-      activity,
-      type,
-    } = entry;
-
-    if (type === 'removed') {
-      const markerId =
-        removedMarkerId(activity);
-      const currentMarker = markerId
-        ? markerState.get(markerId)
-        : null;
-
-      if (!currentMarker) {
-        continue;
-      }
-
-      events.push({
-        activityId: activity.id,
-        caseId: activity.caseId,
-        marker: {
-          ...currentMarker,
-          activityId: activity.id,
-        },
-        occurredAt: activity.createdAt,
-        title: activity.title,
-        type,
-      });
-      markerState.delete(
-        currentMarker.id,
-      );
-      continue;
-    }
-
-    const output =
-      markerOutputFromActivity(
-        activity,
-      );
-
-    if (
-      !output ||
-      (
-        type === 'updated' &&
-        !markerState.has(output.id)
-      )
-    ) {
-      continue;
-    }
-
-    const marker:
-      GeographicMarker = {
-      ...output,
-      activityId: activity.id,
-      saved: true,
-      caseId: activity.caseId,
-      source: 'saved',
-    };
-
-    markerState.set(
-      marker.id,
-      marker,
-    );
-    events.push({
-      activityId: activity.id,
-      caseId: activity.caseId,
-      marker,
-      occurredAt: activity.createdAt,
-      title: activity.title,
-      type,
-    });
-  }
-
-  return events;
-}
-
-export function buildPersistentMapMarkersFromEvents(
-  events: GeographicTimelineEvent[],
-): GeographicMarker[] {
-  const markers =
-    new Map<
-      string,
-      GeographicMarker
-    >();
-
-  for (const event of events) {
-    if (event.type === 'removed') {
-      markers.delete(event.marker.id);
-    } else {
-      markers.set(
-        event.marker.id,
-        event.marker,
-      );
-    }
-  }
-
-  return [...markers.values()]
-    .sort(
-      (left, right) =>
-        Date.parse(right.createdAt) -
-        Date.parse(left.createdAt),
-    );
-}
-
-export function buildPersistentMapMarkers(
-  activities: CaseActivity[],
-): GeographicMarker[] {
-  return buildPersistentMapMarkersFromEvents(
-    buildGeographicTimelineEvents(
-      activities,
-    ),
-  );
 }

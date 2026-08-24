@@ -5,14 +5,15 @@ import {
 
 import {
   GEOGRAPHIC_TIMELINE_EVENT_LABELS,
-} from './map-marker-activities';
+  getGeographicTimelineLocation,
+} from './geographic-timeline-activities';
 import {
   GEOGRAPHIC_PLAYBACK_SPEEDS,
 } from './useGeographicTimelinePlayback';
 
 import type {
   GeographicTimelineEvent,
-} from './map-marker-activities';
+} from './geographic-timeline-activities';
 import type {
   GeographicPlaybackSpeed,
 } from './useGeographicTimelinePlayback';
@@ -137,6 +138,12 @@ export const GeographicTimelinePanel =
           currentEvent.type
         ]
         : 'Sem evento';
+      const currentLocation =
+        currentEvent
+          ? getGeographicTimelineLocation(
+            currentEvent,
+          )
+          : null;
 
       return (
         <aside
@@ -149,7 +156,7 @@ export const GeographicTimelinePanel =
                 GEO TIMELINE
               </span>
               <strong>
-                {currentEvent?.marker.name ??
+                {currentLocation?.name ??
                   'Sem eventos geográficos'}
               </strong>
             </div>

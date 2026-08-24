@@ -27,6 +27,9 @@ import {
   WorkspaceModeSwitcher,
 } from './WorkspaceModeSwitcher';
 import {
+  WorkspaceErrorBoundary,
+} from './WorkspaceErrorBoundary';
+import {
   WorkspaceModulePanel,
 } from './WorkspaceModulePanel';
 import {
@@ -48,7 +51,14 @@ import type {
 } from './map-workspace.types';
 import type {
   GeographicTimelineEvent,
-} from './map-marker-activities';
+} from './geographic-timeline-activities';
+import type {
+  GeographicBoundingBox,
+  GeographicSearchResult,
+} from '../../../shared/geographic-search/geographic-search.types';
+import type {
+  UniversalMapCommand,
+} from './universal-search.types';
 
 type MapWorkspaceShellProps = {
   activeCase: InvestigationCase | null;
@@ -60,10 +70,17 @@ type MapWorkspaceShellProps = {
     string | null;
   geographicTimelineEvents:
     GeographicTimelineEvent[];
+  geographicSearchResult:
+    GeographicSearchResult | null;
+  geographicSearchBusy: boolean;
+  geographicSearchResultFavorite:
+    boolean;
   modulePanelOpen: boolean;
   mode: WorkspaceMode;
   mapWorkspaceView:
     MapWorkspaceViewState;
+  universalMapCommand:
+    UniversalMapCommand | null;
 
   onMapWorkspaceViewChange(
     viewState: SetStateAction<
@@ -76,6 +93,22 @@ type MapWorkspaceShellProps = {
   onOpenCaseActivity(
     activityId: string,
   ): void;
+
+  onOpenIpRdap(ip: string): void;
+
+  onMapViewportChange(
+    viewport:
+      GeographicBoundingBox | null,
+  ): void;
+
+  onClearGeographicSearch(): void;
+
+  onReverseGeographicSearch(
+    latitude: number,
+    longitude: number,
+  ): Promise<void>;
+
+  onToggleGeographicFavorite(): void;
 
   onModeChange(
     mode: WorkspaceMode,
@@ -114,6 +147,9 @@ export function MapWorkspaceShell({
   children,
   commandHint,
   focusGeographicActivityId,
+  geographicSearchBusy,
+  geographicSearchResult,
+  geographicSearchResultFavorite,
   geographicTimelineEvents,
   modulePanelOpen,
   mode,
@@ -121,15 +157,37 @@ export function MapWorkspaceShell({
   onMapWorkspaceViewChange,
   onFocusGeographicActivityHandled,
   onOpenCaseActivity,
+  onClearGeographicSearch,
+  onMapViewportChange,
+  onOpenIpRdap,
+  onReverseGeographicSearch,
+  onToggleGeographicFavorite,
   onModulePanelOpenChange,
   onModeChange,
   onNavigate,
   onOpenCommandPalette,
+  universalMapCommand,
 }: MapWorkspaceShellProps) {
   const [
     resetSignal,
     setResetSignal,
   ] = useState(0);
+  const [
+    cleanMapMode,
+    setCleanMapMode,
+  ] = useState(false);
+  const [
+    cleanMapAnnouncement,
+    setCleanMapAnnouncement,
+  ] = useState<string | null>(null);
+  const cleanMapModeRef =
+    useRef(false);
+  const cleanMapAnnouncementTimerRef =
+    useRef<number | null>(null);
+  const focusBeforeCleanMapRef =
+    useRef<HTMLElement | null>(null);
+  const shellRef =
+    useRef<HTMLDivElement>(null);
   const modeNavigationRef =
     useRef<HTMLDivElement>(null);
   const modulesButtonRef =
@@ -141,7 +199,10 @@ export function MapWorkspaceShell({
       [mode],
     );
   useEffect(() => {
-    if (!modulePanelOpen) {
+    if (
+      !modulePanelOpen ||
+      cleanMapMode
+    ) {
       return;
     }
 
@@ -174,9 +235,153 @@ export function MapWorkspaceShell({
       );
     };
   }, [
+    cleanMapMode,
     modulePanelOpen,
     onModulePanelOpenChange,
   ]);
+
+  useEffect(() => {
+    function announce(
+      message: string,
+    ): void {
+      if (
+        cleanMapAnnouncementTimerRef
+          .current !== null
+      ) {
+        window.clearTimeout(
+          cleanMapAnnouncementTimerRef
+            .current,
+        );
+      }
+
+      setCleanMapAnnouncement(message);
+      cleanMapAnnouncementTimerRef.current =
+        window.setTimeout(() => {
+          cleanMapAnnouncementTimerRef.current =
+            null;
+          setCleanMapAnnouncement(null);
+        }, 1_800);
+    }
+
+    function setCleanMode(
+      active: boolean,
+    ): void {
+      if (
+        cleanMapModeRef.current === active
+      ) {
+        return;
+      }
+
+      if (active) {
+        const focused =
+          document.activeElement;
+        focusBeforeCleanMapRef.current =
+          focused instanceof HTMLElement &&
+          shellRef.current?.contains(focused)
+            ? focused
+            : null;
+      }
+
+      cleanMapModeRef.current = active;
+      setCleanMapMode(active);
+      announce(
+        active
+          ? 'MAPA LIMPO · SHIFT+F2 PARA RESTAURAR'
+          : 'INTERFACE RESTAURADA',
+      );
+
+      window.requestAnimationFrame(() => {
+        if (active) {
+          shellRef.current
+            ?.querySelector<HTMLElement>(
+              '.maplibregl-canvas',
+            )
+            ?.focus({
+              preventScroll: true,
+            });
+          return;
+        }
+
+        const previousFocus =
+          focusBeforeCleanMapRef.current;
+        focusBeforeCleanMapRef.current =
+          null;
+
+        if (
+          previousFocus?.isConnected
+        ) {
+          previousFocus.focus({
+            preventScroll: true,
+          });
+        }
+      });
+    }
+
+    function handleKeyDown(
+      event: KeyboardEvent,
+    ): void {
+      const protectedContent =
+        shellRef.current?.closest<HTMLElement>(
+          '.authProtectedContent',
+        );
+
+      if (protectedContent?.inert) {
+        return;
+      }
+
+      const cleanMapShortcut =
+        event.key === 'F2' &&
+        event.shiftKey &&
+        !event.altKey &&
+        !event.ctrlKey &&
+        !event.metaKey;
+
+      if (
+        cleanMapShortcut &&
+        !event.repeat
+      ) {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        setCleanMode(
+          !cleanMapModeRef.current,
+        );
+        return;
+      }
+
+      if (
+        event.key === 'Escape' &&
+        cleanMapModeRef.current
+      ) {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        setCleanMode(false);
+      }
+    }
+
+    window.addEventListener(
+      'keydown',
+      handleKeyDown,
+      true,
+    );
+
+    return () => {
+      window.removeEventListener(
+        'keydown',
+        handleKeyDown,
+        true,
+      );
+
+      if (
+        cleanMapAnnouncementTimerRef
+          .current !== null
+      ) {
+        window.clearTimeout(
+          cleanMapAnnouncementTimerRef
+            .current,
+        );
+      }
+    };
+  }, []);
 
   const activeModeLabel =
     mode === 'osint'
@@ -188,34 +393,66 @@ export function MapWorkspaceShell({
   return (
     <div
       className="mapWorkspaceShell"
+      data-clean-map-mode={
+        cleanMapMode
+      }
       data-workspace-mode={mode}
+      ref={shellRef}
     >
-      <WorldGlobeMap
-        activeMode={mode}
-        focusGeographicActivityId={
-          focusGeographicActivityId
-        }
-        geographicTimelineEvents={
-          geographicTimelineEvents
-        }
-        mapWorkspaceView={
-          mapWorkspaceView
-        }
-        markerCount={0}
-        modulePanelOpen={
-          modulePanelOpen
-        }
-        resetSignal={resetSignal}
-        onMapWorkspaceViewChange={
-          onMapWorkspaceViewChange
-        }
-        onFocusGeographicActivityHandled={
-          onFocusGeographicActivityHandled
-        }
-        onOpenCaseActivity={
-          onOpenCaseActivity
-        }
-      />
+      <WorkspaceErrorBoundary>
+        <WorldGlobeMap
+          activeMode={mode}
+          focusGeographicActivityId={
+            focusGeographicActivityId
+          }
+          geographicTimelineEvents={
+            geographicTimelineEvents
+          }
+          cleanMapMode={cleanMapMode}
+          geographicSearchResult={
+            geographicSearchResult
+          }
+          geographicSearchBusy={
+            geographicSearchBusy
+          }
+          geographicSearchResultFavorite={
+            geographicSearchResultFavorite
+          }
+          mapWorkspaceView={
+            mapWorkspaceView
+          }
+          markerCount={0}
+          modulePanelOpen={
+            modulePanelOpen
+          }
+          resetSignal={resetSignal}
+          onMapWorkspaceViewChange={
+            onMapWorkspaceViewChange
+          }
+          onFocusGeographicActivityHandled={
+            onFocusGeographicActivityHandled
+          }
+          onOpenCaseActivity={
+            onOpenCaseActivity
+          }
+          onClearGeographicSearch={
+            onClearGeographicSearch
+          }
+          onMapViewportChange={
+            onMapViewportChange
+          }
+          onOpenIpRdap={onOpenIpRdap}
+          onReverseGeographicSearch={
+            onReverseGeographicSearch
+          }
+          onToggleGeographicFavorite={
+            onToggleGeographicFavorite
+          }
+          universalMapCommand={
+            universalMapCommand
+          }
+        />
+      </WorkspaceErrorBoundary>
 
       <CompactModuleRail
         activePage={activePage}
@@ -317,6 +554,16 @@ export function MapWorkspaceShell({
           onChange={onModeChange}
         />
       </div>
+
+      {cleanMapAnnouncement && (
+        <p
+          className="cleanMapModeAnnouncement"
+          role="status"
+          aria-live="polite"
+        >
+          {cleanMapAnnouncement}
+        </p>
+      )}
     </div>
   );
 }

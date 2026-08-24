@@ -5,6 +5,9 @@ import { App } from './app/App';
 import {
   CaseWorkspaceProvider,
 } from './features/cases/CaseWorkspaceContext';
+import {
+  AuthenticationGate,
+} from './components/auth/AuthenticationGate';
 import './styles/index.css';
 
 const rootElement = document.getElementById('root');
@@ -15,8 +18,10 @@ if (!rootElement) {
 
 createRoot(rootElement).render(
   <React.StrictMode>
-    <CaseWorkspaceProvider>
-      <App />
-    </CaseWorkspaceProvider>
+    <AuthenticationGate>
+      <CaseWorkspaceProvider>
+        <App />
+      </CaseWorkspaceProvider>
+    </AuthenticationGate>
   </React.StrictMode>,
 );
