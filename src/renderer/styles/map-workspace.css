@@ -26,10 +26,138 @@
   box-sizing: border-box;
 }
 
+.mapWorkspaceShell .srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+  white-space: nowrap;
+}
+
+.mapWorkspaceShell[data-clean-map-mode="true"]
+  > .compactModuleRail,
+.mapWorkspaceShell[data-clean-map-mode="true"]
+  > .workspaceSearch,
+.mapWorkspaceShell[data-clean-map-mode="true"]
+  > .topRightControls,
+.mapWorkspaceShell[data-clean-map-mode="true"]
+  > .workspaceHomeOverlay,
+.mapWorkspaceShell[data-clean-map-mode="true"]
+  > .moduleWorkbenchDrawer,
+.mapWorkspaceShell[data-clean-map-mode="true"]
+  > .workspaceModeNavigation,
+.worldGlobeMap.isCleanMapMode
+  .worldGlobeHud,
+.worldGlobeMap.isCleanMapMode
+  .worldGlobeTools {
+  display: none;
+}
+
+.cleanMapModeAnnouncement {
+  position: absolute;
+  z-index: 120;
+  top: 18px;
+  left: 50%;
+
+  max-width: calc(100vw - 32px);
+  margin: 0;
+  padding: 7px 11px;
+
+  border: 1px solid
+    rgb(255 24 24 / 48%);
+  border-radius: 6px;
+
+  color: #fff;
+  background: rgb(5 5 5 / 88%);
+  box-shadow:
+    0 8px 28px rgb(0 0 0 / 42%),
+    0 0 16px rgb(255 0 0 / 12%);
+
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  line-height: 1.3;
+  text-align: center;
+
+  pointer-events: none;
+  transform: translateX(-50%);
+  animation:
+    cleanMapAnnouncementIn
+    140ms ease-out;
+}
+
+@keyframes cleanMapAnnouncementIn {
+  from {
+    opacity: 0;
+    transform:
+      translateX(-50%)
+      translateY(-4px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(-50%);
+  }
+}
+
 .worldGlobeMap {
   position: absolute;
   inset: 0;
   background: #050505;
+}
+
+.workspaceErrorFallback {
+  position: absolute;
+  inset: 0;
+
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  gap: 12px;
+
+  padding: 72px;
+
+  color: #ddd;
+  background:
+    radial-gradient(
+      circle at 50% 45%,
+      rgb(128 28 28 / 16%),
+      transparent 38%
+    ),
+    #050505;
+
+  text-align: center;
+}
+
+.workspaceErrorFallback span {
+  color: #d77;
+  font-size: 10px;
+  letter-spacing: 0.18em;
+}
+
+.workspaceErrorFallback strong {
+  font-size: 16px;
+}
+
+.workspaceErrorFallback p {
+  max-width: 620px;
+  margin: 0;
+  color: #999;
+  font-size: 12px;
+}
+
+.workspaceErrorFallback button {
+  padding: 8px 12px;
+  border: 1px solid
+    rgb(255 255 255 / 14%);
+  border-radius: 6px;
+  color: #eee;
+  background: #171717;
+  cursor: pointer;
 }
 
 .worldGlobeMapCanvas {
@@ -53,6 +181,692 @@
 
 .worldGlobeMapCanvas .maplibregl-canvas-container:active {
   cursor: grabbing;
+}
+
+.detailedBasemapAttribution {
+  position: absolute;
+  z-index: 8;
+  right: 76px;
+  bottom: 10px;
+  max-width: calc(100% - 170px);
+  padding: 3px 6px;
+  border-radius: 4px;
+  color: rgb(255 255 255 / 48%);
+  background: rgb(0 0 0 / 62%);
+  font-size: 7px;
+  line-height: 1.3;
+  pointer-events: none;
+}
+
+.detailedBasemapAttribution::before {
+  display: inline-block;
+  width: 5px;
+  height: 5px;
+  margin-right: 5px;
+  border-radius: 50%;
+  background: #7d7d7d;
+  content: "";
+  vertical-align: 1px;
+}
+
+.detailedBasemapAttribution[data-state="available"]::before {
+  background: #78ff63;
+}
+
+.detailedBasemapAttribution[data-state="loading"]::before {
+  background: #52e5ff;
+}
+
+.detailedBasemapAttribution[data-state="unavailable"] {
+  color: #ffd27a;
+}
+
+.detailedBasemapAttribution[data-state="unavailable"]::before {
+  background: #ffd27a;
+}
+
+.detailedBasemapAttribution button {
+  margin-left: 6px;
+  padding: 1px 4px;
+  border: 1px solid rgb(255 255 255 / 24%);
+  border-radius: 3px;
+  color: inherit;
+  background: rgb(255 255 255 / 8%);
+  font: inherit;
+  pointer-events: auto;
+  cursor: pointer;
+}
+
+.detailedBasemapAttribution button:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+.geographicSearchResultPanel {
+  position: absolute;
+  z-index: 22;
+  top: 122px;
+  right: 82px;
+  width: min(330px, calc(100vw - 164px));
+  padding: 12px;
+  border: 1px solid rgb(71 219 255 / 42%);
+  border-radius: 10px;
+  color: #e9faff;
+  background: rgb(5 13 17 / 94%);
+  box-shadow: 0 16px 45px rgb(0 0 0 / 45%);
+  backdrop-filter: blur(12px);
+}
+
+.geographicSearchResultPanel header {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.geographicSearchResultPanel header span,
+.geographicSearchResultPanel header strong {
+  display: block;
+}
+
+.geographicSearchResultPanel header span {
+  color: #47dbff;
+  font-size: 7px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+}
+
+.geographicSearchResultPanel header strong {
+  margin-top: 3px;
+  font-size: 12px;
+}
+
+.geographicSearchResultPanel header button {
+  min-width: 30px;
+  min-height: 30px;
+  border: 1px solid rgb(255 255 255 / 12%);
+  border-radius: 6px;
+  color: #ddd;
+  background: rgb(255 255 255 / 5%);
+  cursor: pointer;
+}
+
+.geographicSearchResultPanel > p {
+  margin: 9px 0;
+  color: rgb(255 255 255 / 65%);
+  font-size: 9px;
+  line-height: 1.45;
+}
+
+.geographicSearchResultPanel dl {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 7px;
+  margin: 0 0 10px;
+}
+
+.geographicSearchResultPanel dt {
+  color: rgb(255 255 255 / 42%);
+  font-size: 7px;
+  text-transform: uppercase;
+}
+
+.geographicSearchResultPanel dd {
+  margin: 2px 0 0;
+  overflow-wrap: anywhere;
+  font-size: 8px;
+}
+
+.geographicSearchResultActions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.geographicSearchResultActions button {
+  min-height: 32px;
+  border: 1px solid rgb(255 255 255 / 12%);
+  border-radius: 6px;
+  color: #ddd;
+  background: rgb(255 255 255 / 5%);
+  font-size: 8px;
+  cursor: pointer;
+}
+
+.geographicSearchResultActions button:last-child {
+  grid-column: 1 / -1;
+}
+
+.geographicSearchResultPanel button:focus-visible {
+  outline: 2px solid #47dbff;
+  outline-offset: 2px;
+}
+
+.geographicSearchResultPanel > small {
+  display: block;
+  margin-top: 9px;
+  color: rgb(255 255 255 / 45%);
+  font-size: 7px;
+  line-height: 1.4;
+}
+
+.mapMeasurementToggle {
+  position: absolute;
+  z-index: 21;
+  right: 76px;
+  bottom: 46px;
+  display: grid;
+  width: 34px;
+  height: 34px;
+  place-items: center;
+  border: 1px solid rgb(82 229 255 / 35%);
+  border-radius: 7px;
+  color: #9cefff;
+  background: rgb(10 15 17 / 92%);
+  cursor: pointer;
+}
+
+.mapMeasurementPanel {
+  position: absolute;
+  z-index: 23;
+  right: 118px;
+  bottom: 46px;
+  width: min(300px, calc(100vw - 190px));
+  padding: 11px;
+  border: 1px solid rgb(82 229 255 / 35%);
+  border-radius: 9px;
+  color: #e8fbff;
+  background: rgb(5 12 15 / 95%);
+  box-shadow: 0 16px 45px rgb(0 0 0 / 44%);
+}
+
+.mapMeasurementPanel[hidden] {
+  display: none;
+}
+
+.mapMeasurementPanel header {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.mapMeasurementPanel header span,
+.mapMeasurementPanel header strong {
+  display: block;
+}
+
+.mapMeasurementPanel header span {
+  color: #52e5ff;
+  font-size: 7px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+}
+
+.mapMeasurementPanel header strong {
+  margin-top: 3px;
+  font-size: 11px;
+}
+
+.mapMeasurementPanel button,
+.mapMeasurementPanel select,
+.mapMeasurementPanel input {
+  min-height: 30px;
+  border: 1px solid rgb(255 255 255 / 13%);
+  border-radius: 6px;
+  color: #e5e5e5;
+  background: rgb(255 255 255 / 5%);
+  font-size: 8px;
+}
+
+.mapMeasurementPanel button {
+  cursor: pointer;
+}
+
+.mapMeasurementPanel button[aria-pressed="true"] {
+  border-color: #52e5ff;
+  color: #a8f2ff;
+  background: rgb(82 229 255 / 12%);
+}
+
+.mapMeasurementPanel button:focus-visible,
+.mapMeasurementPanel select:focus-visible,
+.mapMeasurementPanel input:focus-visible,
+.mapMeasurementToggle:focus-visible {
+  outline: 2px solid #52e5ff;
+  outline-offset: 2px;
+}
+
+.mapMeasurementModes,
+.mapMeasurementActions {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.mapMeasurementActions {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.mapMeasurementActions button {
+  min-width: 0;
+  padding-inline: 4px;
+}
+
+.mapMeasurementVertices {
+  min-width: 0;
+  margin: 10px 0 0;
+  padding: 7px;
+  border: 1px solid rgb(82 229 255 / 18%);
+  border-radius: 7px;
+}
+
+.mapMeasurementVertices legend {
+  padding: 0 4px;
+  color: rgb(255 255 255 / 52%);
+  font-size: 7px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.mapMeasurementVertices > div {
+  display: grid;
+  max-height: 128px;
+  gap: 5px;
+  overflow-y: auto;
+}
+
+.mapMeasurementVertex {
+  display: grid;
+  grid-template-columns: 16px minmax(0, 1fr) minmax(0, 1fr) 26px;
+  align-items: end;
+  gap: 5px;
+}
+
+.mapMeasurementVertex > span {
+  align-self: center;
+  color: #52e5ff;
+  font-size: 8px;
+  font-weight: 800;
+  text-align: center;
+}
+
+.mapMeasurementVertex label {
+  min-width: 0;
+}
+
+.mapMeasurementVertex label span {
+  display: block;
+  margin-bottom: 2px;
+  color: rgb(255 255 255 / 42%);
+  font-size: 6px;
+}
+
+.mapMeasurementVertex input {
+  width: 100%;
+  min-height: 26px;
+  padding: 0 5px;
+  box-sizing: border-box;
+}
+
+.mapMeasurementVertex button {
+  min-height: 26px;
+}
+
+.mapGeoJsonExportKinds {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 5px;
+  margin: 9px 0 0;
+  padding: 7px;
+  border: 1px solid rgb(183 124 255 / 18%);
+  border-radius: 7px;
+}
+
+.mapGeoJsonExportKinds legend {
+  padding-inline: 4px;
+  color: rgb(255 255 255 / 48%);
+  font-size: 7px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.mapGeoJsonExportKinds label {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: rgb(255 255 255 / 66%);
+  font-size: 8px;
+}
+
+.mapGeoJsonExportKinds input {
+  width: 13px;
+  height: 13px;
+  accent-color: #b77cff;
+}
+
+.mapMeasurementPanel dl {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+  margin: 10px 0;
+}
+
+.mapMeasurementPanel dt {
+  color: rgb(255 255 255 / 43%);
+  font-size: 7px;
+  text-transform: uppercase;
+}
+
+.mapMeasurementPanel dd {
+  margin: 2px 0 0;
+  font-size: 9px;
+}
+
+.mapMeasurementPanel > label {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 8px;
+  color: rgb(255 255 255 / 60%);
+  font-size: 8px;
+}
+
+.mapMeasurementPanel p,
+.mapMeasurementPanel small {
+  display: block;
+  margin: 8px 0 0;
+  color: rgb(255 255 255 / 50%);
+  font-size: 7px;
+  line-height: 1.4;
+}
+
+.mapGeoJsonToggle {
+  position: absolute;
+  z-index: 21;
+  right: 76px;
+  bottom: 86px;
+  min-width: 34px;
+  height: 34px;
+  padding: 0 5px;
+  border: 1px solid rgb(183 124 255 / 35%);
+  border-radius: 7px;
+  color: #d4b4ff;
+  background: rgb(13 9 17 / 92%);
+  font-size: 7px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.mapGeoJsonPanel {
+  position: absolute;
+  z-index: 24;
+  right: 118px;
+  bottom: 46px;
+  width: min(350px, calc(100vw - 190px));
+  max-height: calc(100dvh - 130px);
+  padding: 11px;
+  overflow-y: auto;
+  border: 1px solid rgb(183 124 255 / 35%);
+  border-radius: 9px;
+  color: #f1e8ff;
+  background: rgb(10 7 14 / 96%);
+  box-shadow: 0 16px 45px rgb(0 0 0 / 44%);
+}
+
+.mapGeoJsonPanel[hidden] {
+  display: none;
+}
+
+.mapGeoJsonPanel header {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.mapGeoJsonPanel header span,
+.mapGeoJsonPanel header strong {
+  display: block;
+}
+
+.mapGeoJsonPanel header span {
+  color: #b77cff;
+  font-size: 7px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+}
+
+.mapGeoJsonPanel header strong {
+  margin-top: 3px;
+  font-size: 11px;
+}
+
+.mapGeoJsonPanel button,
+.mapGeoJsonPanel input,
+.mapGeoJsonPanel textarea {
+  border: 1px solid rgb(255 255 255 / 13%);
+  border-radius: 6px;
+  color: #eee;
+  background: rgb(255 255 255 / 5%);
+  font-size: 8px;
+}
+
+.mapGeoJsonPanel button {
+  min-height: 30px;
+  cursor: pointer;
+}
+
+.mapGeoJsonPanel button:focus-visible,
+.mapGeoJsonPanel input:focus-visible,
+.mapGeoJsonPanel textarea:focus-visible,
+.mapGeoJsonToggle:focus-visible {
+  outline: 2px solid #b77cff;
+  outline-offset: 2px;
+}
+
+.mapGeoJsonPanel > label {
+  display: grid;
+  gap: 5px;
+  margin-top: 10px;
+  color: rgb(255 255 255 / 58%);
+  font-size: 8px;
+}
+
+.mapGeoJsonPanel input {
+  padding: 6px;
+}
+
+.mapGeoJsonPanel textarea {
+  width: 100%;
+  min-height: 90px;
+  margin-top: 8px;
+  padding: 7px;
+  resize: vertical;
+  font-family: "JetBrains Mono", monospace;
+  line-height: 1.4;
+}
+
+.mapGeoJsonPreview {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px 10px;
+  margin-top: 8px;
+  padding: 7px;
+  border: 1px solid rgb(183 124 255 / 22%);
+  border-radius: 6px;
+  color: rgb(255 255 255 / 60%);
+  font-size: 8px;
+}
+
+.mapGeoJsonPreview strong {
+  color: #cfa9ff;
+}
+
+.mapGeoJsonPreview small {
+  flex-basis: 100%;
+}
+
+.mapGeoJsonActions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.mapGeoJsonActions button:last-child {
+  grid-column: 1 / -1;
+}
+
+.mapGeoJsonPanel p,
+.mapGeoJsonPanel > small {
+  display: block;
+  margin: 8px 0 0;
+  color: rgb(255 255 255 / 48%);
+  font-size: 7px;
+  line-height: 1.4;
+}
+
+.mapComparisonToggle {
+  position: absolute;
+  z-index: 21;
+  right: 76px;
+  bottom: 126px;
+  display: grid;
+  width: 34px;
+  height: 34px;
+  place-items: center;
+  border: 1px solid rgb(255 228 92 / 35%);
+  border-radius: 7px;
+  color: #ffe45c;
+  background: rgb(17 15 7 / 92%);
+  cursor: pointer;
+}
+
+.mapComparisonPanel {
+  position: absolute;
+  z-index: 25;
+  right: 118px;
+  bottom: 46px;
+  width: min(340px, calc(100vw - 190px));
+  max-height: calc(100dvh - 130px);
+  padding: 11px;
+  overflow-y: auto;
+  border: 1px solid rgb(255 228 92 / 35%);
+  border-radius: 9px;
+  color: #fff9d8;
+  background: rgb(14 13 7 / 96%);
+  box-shadow: 0 16px 45px rgb(0 0 0 / 44%);
+}
+
+.mapComparisonPanel[hidden] {
+  display: none;
+}
+
+.mapComparisonPanel header {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.mapComparisonPanel header span,
+.mapComparisonPanel header strong {
+  display: block;
+}
+
+.mapComparisonPanel header span {
+  color: #ffe45c;
+  font-size: 7px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+}
+
+.mapComparisonPanel header strong {
+  margin-top: 3px;
+  font-size: 11px;
+}
+
+.mapComparisonPanel button {
+  min-height: 30px;
+  border: 1px solid rgb(255 255 255 / 13%);
+  border-radius: 6px;
+  color: #eee;
+  background: rgb(255 255 255 / 5%);
+  font-size: 8px;
+  cursor: pointer;
+}
+
+.mapComparisonPanel button:focus-visible,
+.mapComparisonPanel input:focus-visible,
+.mapComparisonToggle:focus-visible {
+  outline: 2px solid #ffe45c;
+  outline-offset: 2px;
+}
+
+.mapComparisonList {
+  display: grid;
+  gap: 5px;
+  max-height: 250px;
+  margin: 10px 0;
+  overflow-y: auto;
+}
+
+.mapComparisonList > label {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 7px;
+  align-items: start;
+  padding: 7px;
+  border: 1px solid rgb(255 255 255 / 9%);
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.mapComparisonList strong,
+.mapComparisonList small {
+  display: block;
+}
+
+.mapComparisonList strong {
+  font-size: 8px;
+}
+
+.mapComparisonList small,
+.mapComparisonList p {
+  margin: 3px 0 0;
+  color: rgb(255 255 255 / 48%);
+  font-size: 7px;
+  line-height: 1.35;
+}
+
+.mapComparisonPanel dl {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+  margin: 8px 0;
+}
+
+.mapComparisonPanel dt {
+  color: rgb(255 255 255 / 42%);
+  font-size: 7px;
+  text-transform: uppercase;
+}
+
+.mapComparisonPanel dd {
+  margin: 2px 0 0;
+  font-size: 9px;
+}
+
+.mapComparisonPanel > small {
+  display: block;
+  margin-top: 8px;
+  color: rgb(255 255 255 / 46%);
+  font-size: 7px;
+  line-height: 1.4;
 }
 
 .worldMapSvg {
@@ -219,6 +1033,11 @@
   display: flex;
   gap: 8px;
   align-items: flex-end;
+  max-width:
+    calc(100vw - 160px);
+  padding: 3px;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
 }
 
 .worldGlobeControls {
@@ -773,7 +1592,7 @@ button.isPrimary {
 }
 
 .geographicTimelineMarker {
-  position: relative;
+  position: absolute;
   z-index: 3;
   width: 38px;
   height: 38px;
@@ -919,6 +1738,715 @@ button.isPrimary {
   to {
     opacity: 0;
     scale: 1.25;
+  }
+}
+
+.ipGeolocationPanel {
+  display: grid;
+  flex: 0 0 auto;
+  gap: 8px;
+  width: min(
+    360px,
+    calc(100vw - 126px)
+  );
+  max-height: min(
+    620px,
+    calc(100dvh - 190px)
+  );
+  padding: 10px;
+  border: 1px solid
+    rgb(255 255 255 / 8%);
+  border-radius: 14px;
+  color: #ededed;
+  background: rgb(10 10 10 / 95%);
+  box-shadow:
+    0 18px 48px rgb(0 0 0 / 38%);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  backdrop-filter: blur(18px);
+}
+
+.ipGeolocationPanel > header {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.ipGeolocationPanel > header > div {
+  display: grid;
+  gap: 2px;
+}
+
+.ipGeolocationPanel > header span {
+  color: #52e5ff;
+  font-size: 7px;
+  font-weight: 850;
+  letter-spacing: 0.1em;
+}
+
+.ipGeolocationPanel > header strong {
+  font-size: 12px;
+}
+
+.ipGeolocationPanel button,
+.ipGeolocationPanel input {
+  min-width: 0;
+  min-height: 30px;
+  border: 1px solid
+    rgb(255 255 255 / 9%);
+  border-radius: 8px;
+  color: #e8e8e8;
+  background: #171717;
+  font-size: 8px;
+  font-weight: 780;
+}
+
+.ipGeolocationPanel button:focus-visible,
+.ipGeolocationPanel input:focus-visible,
+.ipGeolocationPanel summary:focus-visible {
+  outline: 2px solid #52e5ff;
+  outline-offset: 2px;
+}
+
+.ipGeolocationPanel button:disabled,
+.ipGeolocationPanel input:disabled,
+.ipGeolocationPanel fieldset:disabled {
+  cursor: not-allowed;
+  opacity: 0.52;
+}
+
+.ipGeolocationPanel > header button {
+  display: grid;
+  width: 30px;
+  min-width: 30px;
+  padding: 0;
+  place-items: center;
+}
+
+.ipGeolocationSearch {
+  display: grid;
+  gap: 6px;
+}
+
+.ipGeolocationSearch > label {
+  display: grid;
+  gap: 4px;
+}
+
+.ipGeolocationSearch > label span,
+.ipGeolocationColors legend {
+  color: #767676;
+  font-size: 7px;
+  font-weight: 780;
+}
+
+.ipGeolocationSearch input {
+  width: 100%;
+  padding: 0 8px;
+  outline: none;
+  font-family: monospace;
+}
+
+.ipGeolocationSearch input[aria-invalid="true"] {
+  border-color: rgb(255 93 104 / 50%);
+}
+
+.ipGeolocationSearch > div {
+  display: grid;
+  grid-template-columns:
+    repeat(4, minmax(0, 1fr));
+  gap: 5px;
+}
+
+.ipGeolocationPanel button.isPrimary {
+  border-color:
+    rgb(82 229 255 / 34%);
+  color: #bff6ff;
+  background: rgb(23 75 84 / 36%);
+}
+
+.ipGeolocationPanel button.isDanger {
+  border-color: rgb(255 93 104 / 24%);
+  color: #ff949c;
+  background: rgb(74 21 26 / 32%);
+}
+
+.ipGeolocationFeedback {
+  margin: 0;
+  padding: 7px 8px;
+  border: 1px solid
+    rgb(255 255 255 / 7%);
+  border-radius: 8px;
+  color: #8ca8c8;
+  background: #0e0e0e;
+  font-size: 8px;
+  line-height: 1.4;
+}
+
+.ipGeolocationFeedback.error {
+  color: #ff9da4;
+}
+
+.ipGeolocationFeedback.success {
+  color: #78ff63;
+}
+
+.ipGeolocationVersionFilters,
+.ipPublicFamilyStatuses {
+  display: flex;
+  gap: 5px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.ipGeolocationVersionFilters button {
+  min-height: 25px;
+  padding: 3px 9px;
+}
+
+.ipGeolocationVersionFilters
+button[aria-pressed="true"] {
+  border-color: rgb(82 229 255 / 42%);
+  color: #52e5ff;
+  background: rgb(82 229 255 / 10%);
+}
+
+.ipPublicFamilyStatuses span {
+  padding: 4px 7px;
+  border: 1px solid
+    rgb(255 255 255 / 7%);
+  border-radius: 999px;
+  font-size: 7px;
+}
+
+.ipPublicFamilyStatuses
+span.isAvailable {
+  color: #78ff63;
+}
+
+.ipPublicFamilyStatuses
+span.isUnavailable {
+  color: #ff9da4;
+}
+
+.ipGeolocationConnect {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  padding: 7px 8px;
+  border: 1px solid
+    rgb(255 255 255 / 7%);
+  border-radius: 9px;
+  background: #0e0e0e;
+}
+
+.ipGeolocationConnect input {
+  min-height: auto;
+  margin: 2px 0 0;
+  accent-color: #52e5ff;
+}
+
+.ipGeolocationConnect span {
+  display: grid;
+  gap: 2px;
+  color: #d0d0d0;
+  font-size: 8px;
+  font-weight: 780;
+}
+
+.ipGeolocationConnect small {
+  color: #6d6d6d;
+  font-size: 7px;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+.ipGeolocationResultTabs {
+  display: flex;
+  gap: 5px;
+  padding-bottom: 2px;
+  overflow-x: auto;
+}
+
+.ipGeolocationResultTabs button {
+  display: flex;
+  flex: 0 0 auto;
+  gap: 5px;
+  align-items: center;
+  max-width: 180px;
+  padding: 4px 7px;
+  font-family: monospace;
+  white-space: nowrap;
+}
+
+.ipResultTabMarker {
+  width: 7px;
+  height: 7px;
+  border: 1px solid var(--result-color);
+  border-radius: 50%;
+  background: var(--result-color);
+  box-shadow: 0 0 6px var(--result-color);
+}
+
+.ipGeolocationResultTabs button[aria-pressed="true"] {
+  border-color:
+    color-mix(
+      in srgb,
+      var(--result-color) 48%,
+      transparent
+    );
+  color: var(--result-color);
+  background:
+    color-mix(
+      in srgb,
+      var(--result-color) 10%,
+      #171717
+    );
+}
+
+.ipGeolocationResultCard {
+  display: grid;
+  gap: 8px;
+  padding: 8px;
+  border: 1px solid
+    rgb(82 229 255 / 13%);
+  border-radius: 10px;
+  background: rgb(4 20 23 / 38%);
+}
+
+.ipGeolocationResultCard > header {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.ipGeolocationResultCard > header > div {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.ipGeolocationResultCard > header span {
+  color: #52e5ff;
+  font-size: 7px;
+  font-weight: 830;
+}
+
+.ipGeolocationResultCard > header strong {
+  overflow: hidden;
+  font-family: monospace;
+  font-size: 11px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ipGeolocationResultCard > header small {
+  color: #747474;
+  font-size: 7px;
+}
+
+.ipGeolocationResultCard
+.ipApproximationBadge {
+  padding: 4px 6px;
+  border: 1px solid rgb(255 228 92 / 24%);
+  border-radius: 999px;
+  color: #ffe45c;
+  background: rgb(81 69 12 / 24%);
+  letter-spacing: 0;
+  white-space: nowrap;
+}
+
+.ipGeolocationResultCard dl {
+  display: grid;
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+  gap: 6px;
+  margin: 0;
+}
+
+.ipGeolocationResultCard dl > div {
+  display: grid;
+  gap: 1px;
+  min-width: 0;
+}
+
+.ipGeolocationResultCard dl > div.isWide {
+  grid-column: 1 / -1;
+}
+
+.ipGeolocationResultCard dt {
+  color: #686868;
+  font-size: 7px;
+  text-transform: uppercase;
+}
+
+.ipGeolocationResultCard dd {
+  overflow: hidden;
+  margin: 0;
+  color: #d3d3d3;
+  font-family: monospace;
+  font-size: 8px;
+  line-height: 1.35;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ipGeolocationColors {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.ipGeolocationColors > div {
+  display: grid;
+  grid-template-columns:
+    repeat(6, minmax(0, 1fr));
+  gap: 6px;
+  margin-top: 5px;
+}
+
+.ipGeolocationColors button {
+  min-height: 24px;
+  padding: 0;
+  border-color:
+    color-mix(
+      in srgb,
+      var(--result-color) 52%,
+      transparent
+    );
+  background: var(--result-color);
+}
+
+.ipGeolocationColors button[aria-pressed="true"] {
+  outline: 2px solid
+    var(--result-color);
+  outline-offset: 2px;
+}
+
+.ipGeolocationColors > small {
+  display: block;
+  margin-top: 5px;
+  color: #6d6d6d;
+  font-size: 7px;
+}
+
+.ipGeolocationActions {
+  display: grid;
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+  gap: 5px;
+}
+
+.ipGeolocationEmpty {
+  padding: 12px;
+  border: 1px dashed
+    rgb(255 255 255 / 9%);
+  border-radius: 9px;
+  text-align: center;
+}
+
+.ipGeolocationEmpty strong {
+  display: block;
+  font-size: 10px;
+}
+
+.ipGeolocationEmpty p,
+.ipGeolocationHistory > p {
+  margin: 5px 0 0;
+  color: #717171;
+  font-size: 8px;
+  line-height: 1.45;
+}
+
+.ipGeolocationHistory {
+  border-top: 1px solid
+    rgb(255 255 255 / 6%);
+  padding-top: 7px;
+}
+
+.ipGeolocationHistory summary {
+  display: flex;
+  justify-content: space-between;
+  color: #8b8b8b;
+  cursor: pointer;
+  font-size: 8px;
+  font-weight: 780;
+}
+
+.ipGeolocationHistory summary span {
+  color: #52e5ff;
+  font-family: monospace;
+}
+
+.ipGeolocationHistory > div {
+  display: grid;
+  gap: 5px;
+  margin-top: 7px;
+}
+
+.ipGeolocationHistory article {
+  display: grid;
+  grid-template-columns:
+    minmax(0, 1fr) 30px;
+  gap: 5px;
+}
+
+.ipGeolocationHistory article
+button:first-child {
+  display: grid;
+  gap: 2px;
+  padding: 5px 7px;
+  text-align: left;
+}
+
+.ipGeolocationHistory article strong {
+  overflow: hidden;
+  font-family: monospace;
+  font-size: 8px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ipGeolocationHistory article small {
+  color: #666;
+  font-size: 7px;
+}
+
+.ipGeolocationMapMarker {
+  position: absolute;
+  z-index: 4;
+  width: 44px;
+  height: 44px;
+  cursor: pointer;
+  --result-color: #52e5ff;
+  --ip-marker-scale: 1;
+}
+
+.ipGeolocationMapMarkerHalo,
+.ipGeolocationMapMarkerBody {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  translate: -50% -50%;
+}
+
+.ipGeolocationMapMarkerHalo {
+  width: 42px;
+  height: 42px;
+  border: 1px solid var(--result-color);
+  border-radius: 999px;
+  background:
+    color-mix(
+      in srgb,
+      var(--result-color) 10%,
+      transparent
+    );
+  box-shadow:
+    0 0 18px
+      color-mix(
+        in srgb,
+        var(--result-color) 54%,
+        transparent
+      );
+  scale: var(--ip-marker-scale);
+  animation:
+    ipGeolocationHalo 1.45s
+    ease-out infinite;
+}
+
+.ipGeolocationMapMarkerBody {
+  display: grid;
+  width: 30px;
+  height: 30px;
+  place-items: center;
+  border-radius: 9px;
+  filter:
+    drop-shadow(
+      0 0 8px var(--result-color)
+    );
+  scale: var(--ip-marker-scale);
+  animation:
+    ipGeolocationEnter 260ms
+    ease-out both;
+  transition: scale 160ms ease;
+}
+
+.ipGeolocationMapMarkerTriangle {
+  width: 22px;
+  height: 20px;
+  background:
+    linear-gradient(
+      135deg,
+      color-mix(
+        in srgb,
+        var(--result-color) 48%,
+        white
+      ),
+      var(--result-color) 46%,
+      color-mix(
+        in srgb,
+        var(--result-color) 64%,
+        black
+      )
+    );
+  clip-path:
+    polygon(50% 0, 100% 100%, 0 100%);
+  box-shadow:
+    inset -3px -3px 5px
+      rgb(0 0 0 / 28%);
+}
+
+.ipGeolocationMapMarker.isSelected
+.ipGeolocationMapMarkerBody {
+  scale:
+    calc(var(--ip-marker-scale) * 1.22);
+}
+
+.ipGeolocationMapMarkerTooltip {
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 7px);
+  display: grid;
+  gap: 2px;
+  width: max-content;
+  max-width: 220px;
+  padding: 7px 9px;
+  border: 1px solid
+    color-mix(
+      in srgb,
+      var(--result-color) 40%,
+      rgb(255 255 255 / 8%)
+    );
+  border-radius: 8px;
+  background: rgb(6 10 11 / 95%);
+  box-shadow:
+    0 10px 28px rgb(0 0 0 / 44%);
+  opacity: 0;
+  pointer-events: none;
+  translate: -50% 4px;
+  transition:
+    opacity 140ms ease,
+    translate 140ms ease;
+}
+
+.ipGeolocationMapMarker:hover
+.ipGeolocationMapMarkerTooltip,
+.ipGeolocationMapMarker:focus-visible
+.ipGeolocationMapMarkerTooltip,
+.ipGeolocationMapMarker.isSelected
+.ipGeolocationMapMarkerTooltip {
+  opacity: 1;
+  translate: -50% 0;
+}
+
+.ipGeolocationMapMarkerTooltip strong {
+  color: #f1f1f1;
+  font-family: monospace;
+  font-size: 9px;
+}
+
+.ipGeolocationMapMarkerTooltip span {
+  color: var(--result-color);
+  font-size: 7px;
+}
+
+.ipGeolocationMapMarkerTooltip small {
+  overflow: hidden;
+  max-width: 190px;
+  color: #777;
+  font-size: 7px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ipGeolocationVectorTooltip {
+  display: grid;
+  gap: 2px;
+  min-width: 150px;
+  max-width: 220px;
+}
+
+.worldGlobeMapCanvas
+.maplibregl-popup-content:has(
+  .ipGeolocationVectorTooltip
+) {
+  padding: 7px 9px;
+  border: 1px solid
+    rgb(82 229 255 / 28%);
+  border-radius: 8px;
+  color: #f1f1f1;
+  background: rgb(6 10 11 / 95%);
+  box-shadow:
+    0 10px 28px rgb(0 0 0 / 44%);
+}
+
+.ipGeolocationVectorTooltip strong {
+  overflow: hidden;
+  font-family: monospace;
+  font-size: 9px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ipGeolocationVectorTooltip span {
+  color: #52e5ff;
+  font-size: 7px;
+}
+
+.ipGeolocationVectorTooltip small {
+  overflow: hidden;
+  color: #888;
+  font-size: 7px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.geographicTimelineMarker.isip-saved
+.geographicTimelineMarkerCore {
+  width: 0;
+  height: 0;
+  border: 0;
+  border-right: 8px solid transparent;
+  border-bottom: 15px solid
+    var(--marker-color);
+  border-left: 8px solid transparent;
+  border-radius: 0;
+  background: transparent;
+}
+
+.geographicTimelineMarker.isip-saved
+.geographicTimelineMarkerBadge::before {
+  content: "IP";
+  font-size: 6px;
+}
+
+@keyframes ipGeolocationHalo {
+  from {
+    opacity: 0.75;
+    scale:
+      calc(var(--ip-marker-scale) * 0.52);
+  }
+
+  to {
+    opacity: 0;
+    scale:
+      calc(var(--ip-marker-scale) * 1.25);
+  }
+}
+
+@keyframes ipGeolocationEnter {
+  from {
+    opacity: 0;
+    scale:
+      calc(var(--ip-marker-scale) * 0.35);
+  }
+
+  to {
+    opacity: 1;
+    scale: var(--ip-marker-scale);
   }
 }
 
@@ -1521,6 +3049,34 @@ button.isPrimary {
     blur(16px);
 }
 
+.mapBasemapStyleControl select {
+  width: 92px;
+  height: 34px;
+  padding: 0 24px 0 8px;
+
+  border: 1px solid
+    rgb(255 255 255 / 7%);
+  border-radius: 10px;
+
+  color: #f2f2f2;
+  background: rgb(18 18 18 / 94%);
+
+  font: inherit;
+  font-size: 9px;
+  font-weight: 760;
+}
+
+.mapBasemapStyleControl select:focus-visible {
+  border-color: var(--primary);
+  outline: 2px solid
+    color-mix(
+      in srgb,
+      var(--primary) 42%,
+      transparent
+    );
+  outline-offset: 2px;
+}
+
 .worldGlobeControls
 button.isTimelinePaused {
   border-color: rgb(255 228 92 / 28%);
@@ -1531,7 +3087,9 @@ button.isTimelinePaused {
 .worldGlobeControls
 .coordinatePanelToggle[aria-expanded="true"],
 .worldGlobeControls
-.layerManagerToggle[aria-expanded="true"] {
+.layerManagerToggle[aria-expanded="true"],
+.worldGlobeControls
+.ipGeolocationToggle[aria-expanded="true"] {
   border-color:
     color-mix(
       in srgb,
@@ -1555,7 +3113,7 @@ button.isTimelinePaused {
 }
 
 .coordinateLocationMarker {
-  position: relative;
+  position: absolute;
   width: 30px;
   height: 30px;
   --marker-color: #78ff63;
@@ -1572,6 +3130,13 @@ button.isTimelinePaused {
   border-radius: 50%;
   transform:
     translate(-50%, -50%);
+}
+
+.coordinateLocationMarkerPulse,
+.coordinateLocationMarkerGlow,
+.coordinateLocationMarkerCore {
+  scale:
+    var(--coordinate-marker-scale, 1);
 }
 
 .coordinateLocationMarkerPulse {
@@ -2031,6 +3596,14 @@ button.isTimelinePaused {
 
   backdrop-filter:
     blur(14px);
+}
+
+@media (min-width: 901px) {
+  .mapWorkspaceShell:has(
+    .mapOperationalHud:not(.isMinimized)
+  ) .workspaceHomeOverlay {
+    left: 342px;
+  }
 }
 
 .workspaceHomeOverlay span {
@@ -2626,6 +4199,24 @@ form {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .cleanMapModeAnnouncement {
+    animation: none;
+  }
+
+  .ipGeolocationMapMarkerHalo {
+    opacity: 0.45;
+    animation: none;
+  }
+
+  .ipGeolocationMapMarkerBody {
+    animation: none;
+    transition: none;
+  }
+
+  .ipGeolocationMapMarkerTooltip {
+    transition: none;
+  }
+
   .geographicTimelineMarkerPulse {
     opacity: 0.62;
     animation: none;
@@ -2677,6 +4268,21 @@ form {
 }
 
 @media (max-width: 640px) {
+  .ipGeolocationPanel {
+    width: min(
+      218px,
+      calc(100vw - 122px)
+    );
+    max-height:
+      calc(100dvh - 190px);
+    padding: 7px;
+  }
+
+  .ipGeolocationSearch > div,
+  .ipGeolocationActions {
+    grid-template-columns: 1fr;
+  }
+
   .geographicTimelinePanel {
     right: 8px;
     bottom: 126px;
@@ -2771,6 +4377,12 @@ form {
     left: 72px;
   }
 
+  .mapWorkspaceShell:has(
+    .mapOperationalHud:not(.isMinimized)
+  ) .workspaceHomeOverlay {
+    top: 352px;
+  }
+
   .moduleWorkbenchDrawer {
     top: 108px;
     right: 8px;
@@ -2804,6 +4416,11 @@ form {
 }
 
 @media (max-width: 560px) {
+  .ipGeolocationPanel {
+    width: 100%;
+    max-height: 300px;
+  }
+
   .geographicTimelineCurrent {
     grid-template-columns: 1fr;
   }

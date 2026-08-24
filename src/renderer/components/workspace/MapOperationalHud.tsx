@@ -31,7 +31,9 @@ type MapOperationalHudProps = {
   timelinePlayback:
     MapOperationalHudTimelinePlayback | null;
   totalMarkers: number;
+  totalIpResults: number;
   visibleMarkers: number;
+  visibleIpResults: number;
 
   onOpenChange(open: boolean): void;
 };
@@ -88,7 +90,9 @@ export const MapOperationalHud = memo(
     rotationEnabled,
     rotationTemporarilyPaused,
     timelinePlayback,
+    totalIpResults,
     totalMarkers,
+    visibleIpResults,
     visibleMarkers,
   }: MapOperationalHudProps) {
     const [
@@ -253,6 +257,16 @@ export const MapOperationalHud = memo(
               {totalMarkers}
               {' total · '}
               {visibleMarkers}
+              {' visíveis'}
+            </dd>
+          </div>
+
+          <div className="mapHudWideRow">
+            <dt>IP Intelligence</dt>
+            <dd>
+              {totalIpResults}
+              {' total · '}
+              {visibleIpResults}
               {' visíveis'}
             </dd>
           </div>

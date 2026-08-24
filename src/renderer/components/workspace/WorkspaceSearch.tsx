@@ -26,8 +26,8 @@ export function WorkspaceSearch({
 
       <strong>
         {mode === 'osint'
-          ? 'Buscar ferramenta, alvo ou domínio'
-          : 'Buscar ferramenta ou operação'}
+          ? 'Buscar ferramenta, IP, domínio ou lugar'
+          : 'Buscar ferramenta, operação ou lugar'}
       </strong>
 
       <kbd>{commandHint}</kbd>

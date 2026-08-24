@@ -8,6 +8,7 @@ import {
 } from 'react';
 import maplibregl, {
   type GeoJSONSourceSpecification,
+  type LayerSpecification,
   type Map as MapLibreMap,
   type MapMouseEvent,
   type StyleSpecification,
@@ -30,6 +31,9 @@ import {
 import {
   MapLayerManager,
 } from './MapLayerManager';
+import type {
+  MapOperationalLayerSummary,
+} from './MapLayerManager';
 import {
   MapOperationalHud,
 } from './MapOperationalHud';
@@ -43,8 +47,38 @@ import {
   GeographicTimelinePanel,
 } from './GeographicTimelinePanel';
 import {
+  IpGeolocationMapLayer,
+} from './IpGeolocationMapLayer';
+import {
+  IpGeolocationPanel,
+} from './IpGeolocationPanel';
+import {
+  GeographicSearchMapLayer,
+} from './GeographicSearchMapLayer';
+import {
+  GeographicSearchResultPanel,
+} from './GeographicSearchResultPanel';
+import {
+  MapMeasurementTools,
+} from './MapMeasurementTools';
+import {
+  MapGeoJsonTools,
+} from './MapGeoJsonTools';
+import {
+  MapComparisonPanel,
+} from './MapComparisonPanel';
+import type {
+  GeographicComparisonItem,
+} from './MapComparisonPanel';
+import {
   GEOGRAPHIC_TIMELINE_EVENT_LABELS,
+  buildPersistentIpResultsFromEvents,
   buildPersistentMapMarkersFromEvents,
+} from './geographic-timeline-activities';
+import {
+  formatIpGeolocationSummary,
+} from './ip-geolocation-activities';
+import {
   createMapMarkerRemovedActivity,
   createMapMarkerSavedActivity,
   createMapMarkerUpdatedActivity,
@@ -59,9 +93,14 @@ import {
 import {
   useGeographicTimelinePlayback,
 } from './useGeographicTimelinePlayback';
+import {
+  useIpGeolocationIntelligence,
+} from './useIpGeolocationIntelligence';
 
 import type {
   GeographicMarker,
+  MapBasemapStyle,
+  MapCameraState,
   MapMarkerDetailsUpdate,
   MapMarkerFeedback,
   MapMarkerSource,
@@ -83,7 +122,17 @@ import type {
 } from '../../../shared/modules/module.types';
 import type {
   GeographicTimelineEvent,
-} from './map-marker-activities';
+} from './geographic-timeline-activities';
+import type {
+  IpGeolocationResult,
+} from './ip-geolocation.types';
+import type {
+  GeographicBoundingBox,
+  GeographicSearchResult,
+} from '../../../shared/geographic-search/geographic-search.types';
+import type {
+  UniversalMapCommand,
+} from './universal-search.types';
 
 type MapLabelKind =
   | 'country'
@@ -101,15 +150,23 @@ type MapLabel = {
 
 type WorldGlobeMapProps = {
   activeMode: WorkspaceMode;
+  cleanMapMode: boolean;
   focusGeographicActivityId:
     string | null;
   geographicTimelineEvents:
     GeographicTimelineEvent[];
+  geographicSearchBusy: boolean;
+  geographicSearchResult:
+    GeographicSearchResult | null;
+  geographicSearchResultFavorite:
+    boolean;
   mapWorkspaceView:
     MapWorkspaceViewState;
   markerCount: number;
   modulePanelOpen: boolean;
   resetSignal: number;
+  universalMapCommand:
+    UniversalMapCommand | null;
 
   onMapWorkspaceViewChange(
     viewState: SetStateAction<
@@ -122,6 +179,22 @@ type WorldGlobeMapProps = {
   onOpenCaseActivity(
     activityId: string,
   ): void;
+
+  onOpenIpRdap(ip: string): void;
+
+  onMapViewportChange(
+    viewport:
+      GeographicBoundingBox | null,
+  ): void;
+
+  onClearGeographicSearch(): void;
+
+  onReverseGeographicSearch(
+    latitude: number,
+    longitude: number,
+  ): Promise<void>;
+
+  onToggleGeographicFavorite(): void;
 };
 
 type MarkerActionHandlers = {
@@ -145,6 +218,12 @@ type MapViewportPadding = {
   left: number;
 };
 
+type DetailedBasemapProvider = {
+  id: 'openfreemap';
+  attribution: string;
+  sourceUrl: string;
+};
+
 const INITIAL_CENTER: [number, number] = [
   -20,
   0,
@@ -160,6 +239,66 @@ const AUTO_ROTATION_STEP_DURATION_MS =
 const COPY_FEEDBACK_MS = 1500;
 const MAX_TRANSIENT_RECENT_LOCATIONS =
   20;
+const MIN_MARKER_VISUAL_SCALE = 0.58;
+const MAX_MARKER_VISUAL_SCALE = 1.28;
+const DETAILED_BASEMAP_MIN_ZOOM = 5;
+const DETAILED_BASEMAP_PROVIDER:
+  DetailedBasemapProvider = {
+    id: 'openfreemap',
+    attribution:
+      'OpenFreeMap © OpenMapTiles · Dados © OpenStreetMap contributors',
+    sourceUrl:
+      'https://tiles.openfreemap.org/planet',
+  };
+
+function normalizeCameraLongitude(
+  longitude: number,
+): number {
+  return (
+    (
+      (longitude + 180) % 360 +
+      360
+    ) % 360
+  ) - 180;
+}
+
+function readMapCamera(
+  map: MapLibreMap,
+): MapCameraState {
+  const center = map.getCenter();
+
+  return {
+    bearing: map.getBearing(),
+    latitude: center.lat,
+    longitude:
+      normalizeCameraLongitude(
+        center.lng,
+      ),
+    pitch: map.getPitch(),
+    zoom: map.getZoom(),
+  };
+}
+
+function camerasApproximatelyEqual(
+  left: MapCameraState,
+  right: MapCameraState,
+): boolean {
+  return (
+    Math.abs(
+      left.longitude - right.longitude,
+    ) < 0.000001 &&
+    Math.abs(
+      left.latitude - right.latitude,
+    ) < 0.000001 &&
+    Math.abs(left.zoom - right.zoom) <
+      0.000001 &&
+    Math.abs(
+      left.bearing - right.bearing,
+    ) < 0.000001 &&
+    Math.abs(left.pitch - right.pitch) <
+      0.000001
+  );
+}
 const countriesData =
   JSON.parse(
     countriesDataRaw,
@@ -229,6 +368,23 @@ function calculateMapViewportPadding(
     bottom: 0,
     left: availableLeft - bounds.left,
   };
+}
+
+function updateMarkerVisualScale(
+  map: MapLibreMap,
+): void {
+  const scale = Math.min(
+    MAX_MARKER_VISUAL_SCALE,
+    Math.max(
+      MIN_MARKER_VISUAL_SCALE,
+      0.56 + map.getZoom() * 0.075,
+    ),
+  );
+
+  map.getContainer().style.setProperty(
+    '--coordinate-marker-scale',
+    scale.toFixed(3),
+  );
 }
 
 function createMapMarkerView(
@@ -391,9 +547,20 @@ function updateMapMarkerView(
   ]);
 }
 
-function createMapStyle():
+function isDetailedBasemapLayer(
+  layer: LayerSpecification,
+): boolean {
+  return (
+    'source' in layer &&
+    layer.source === 'detailed-basemap'
+  );
+}
+
+function createMapStyle(
+  includeDetailedBasemap = false,
+):
   StyleSpecification {
-  return {
+  const style: StyleSpecification = {
     version: 8,
     sources: {
       countries: {
@@ -415,6 +582,15 @@ function createMapStyle():
         type: 'geojson',
         data:
           buildLabelData() as GeoJSONSourceSpecification['data'],
+      },
+      'detailed-basemap': {
+        type: 'vector',
+        url:
+          DETAILED_BASEMAP_PROVIDER
+            .sourceUrl,
+        attribution:
+          DETAILED_BASEMAP_PROVIDER
+            .attribution,
       },
     },
     layers: [
@@ -515,6 +691,190 @@ function createMapStyle():
             8,
             0.72,
           ],
+        },
+      },
+      {
+        id: 'detailed-water',
+        type: 'fill',
+        source: 'detailed-basemap',
+        'source-layer': 'water',
+        minzoom: 5,
+        paint: {
+          'fill-color': '#08161d',
+          'fill-opacity': 0.95,
+        },
+      },
+      {
+        id: 'detailed-landuse',
+        type: 'fill',
+        source: 'detailed-basemap',
+        'source-layer': 'landuse',
+        minzoom: 7,
+        paint: {
+          'fill-color': [
+            'match',
+            ['get', 'class'],
+            'residential',
+            '#17191a',
+            'commercial',
+            '#1b1819',
+            'industrial',
+            '#1b1a16',
+            '#131515',
+          ],
+          'fill-opacity': 0.72,
+        },
+      },
+      {
+        id: 'detailed-buildings',
+        type: 'fill',
+        source: 'detailed-basemap',
+        'source-layer': 'building',
+        minzoom: 12,
+        paint: {
+          'fill-color': '#242728',
+          'fill-outline-color':
+            'rgba(255,255,255,0.12)',
+          'fill-opacity': 0.9,
+        },
+      },
+      {
+        id: 'detailed-roads-casing',
+        type: 'line',
+        source: 'detailed-basemap',
+        'source-layer': 'transportation',
+        minzoom: 6,
+        layout: {
+          'line-cap': 'round',
+          'line-join': 'round',
+        },
+        paint: {
+          'line-color': '#080909',
+          'line-width': [
+            'interpolate',
+            ['linear'],
+            ['zoom'],
+            6,
+            0.7,
+            12,
+            3,
+            18,
+            12,
+          ],
+          'line-opacity': 0.8,
+        },
+      },
+      {
+        id: 'detailed-roads',
+        type: 'line',
+        source: 'detailed-basemap',
+        'source-layer': 'transportation',
+        minzoom: 6,
+        layout: {
+          'line-cap': 'round',
+          'line-join': 'round',
+        },
+        paint: {
+          'line-color': [
+            'match',
+            ['get', 'class'],
+            'motorway',
+            '#85715a',
+            'trunk',
+            '#726752',
+            'primary',
+            '#5c5a50',
+            '#3a3d3e',
+          ],
+          'line-width': [
+            'interpolate',
+            ['linear'],
+            ['zoom'],
+            6,
+            0.35,
+            12,
+            1.8,
+            18,
+            8,
+          ],
+          'line-opacity': 0.92,
+        },
+      },
+      {
+        id: 'detailed-place-labels',
+        type: 'symbol',
+        source: 'detailed-basemap',
+        'source-layer': 'place',
+        minzoom: 5,
+        layout: {
+          'text-field': [
+            'coalesce',
+            ['get', 'name:pt'],
+            ['get', 'name'],
+          ],
+          'text-font': [
+            'Inter',
+            'Segoe UI',
+            'Arial',
+            'sans-serif',
+          ],
+          'text-size': [
+            'interpolate',
+            ['linear'],
+            ['zoom'],
+            5,
+            8,
+            14,
+            12,
+          ],
+          'text-max-width': 12,
+          'text-allow-overlap': false,
+        },
+        paint: {
+          'text-color':
+            'rgba(235,235,235,0.8)',
+          'text-halo-color':
+            'rgba(0,0,0,0.9)',
+          'text-halo-width': 1,
+        },
+      },
+      {
+        id: 'detailed-road-labels',
+        type: 'symbol',
+        source: 'detailed-basemap',
+        'source-layer':
+          'transportation_name',
+        minzoom: 12,
+        layout: {
+          'symbol-placement': 'line',
+          'text-field': [
+            'coalesce',
+            ['get', 'name:pt'],
+            ['get', 'name'],
+          ],
+          'text-font': [
+            'Inter',
+            'Segoe UI',
+            'Arial',
+            'sans-serif',
+          ],
+          'text-size': [
+            'interpolate',
+            ['linear'],
+            ['zoom'],
+            12,
+            8,
+            18,
+            11,
+          ],
+          'text-allow-overlap': false,
+        },
+        paint: {
+          'text-color':
+            'rgba(220,220,220,0.72)',
+          'text-halo-color':
+            'rgba(0,0,0,0.92)',
+          'text-halo-width': 1,
         },
       },
       {
@@ -655,6 +1015,188 @@ function createMapStyle():
       },
     ],
   };
+
+  if (!includeDetailedBasemap) {
+    delete style.sources[
+      'detailed-basemap'
+    ];
+    style.layers = style.layers.filter(
+      (layer) =>
+        !isDetailedBasemapLayer(layer),
+    );
+  }
+
+  return style;
+}
+
+function addDetailedBasemap(
+  map: MapLibreMap,
+): void {
+  if (
+    map.getSource('detailed-basemap')
+  ) {
+    return;
+  }
+
+  const detailedStyle =
+    createMapStyle(true);
+  const source =
+    detailedStyle.sources[
+      'detailed-basemap'
+    ];
+
+  map.addSource(
+    'detailed-basemap',
+    source,
+  );
+
+  for (const layer of detailedStyle.layers) {
+    if (isDetailedBasemapLayer(layer)) {
+      map.addLayer(layer, 'map-labels');
+    }
+  }
+}
+
+function removeDetailedBasemap(
+  map: MapLibreMap,
+): void {
+  const detailedLayers =
+    createMapStyle(true).layers
+      .filter(isDetailedBasemapLayer)
+      .reverse();
+
+  for (const layer of detailedLayers) {
+    if (map.getLayer(layer.id)) {
+      map.removeLayer(layer.id);
+    }
+  }
+
+  if (map.getSource('detailed-basemap')) {
+    map.removeSource('detailed-basemap');
+  }
+}
+
+function applyDetailedBasemapColors(
+  map: MapLibreMap,
+  basemapStyle: MapBasemapStyle,
+): void {
+  if (!map.getLayer('detailed-water')) {
+    return;
+  }
+
+  map.setPaintProperty(
+    'detailed-water',
+    'fill-color',
+    basemapStyle === 'tactical'
+      ? '#080808'
+      : basemapStyle === 'streets-light'
+      ? '#cfe5ee'
+      : '#08161d',
+  );
+  map.setPaintProperty(
+    'detailed-landuse',
+    'fill-color',
+    basemapStyle === 'tactical'
+      ? '#151515'
+      : basemapStyle === 'streets-light'
+      ? [
+        'match',
+        ['get', 'class'],
+        'residential',
+        '#ebe8df',
+        'commercial',
+        '#eee1df',
+        'industrial',
+        '#e5e1d5',
+        'park',
+        '#dce9d3',
+        '#e8e6df',
+      ]
+      : [
+        'match',
+        ['get', 'class'],
+        'residential',
+        '#17191a',
+        'commercial',
+        '#1b1819',
+        'industrial',
+        '#1b1a16',
+        '#131515',
+      ],
+  );
+  map.setPaintProperty(
+    'detailed-buildings',
+    'fill-color',
+    basemapStyle === 'tactical'
+      ? '#202020'
+      : basemapStyle === 'streets-light'
+      ? '#d8d5ce'
+      : '#242728',
+  );
+  map.setPaintProperty(
+    'detailed-roads',
+    'line-color',
+    basemapStyle === 'tactical'
+      ? '#4a4a4a'
+      : basemapStyle === 'streets-light'
+      ? [
+        'match',
+        ['get', 'class'],
+        'motorway',
+        '#d69b63',
+        'trunk',
+        '#d6ad75',
+        'primary',
+        '#d2ba8f',
+        '#ffffff',
+      ]
+      : [
+        'match',
+        ['get', 'class'],
+        'motorway',
+        '#85715a',
+        'trunk',
+        '#726752',
+        'primary',
+        '#5c5a50',
+        '#3a3d3e',
+      ],
+  );
+  map.setPaintProperty(
+    'detailed-roads-casing',
+    'line-color',
+    basemapStyle === 'streets-light'
+      ? '#c3beb4'
+      : '#080909',
+  );
+  map.setPaintProperty(
+    'detailed-place-labels',
+    'text-color',
+    basemapStyle === 'streets-light'
+      ? 'rgba(36,42,46,0.88)'
+      : 'rgba(235,235,235,0.8)',
+  );
+  map.setPaintProperty(
+    'detailed-place-labels',
+    'text-halo-color',
+    basemapStyle === 'streets-light'
+      ? 'rgba(255,255,255,0.9)'
+      : 'rgba(0,0,0,0.9)',
+  );
+  map.setPaintProperty(
+    'detailed-road-labels',
+    'text-color',
+    basemapStyle === 'streets-light'
+      ? 'rgba(55,60,62,0.82)'
+      : 'rgba(220,220,220,0.72)',
+  );
+  map.setPaintProperty(
+    'detailed-road-labels',
+    'text-halo-color',
+    basemapStyle === 'streets-light'
+      ? 'rgba(255,255,255,0.94)'
+      : 'rgba(0,0,0,0.92)',
+  );
 }
 
 function coordinateDepth(
@@ -1005,15 +1547,25 @@ function buildLabelData():
 
 export function WorldGlobeMap({
   activeMode,
+  cleanMapMode,
   focusGeographicActivityId,
+  geographicSearchBusy,
+  geographicSearchResult,
+  geographicSearchResultFavorite,
   geographicTimelineEvents,
   mapWorkspaceView,
   markerCount,
   modulePanelOpen,
+  onClearGeographicSearch,
   onFocusGeographicActivityHandled,
+  onMapViewportChange,
   onMapWorkspaceViewChange,
   onOpenCaseActivity,
+  onOpenIpRdap,
+  onReverseGeographicSearch,
+  onToggleGeographicFavorite,
   resetSignal,
+  universalMapCommand,
 }: WorldGlobeMapProps) {
   const {
     activeCase,
@@ -1068,14 +1620,58 @@ export function WorldGlobeMap({
     );
   const reducedMotionRef =
     useRef(false);
+  const basemapStyleRef =
+    useRef<MapBasemapStyle>(
+      'tactical',
+    );
+  const persistMapCameraRef =
+    useRef<() => void>(
+      () => undefined,
+    );
+  const detailedBasemapRetryRef =
+    useRef<() => void>(
+      () => undefined,
+    );
+  const handledUniversalCommandRef =
+    useRef<string | null>(null);
   const [
     rotationEnabled,
     setRotationEnabled,
   ] = useState(false);
-  const [
-    monochromeMode,
-    setMonochromeMode,
-  ] = useState(false);
+  const basemapStyle =
+    mapWorkspaceView.basemapStyle;
+  const monochromeMode =
+    basemapStyle === 'tactical';
+  const setBasemapStyle =
+    useCallback(
+      (style: MapBasemapStyle): void => {
+        onMapWorkspaceViewChange(
+          (current) => ({
+            ...current,
+            basemapStyle: style,
+            monochromeMode:
+              style === 'tactical',
+          }),
+        );
+      },
+      [onMapWorkspaceViewChange],
+    );
+  const toggleMonochromeMode =
+    useCallback((): void => {
+      onMapWorkspaceViewChange(
+        (current) => ({
+          ...current,
+          basemapStyle:
+            current.basemapStyle ===
+              'tactical'
+              ? 'streets-dark'
+              : 'tactical',
+          monochromeMode:
+            current.basemapStyle !==
+            'tactical',
+        }),
+      );
+    }, [onMapWorkspaceViewChange]);
   const [
     coordinatePanelOpen,
     setCoordinatePanelOpen,
@@ -1130,6 +1726,27 @@ export function WorldGlobeMap({
     timelineCameraMoving,
     setTimelineCameraMoving,
   ] = useState(false);
+  const [
+    detailedBasemapStatus,
+    setDetailedBasemapStatus,
+  ] = useState<
+    'available' |
+    'local' |
+    'loading' |
+    'unavailable'
+  >('local');
+  const [
+    measurementPointCount,
+    setMeasurementPointCount,
+  ] = useState(0);
+  const [
+    importedGeoJsonCount,
+    setImportedGeoJsonCount,
+  ] = useState(0);
+  const [
+    comparisonSelectionCount,
+    setComparisonSelectionCount,
+  ] = useState(0);
 
   const activeCaseId =
     activeCase?.id ?? null;
@@ -1149,6 +1766,21 @@ export function WorldGlobeMap({
         geographicTimeline.events,
       );
     }, [geographicTimeline.events]);
+  const persistentIpResults =
+    useMemo(
+      () =>
+        buildPersistentIpResultsFromEvents(
+          geographicTimeline.events,
+        ),
+      [geographicTimeline.events],
+    );
+  const ipIntelligence =
+    useIpGeolocationIntelligence({
+      activeCaseId,
+      addActivity,
+      persistentResults:
+        persistentIpResults,
+    });
   const profileMarkers =
     useMemo(() => {
       const persistentIds =
@@ -1181,12 +1813,236 @@ export function WorldGlobeMap({
     setOperationalHudOpen,
     showAllLayers,
     toggleCategory,
+    toggleIpIntelligence,
     toggleLayerManager,
+    toggleOperationalLayer,
     visibleMarkers,
   } = useMapMarkerLayers(
     profileMarkers,
     mapWorkspaceView,
     onMapWorkspaceViewChange,
+  );
+  const hiddenOperationalLayerSet =
+    useMemo(
+      () => new Set(
+        mapWorkspaceView
+          .hiddenOperationalLayers,
+      ),
+      [
+        mapWorkspaceView
+          .hiddenOperationalLayers,
+      ],
+    );
+  const operationalLayers = useMemo(
+    (): MapOperationalLayerSummary[] => [
+      {
+        id: 'geographic-search',
+        label: 'Busca geográfica',
+        total:
+          geographicSearchResult
+            ? 1
+            : 0,
+        detail: 'resultado ativo',
+      },
+      {
+        id: 'geographic-timeline',
+        label: 'Timeline geográfica',
+        total:
+          geographicTimeline.events.length,
+        detail: 'eventos do case',
+      },
+      {
+        id: 'measurements',
+        label: 'Medições',
+        total: measurementPointCount,
+        detail: 'pontos medidos',
+      },
+      {
+        id: 'imported-geojson',
+        label: 'GeoJSON importado',
+        total: importedGeoJsonCount,
+        detail: 'features transitórias',
+      },
+      {
+        id: 'comparison',
+        label: 'Comparação',
+        total: comparisonSelectionCount,
+        detail: 'locais selecionados',
+      },
+    ],
+    [
+      comparisonSelectionCount,
+      geographicSearchResult,
+      geographicTimeline.events.length,
+      importedGeoJsonCount,
+      measurementPointCount,
+    ],
+  );
+  const visibleIpResults =
+    useMemo(() => {
+      if (
+        !mapWorkspaceView
+          .ipIntelligenceVisible
+      ) {
+        return [];
+      }
+
+      if (
+        mapWorkspaceView
+          .markerColorFilter === 'all'
+      ) {
+        return ipIntelligence.results;
+      }
+
+      return ipIntelligence.results.filter(
+        (result) =>
+          result.color ===
+          mapWorkspaceView
+            .markerColorFilter,
+      );
+    }, [
+      ipIntelligence.results,
+      mapWorkspaceView
+        .ipIntelligenceVisible,
+      mapWorkspaceView.markerColorFilter,
+    ]);
+  const exportableMapData = useMemo(
+    (): FeatureCollection<Point> => {
+      const features: Feature<Point>[] = [
+        ...profileMarkers.map(
+          (marker): Feature<Point> => ({
+            type: 'Feature',
+            properties: {
+              id: marker.id,
+              name: marker.name,
+              kind: 'marker',
+              category: marker.category,
+              color: marker.color,
+              persisted: marker.saved,
+              createdAt: marker.createdAt,
+            },
+            geometry: {
+              type: 'Point',
+              coordinates: [
+                marker.longitude,
+                marker.latitude,
+              ],
+            },
+          }),
+        ),
+        ...ipIntelligence.allResults.map(
+          (result): Feature<Point> => ({
+            type: 'Feature',
+            properties: {
+              id: result.id,
+              kind: 'ip-geolocation',
+              ip: result.ip,
+              precision: 'regional-estimate',
+              provider: result.provider,
+              persisted: result.saved,
+            },
+            geometry: {
+              type: 'Point',
+              coordinates: [
+                result.longitude,
+                result.latitude,
+              ],
+            },
+          }),
+        ),
+      ];
+
+      if (geographicSearchResult) {
+        features.push({
+          type: 'Feature',
+          properties: {
+            id: geographicSearchResult.id,
+            kind: 'geographic-search',
+            name: geographicSearchResult.name,
+            precision: 'approximate',
+            provider:
+              geographicSearchResult.provider,
+          },
+          geometry: {
+            type: 'Point',
+            coordinates: [
+              geographicSearchResult.longitude,
+              geographicSearchResult.latitude,
+            ],
+          },
+        });
+      }
+
+      return {
+        type: 'FeatureCollection',
+        features,
+      };
+    }, [
+      geographicSearchResult,
+      ipIntelligence.allResults,
+      profileMarkers,
+    ],
+  );
+  const comparisonItems = useMemo(
+    (): GeographicComparisonItem[] => [
+      ...profileMarkers.map((marker) => ({
+        id: `marker:${marker.id}`,
+        coordinate: [
+          marker.longitude,
+          marker.latitude,
+        ] as [number, number],
+        label: marker.name,
+        origin: marker.saved
+          ? 'Marcador persistido'
+          : 'Marcador transitório',
+        precision:
+          'Precisão definida pelo usuário',
+        details: marker.category,
+      })),
+      ...ipIntelligence.allResults.map(
+        (result) => ({
+          id: `ip:${result.id}`,
+          coordinate: [
+            result.longitude,
+            result.latitude,
+          ] as [number, number],
+          label: result.ip,
+          origin: result.provider,
+          precision: 'Estimativa regional por IP',
+          details: [
+            result.city,
+            result.region,
+            result.country,
+            result.asn,
+            result.organization,
+          ].filter(Boolean).join(' · ') || null,
+        }),
+      ),
+      ...(geographicSearchResult
+        ? [{
+          id: `search:${geographicSearchResult.id}`,
+          coordinate: [
+            geographicSearchResult.longitude,
+            geographicSearchResult.latitude,
+          ] as [number, number],
+          label: geographicSearchResult.name,
+          origin:
+            geographicSearchResult.provider === 'local'
+              ? 'Coordenada manual'
+              : 'Photon / OpenStreetMap',
+          precision:
+            geographicSearchResult.provider === 'local'
+              ? 'Precisão definida pelo usuário'
+              : 'Localização aproximada',
+          details: geographicSearchResult.label,
+        }]
+        : []),
+    ],
+    [
+      geographicSearchResult,
+      ipIntelligence.allResults,
+      profileMarkers,
+    ],
   );
   const selectedMarker =
     useMemo(
@@ -1438,6 +2294,60 @@ export function WorldGlobeMap({
       [],
     );
 
+  const copyText =
+    useCallback(
+      (
+        text: string,
+        target: string,
+      ): void => {
+        try {
+          const operation =
+            window.zeroHub.clipboard
+            .writeText(text);
+
+          void operation
+            .then(() => {
+              setCopiedTarget(target);
+
+              if (
+                copyFeedbackTimerRef
+                  .current !== null
+              ) {
+                window.clearTimeout(
+                  copyFeedbackTimerRef
+                    .current,
+                );
+              }
+
+              copyFeedbackTimerRef.current =
+                window.setTimeout(() => {
+                  setCopiedTarget(null);
+                  copyFeedbackTimerRef.current =
+                    null;
+                }, COPY_FEEDBACK_MS);
+            })
+            .catch((unknownError) => {
+              setLocatorFeedback({
+                message:
+                  unknownError instanceof Error
+                    ? unknownError.message
+                    : 'Não foi possível copiar o conteúdo.',
+                tone: 'error',
+              });
+            });
+        } catch (unknownError) {
+          setLocatorFeedback({
+            message:
+              unknownError instanceof Error
+                ? unknownError.message
+                : 'Não foi possível copiar o conteúdo.',
+            tone: 'error',
+          });
+        }
+      },
+      [],
+    );
+
   const copyCoordinates =
     useCallback(
       (
@@ -1445,43 +2355,15 @@ export function WorldGlobeMap({
         longitude: number,
         target: string,
       ): void => {
-        try {
-          window.zeroHub.clipboard
-            .writeText(
-              formatCoordinates(
-                latitude,
-                longitude,
-              ),
-            );
-          setCopiedTarget(target);
-
-          if (
-            copyFeedbackTimerRef
-              .current !== null
-          ) {
-            window.clearTimeout(
-              copyFeedbackTimerRef
-                .current,
-            );
-          }
-
-          copyFeedbackTimerRef.current =
-            window.setTimeout(() => {
-              setCopiedTarget(null);
-              copyFeedbackTimerRef.current =
-                null;
-            }, COPY_FEEDBACK_MS);
-        } catch (unknownError) {
-          setLocatorFeedback({
-            message:
-              unknownError instanceof Error
-                ? unknownError.message
-                : 'Não foi possível copiar as coordenadas.',
-            tone: 'error',
-          });
-        }
+        copyText(
+          formatCoordinates(
+            latitude,
+            longitude,
+          ),
+          target,
+        );
       },
-      [],
+      [copyText],
     );
 
   const addTransientMarker =
@@ -1962,6 +2844,33 @@ export function WorldGlobeMap({
 
   startAutoRotationRef.current =
     startAutoRotation;
+  basemapStyleRef.current =
+    basemapStyle;
+  persistMapCameraRef.current = () => {
+    const map = mapRef.current;
+
+    if (
+      !map ||
+      !mapReadyRef.current
+    ) {
+      return;
+    }
+
+    const camera = readMapCamera(map);
+
+    onMapWorkspaceViewChange(
+      (current) =>
+        camerasApproximatelyEqual(
+          current.camera,
+          camera,
+        )
+          ? current
+          : {
+            ...current,
+            camera,
+          },
+    );
+  };
   updateViewportPaddingRef.current =
     updateViewportPadding;
   captureCoordinateRef.current =
@@ -2009,7 +2918,7 @@ export function WorldGlobeMap({
         center: INITIAL_CENTER,
         zoom: INITIAL_ZOOM,
         minZoom: 0.25,
-        maxZoom: 10,
+        maxZoom: 18,
         pitch: 0,
         bearing: 0,
         attributionControl: false,
@@ -2032,19 +2941,107 @@ export function WorldGlobeMap({
         window.requestAnimationFrame(() => {
           viewportFrameRef.current = null;
           updateViewportPaddingRef.current();
-        });
+      });
     };
+
+    let detailedTileObserved = false;
+
+    const emitViewport = () => {
+      const bounds = map.getBounds();
+      const normalizeLongitude = (
+        longitude: number,
+      ) => ((longitude + 180) % 360 + 360) %
+        360 - 180;
+      const viewport = {
+        west: normalizeLongitude(
+          bounds.getWest(),
+        ),
+        south: Math.max(
+          -90,
+          Math.min(90, bounds.getSouth()),
+        ),
+        east: normalizeLongitude(
+          bounds.getEast(),
+        ),
+        north: Math.max(
+          -90,
+          Math.min(90, bounds.getNorth()),
+        ),
+      };
+
+      onMapViewportChange(viewport);
+    };
+
+    const activateDetailedBasemap = (
+      force = false,
+    ): void => {
+      if (!mapReadyRef.current) {
+        return;
+      }
+
+      if (
+        !force &&
+        map.getZoom() <
+          DETAILED_BASEMAP_MIN_ZOOM
+      ) {
+        return;
+      }
+
+      if (
+        map.getSource(
+          'detailed-basemap',
+        ) &&
+        !force
+      ) {
+        return;
+      }
+
+      try {
+        if (force) {
+          removeDetailedBasemap(map);
+        }
+
+        detailedTileObserved = false;
+        setDetailedBasemapStatus(
+          'loading',
+        );
+        addDetailedBasemap(map);
+        applyDetailedBasemapColors(
+          map,
+          basemapStyleRef.current,
+        );
+      } catch (unknownError) {
+        console.warn(
+          'Falha ao ativar o mapa detalhado.',
+          unknownError,
+        );
+        setDetailedBasemapStatus(
+          'unavailable',
+        );
+      }
+    };
+
+    detailedBasemapRetryRef.current =
+      () => {
+        activateDetailedBasemap(true);
+      };
 
     const handleReady = () => {
       map.setProjection({
         type: 'globe',
       });
+      updateMarkerVisualScale(map);
       mapReadyRef.current = true;
       setMapReady(true);
       scheduleViewportUpdate();
+      emitViewport();
+      activateDetailedBasemap();
     };
 
     const handleMoveEnd = () => {
+      emitViewport();
+      persistMapCameraRef.current();
+
       if (
         rotationResumeFrameRef.current !==
         null
@@ -2060,6 +3057,88 @@ export function WorldGlobeMap({
             null;
           startAutoRotationRef.current();
         });
+    };
+
+    const handleSourceData = (
+      event: {
+        isSourceLoaded?: boolean;
+        sourceId?: string;
+        tile?: unknown;
+      },
+    ) => {
+      if (
+        event.sourceId ===
+          'detailed-basemap'
+      ) {
+        detailedTileObserved =
+          detailedTileObserved ||
+          Boolean(event.tile);
+
+        if (
+          !event.isSourceLoaded ||
+          !detailedTileObserved
+        ) {
+          return;
+        }
+
+        setDetailedBasemapStatus(
+          'available',
+        );
+      }
+    };
+    const handleIdle = () => {
+      if (
+        !map.getSource(
+          'detailed-basemap',
+        ) ||
+        map.getZoom() <
+          DETAILED_BASEMAP_MIN_ZOOM ||
+        !map.isSourceLoaded(
+          'detailed-basemap',
+        ) ||
+        !map.areTilesLoaded()
+      ) {
+        return;
+      }
+
+      setDetailedBasemapStatus(
+        'available',
+      );
+    };
+    const handleMapError = (
+      event: {
+        error?: Error;
+        sourceId?: string;
+      },
+    ) => {
+      const message =
+        event.error?.message ?? '';
+
+      if (
+        event.sourceId ===
+          'detailed-basemap' ||
+        message.includes(
+          'tiles.openfreemap.org',
+        ) ||
+        message.includes(
+          'detailed-basemap',
+        )
+      ) {
+        setDetailedBasemapStatus(
+          'unavailable',
+        );
+        return;
+      }
+
+      console.error(
+        'Falha inesperada ao carregar o mapa.',
+        event.error,
+      );
+    };
+
+    const handleZoom = () => {
+      updateMarkerVisualScale(map);
+      activateDetailedBasemap();
     };
 
     const handleMapClick = (
@@ -2091,6 +3170,10 @@ export function WorldGlobeMap({
     map.on('load', handleReady);
     map.on('click', handleMapClick);
     map.on('moveend', handleMoveEnd);
+    map.on('zoom', handleZoom);
+    map.on('sourcedata', handleSourceData);
+    map.on('idle', handleIdle);
+    map.on('error', handleMapError);
 
     const resizeObserver =
       new ResizeObserver(() => {
@@ -2148,11 +3231,202 @@ export function WorldGlobeMap({
       map.off('load', handleReady);
       map.off('click', handleMapClick);
       map.off('moveend', handleMoveEnd);
+      map.off('zoom', handleZoom);
+      map.off(
+        'sourcedata',
+        handleSourceData,
+      );
+      map.off('idle', handleIdle);
+      map.off('error', handleMapError);
+      detailedBasemapRetryRef.current =
+        () => undefined;
       map.remove();
       mapReadyRef.current = false;
       mapRef.current = null;
     };
   }, []);
+
+  useEffect(() => {
+    const map = mapRef.current;
+
+    if (
+      !map ||
+      !mapReady ||
+      camerasApproximatelyEqual(
+        readMapCamera(map),
+        mapWorkspaceView.camera,
+      )
+    ) {
+      return;
+    }
+
+    map.stop();
+    map.jumpTo({
+      bearing:
+        mapWorkspaceView.camera.bearing,
+      center: [
+        mapWorkspaceView.camera.longitude,
+        mapWorkspaceView.camera.latitude,
+      ],
+      pitch:
+        mapWorkspaceView.camera.pitch,
+      zoom: mapWorkspaceView.camera.zoom,
+    });
+  }, [
+    mapReady,
+    mapWorkspaceView.camera,
+  ]);
+
+  useEffect(() => {
+    if (
+      !universalMapCommand ||
+      handledUniversalCommandRef.current ===
+        universalMapCommand.id
+    ) {
+      return;
+    }
+
+    handledUniversalCommandRef.current =
+      universalMapCommand.id;
+
+    switch (universalMapCommand.kind) {
+      case 'lookup-ip':
+        if (universalMapCommand.value) {
+          ipIntelligence.lookupIp(
+            universalMapCommand.value,
+          );
+        }
+        break;
+
+      case 'open-ip':
+        ipIntelligence.openPanel();
+        break;
+
+      case 'toggle-monochrome':
+        toggleMonochromeMode();
+        break;
+
+      case 'show-markers':
+        showAllLayers();
+        break;
+
+      case 'copy-center': {
+        const center = mapRef.current
+          ?.getCenter();
+        if (center) {
+          copyCoordinates(
+            center.lat,
+            center.lng,
+            'map-center',
+          );
+        }
+        break;
+      }
+
+      case 'mark-center': {
+        const center = mapRef.current
+          ?.getCenter();
+        if (center) {
+          addTransientMarker(
+            center.lat,
+            center.lng,
+            'typed',
+          );
+        }
+        break;
+      }
+
+      case 'clear-transient':
+        setTransientMarkers([]);
+        setSelectedMarkerId(null);
+        setPopoverMarkerId(null);
+        onClearGeographicSearch();
+        for (
+          const result of
+          ipIntelligence.allResults
+        ) {
+          if (!result.saved) {
+            ipIntelligence
+              .removeTransientResult(
+                result.id,
+              );
+          }
+        }
+        break;
+    }
+  }, [
+    addTransientMarker,
+    copyCoordinates,
+    ipIntelligence,
+    onClearGeographicSearch,
+    showAllLayers,
+    toggleMonochromeMode,
+    universalMapCommand,
+  ]);
+
+  const centerGeographicSearchResult =
+    useCallback(() => {
+      const map = mapRef.current;
+      const result =
+        geographicSearchResult;
+
+      if (
+        !map ||
+        !mapReadyRef.current ||
+        !result
+      ) {
+        return;
+      }
+
+      const bounds = result.boundingBox;
+
+      if (
+        bounds &&
+        bounds.west <= bounds.east
+      ) {
+        map.fitBounds(
+          [
+            [bounds.west, bounds.south],
+            [bounds.east, bounds.north],
+          ],
+          {
+            padding: 90,
+            maxZoom: 16,
+            duration:
+              reducedMotionRef.current
+                ? 0
+                : 700,
+          },
+        );
+        return;
+      }
+
+      map.flyTo({
+        center: [
+          result.longitude,
+          result.latitude,
+        ],
+        zoom: Math.max(
+          map.getZoom(),
+          result.type === 'country'
+            ? 4
+            : result.type === 'region'
+              ? 6
+              : result.type === 'city'
+                ? 10
+                : 15,
+        ),
+        duration:
+          reducedMotionRef.current
+            ? 0
+            : 700,
+        essential: false,
+      });
+    }, [geographicSearchResult]);
+
+  useEffect(() => {
+    centerGeographicSearchResult();
+  }, [centerGeographicSearchResult]);
 
   useEffect(() => {
     setSelectedMarkerId(null);
@@ -2308,6 +3582,25 @@ export function WorldGlobeMap({
       return undefined;
     }
 
+    const resizeFrame =
+      window.requestAnimationFrame(
+        () => {
+          mapRef.current?.resize();
+        },
+      );
+
+    return () => {
+      window.cancelAnimationFrame(
+        resizeFrame,
+      );
+    };
+  }, [cleanMapMode, mapReady]);
+
+  useEffect(() => {
+    if (!mapReady) {
+      return undefined;
+    }
+
     const updateFrame =
       window.requestAnimationFrame(
         updateViewportPadding,
@@ -2336,15 +3629,21 @@ export function WorldGlobeMap({
     map.setPaintProperty(
       'background',
       'background-color',
-      monochromeMode
+      basemapStyle === 'tactical'
         ? '#000000'
+        : basemapStyle ===
+          'streets-light'
+        ? '#dbe3e7'
         : '#030303',
     );
     map.setPaintProperty(
       'countries-fill',
       'fill-color',
-      monochromeMode
+      basemapStyle === 'tactical'
         ? '#0f0f0f'
+        : basemapStyle ===
+          'streets-light'
+        ? '#e7e3da'
         : [
           'interpolate',
           ['linear'],
@@ -2358,28 +3657,37 @@ export function WorldGlobeMap({
     map.setPaintProperty(
       'countries-border',
       'line-color',
-      monochromeMode
+      basemapStyle === 'tactical'
         ? 'rgba(255,255,255,0.24)'
+        : basemapStyle ===
+          'streets-light'
+        ? 'rgba(49,58,63,0.32)'
         : 'rgba(255,255,255,0.16)',
     );
     map.setPaintProperty(
       'admin1-border',
       'line-color',
-      monochromeMode
+      basemapStyle === 'tactical'
         ? 'rgba(255,255,255,0.14)'
+        : basemapStyle ===
+          'streets-light'
+        ? 'rgba(49,58,63,0.2)'
         : 'rgba(255,255,255,0.08)',
     );
     map.setPaintProperty(
       'city-points',
       'circle-color',
-      monochromeMode
+      basemapStyle === 'tactical'
         ? 'rgba(255,255,255,0.82)'
+        : basemapStyle ===
+          'streets-light'
+        ? 'rgba(44,54,59,0.74)'
         : 'rgba(255,255,255,0.72)',
     );
     map.setPaintProperty(
       'map-labels',
       'text-color',
-      monochromeMode
+      basemapStyle === 'tactical'
         ? [
           'match',
           ['get', 'kind'],
@@ -2388,6 +3696,17 @@ export function WorldGlobeMap({
           'admin1',
           'rgba(255,255,255,0.62)',
           'rgba(255,255,255,0.74)',
+        ]
+        : basemapStyle ===
+          'streets-light'
+        ? [
+          'match',
+          ['get', 'kind'],
+          'country',
+          'rgba(28,35,39,0.82)',
+          'admin1',
+          'rgba(45,53,57,0.68)',
+          'rgba(52,60,64,0.74)',
         ]
         : [
           'match',
@@ -2399,14 +3718,21 @@ export function WorldGlobeMap({
           'rgba(255,255,255,0.62)',
         ],
     );
+    applyDetailedBasemapColors(
+      map,
+      basemapStyle,
+    );
     map.setPaintProperty(
       'map-labels',
       'text-halo-color',
-      monochromeMode
+      basemapStyle ===
+        'streets-light'
+        ? 'rgba(255,255,255,0.92)'
+        : monochromeMode
         ? 'rgba(0,0,0,0.94)'
         : 'rgba(0,0,0,0.82)',
     );
-  }, [monochromeMode]);
+  }, [basemapStyle, monochromeMode]);
 
   useEffect(() => {
     recenterMap();
@@ -2499,11 +3825,122 @@ export function WorldGlobeMap({
       [onOpenCaseActivity],
     );
 
+  const focusIpResult = useCallback(
+    (result: IpGeolocationResult) => {
+      centerCoordinates(
+        result.latitude,
+        result.longitude,
+      );
+    },
+    [centerCoordinates],
+  );
+
+  const copyIpResult = useCallback(
+    (result: IpGeolocationResult) => {
+      copyText(
+        result.ip,
+        `ip:${result.id}`,
+      );
+    },
+    [copyText],
+  );
+
+  const copyIpResultCoordinates =
+    useCallback(
+      (result: IpGeolocationResult) => {
+        copyCoordinates(
+          result.latitude,
+          result.longitude,
+          `ip-coordinates:${result.id}`,
+        );
+      },
+      [copyCoordinates],
+    );
+
+  const copyIpResultSummary =
+    useCallback(
+      (result: IpGeolocationResult) => {
+        copyText(
+          formatIpGeolocationSummary(
+            result,
+          ),
+          `ip-summary:${result.id}`,
+        );
+      },
+      [copyText],
+    );
+
+  const openIpResultRdap = useCallback(
+    (result: IpGeolocationResult) => {
+      onOpenIpRdap(result.ip);
+    },
+    [onOpenIpRdap],
+  );
+
+  const copyGeographicSearchResult =
+    useCallback((): void => {
+      if (!geographicSearchResult) {
+        return;
+      }
+
+      copyCoordinates(
+        geographicSearchResult.latitude,
+        geographicSearchResult.longitude,
+        `geographic-search:${geographicSearchResult.id}`,
+      );
+    }, [
+      copyCoordinates,
+      geographicSearchResult,
+    ]);
+
+  const saveGeographicSearchResult =
+    useCallback((): void => {
+      if (!geographicSearchResult) {
+        return;
+      }
+
+      const marker = addTransientMarker(
+        geographicSearchResult.latitude,
+        geographicSearchResult.longitude,
+        'typed',
+      );
+      updateTransientMarker(marker.id, {
+        name: geographicSearchResult.name,
+      });
+    }, [
+      addTransientMarker,
+      geographicSearchResult,
+      updateTransientMarker,
+    ]);
+
+  const reverseGeographicSearchResult =
+    useCallback((): void => {
+      if (!geographicSearchResult) {
+        return;
+      }
+
+      void onReverseGeographicSearch(
+        geographicSearchResult.latitude,
+        geographicSearchResult.longitude,
+      );
+    }, [
+      geographicSearchResult,
+      onReverseGeographicSearch,
+    ]);
+
   return (
     <div
       className={`worldGlobeMap ${
         monochromeMode
           ? 'isMonochrome'
+          : ''
+      } ${
+        basemapStyle === 'streets-light'
+          ? 'isStreetsLight'
+          : ''
+      } ${
+        cleanMapMode
+          ? 'isCleanMapMode'
           : ''
       }`}
     >
@@ -2512,9 +3949,48 @@ export function WorldGlobeMap({
         ref={containerRef}
       />
 
+      <div
+        className="detailedBasemapAttribution"
+        data-state={detailedBasemapStatus}
+        role="status"
+        aria-live="polite"
+      >
+        {detailedBasemapStatus ===
+          'available' &&
+          DETAILED_BASEMAP_PROVIDER
+            .attribution}
+        {detailedBasemapStatus ===
+          'local' &&
+          'Mapa local Natural Earth · detalhes online a partir do zoom urbano'}
+        {detailedBasemapStatus ===
+          'loading' &&
+          'Carregando detalhes online…'}
+        {detailedBasemapStatus ===
+          'unavailable' && (
+          <>
+            <span>
+              Detalhes online indisponíveis · fallback local Natural Earth
+            </span>
+            <button
+              type="button"
+              onClick={() => {
+                detailedBasemapRetryRef
+                  .current();
+              }}
+            >
+              Tentar novamente
+            </button>
+          </>
+        )}
+      </div>
+
       <GeographicTimelineMapLayer
         event={
-          geographicTimeline.activeEvent
+          hiddenOperationalLayerSet.has(
+            'geographic-timeline',
+          )
+            ? null
+            : geographicTimeline.activeEvent
         }
         map={
           mapReady
@@ -2530,6 +4006,52 @@ export function WorldGlobeMap({
         }
       />
 
+      <IpGeolocationMapLayer
+        connectResults={
+          ipIntelligence.connectResults
+        }
+        map={
+          mapReady
+            ? mapRef.current
+            : null
+        }
+        results={visibleIpResults}
+        selectedResultId={
+          ipIntelligence
+            .selectedResult?.id ?? null
+        }
+        onSelect={
+          ipIntelligence.focusResult
+        }
+        onError={
+          ipIntelligence.reportMapError
+        }
+      />
+
+      <GeographicSearchMapLayer
+        map={
+          mapReady
+            ? mapRef.current
+            : null
+        }
+        result={
+          hiddenOperationalLayerSet.has(
+            'geographic-search',
+          )
+            ? null
+            : geographicSearchResult
+        }
+        onSelect={
+          centerGeographicSearchResult
+        }
+      />
+
+      <div
+        className="worldGlobeHud"
+        aria-hidden={cleanMapMode}
+        inert={cleanMapMode}
+      >
+
       {!mapReady && (
         <div className="worldMapEmptyState">
           Inicializando globo local...
@@ -2538,6 +4060,8 @@ export function WorldGlobeMap({
 
       {markerCount === 0 &&
         profileMarkers.length === 0 &&
+          ipIntelligence.allResults.length ===
+          0 &&
         mapReady && (
           <div className="worldMapEmptyState">
             Nenhuma coordenada cadastrada nos cases.
@@ -2568,8 +4092,14 @@ export function WorldGlobeMap({
         timelinePlayback={
           timelineHudPlayback
         }
+        totalIpResults={
+          ipIntelligence.allResults.length
+        }
         totalMarkers={
           profileMarkers.length
+        }
+        visibleIpResults={
+          visibleIpResults.length
         }
         visibleMarkers={
           visibleMarkers.length
@@ -2627,6 +4157,122 @@ export function WorldGlobeMap({
         }
       />
 
+      <GeographicSearchResultPanel
+        busy={geographicSearchBusy}
+        copied={
+          geographicSearchResult !== null &&
+          copiedTarget ===
+            `geographic-search:${geographicSearchResult.id}`
+        }
+        favorite={
+          geographicSearchResultFavorite
+        }
+        result={geographicSearchResult}
+        onCenter={
+          centerGeographicSearchResult
+        }
+        onClear={onClearGeographicSearch}
+        onCopy={
+          copyGeographicSearchResult
+        }
+        onReverse={
+          reverseGeographicSearchResult
+        }
+        onSaveMarker={
+          saveGeographicSearchResult
+        }
+        onToggleFavorite={
+          onToggleGeographicFavorite
+        }
+      />
+
+      <MapMeasurementTools
+        activeCaseName={activeCase?.name ?? null}
+        map={
+          mapReady
+            ? mapRef.current
+            : null
+        }
+        scopeId={
+          activeCaseId ?? 'no-case'
+        }
+        visible={
+          !hiddenOperationalLayerSet.has(
+            'measurements',
+          )
+        }
+        onCountChange={
+          setMeasurementPointCount
+        }
+        onSaveToCase={activeCase
+          ? async (data, mode, summary) => {
+            await addActivity({
+              caseId: activeCase.id,
+              moduleId: 'map-workspace',
+              action: 'map-measurement-saved',
+              title: `Medição geográfica: ${summary}`,
+              status: 'success',
+              input: { mode },
+              output: data,
+            });
+          }
+          : undefined}
+      />
+
+      <MapGeoJsonTools
+        activeCaseName={activeCase?.name ?? null}
+        exportData={exportableMapData}
+        map={
+          mapReady
+            ? mapRef.current
+            : null
+        }
+        scopeId={
+          activeCaseId ?? 'no-case'
+        }
+        visible={
+          !hiddenOperationalLayerSet.has(
+            'imported-geojson',
+          )
+        }
+        onCountChange={
+          setImportedGeoJsonCount
+        }
+        onSaveToCase={activeCase
+          ? async (data) => {
+            await addActivity({
+              caseId: activeCase.id,
+              moduleId: 'map-workspace',
+              action: 'map-geojson-import-saved',
+              title: `GeoJSON registrado: ${data.features.length} feature(s)`,
+              status: 'success',
+              output: data,
+            });
+          }
+          : undefined}
+      />
+
+      <MapComparisonPanel
+        items={comparisonItems}
+        map={
+          mapReady
+            ? mapRef.current
+            : null
+        }
+        scopeId={
+          activeCaseId ?? 'no-case'
+        }
+        visible={
+          !hiddenOperationalLayerSet.has(
+            'comparison',
+          )
+        }
+        onCountChange={
+          setComparisonSelectionCount
+        }
+      />
+      </div>
+
       {mapReady &&
         popoverMarker &&
         popoverMarkerView &&
@@ -2675,8 +4321,92 @@ export function WorldGlobeMap({
           />
         )}
 
-      <div className="worldGlobeTools">
+      <div
+        className="worldGlobeTools"
+        aria-hidden={cleanMapMode}
+        inert={cleanMapMode}
+      >
         <div className="worldGlobePanels">
+          <IpGeolocationPanel
+            activeCaseName={
+              activeCase?.name ?? null
+            }
+            allResults={
+              ipIntelligence.allResults
+            }
+            busy={ipIntelligence.busy}
+            caseBusy={
+              caseLoading ||
+              caseMutating
+            }
+            connectResults={
+              ipIntelligence.connectResults
+            }
+            copiedTarget={copiedTarget}
+            feedback={ipIntelligence.feedback}
+            history={ipIntelligence.history}
+            input={ipIntelligence.input}
+            open={ipIntelligence.open}
+            publicFamilyStatuses={
+              ipIntelligence
+                .publicFamilyStatuses
+            }
+            results={ipIntelligence.results}
+            savingResultId={
+              ipIntelligence.savingResultId
+            }
+            selectedResult={
+              ipIntelligence.selectedResult
+            }
+            versionFilter={
+              ipIntelligence.versionFilter
+            }
+            onCancel={ipIntelligence.cancel}
+            onClear={ipIntelligence.clear}
+            onClose={ipIntelligence.close}
+            onColorChange={
+              ipIntelligence.setColor
+            }
+            onConnectResultsChange={
+              ipIntelligence
+                .setConnectResults
+            }
+            onCopyCoordinates={
+              copyIpResultCoordinates
+            }
+            onCopyIp={copyIpResult}
+            onCopySummary={
+              copyIpResultSummary
+            }
+            onFocus={focusIpResult}
+            onHistorySelect={
+              ipIntelligence.focusResult
+            }
+            onInputChange={
+              ipIntelligence.setInput
+            }
+            onLookup={ipIntelligence.lookup}
+            onLookupPublicIp={
+              ipIntelligence.lookupPublicIp
+            }
+            onOpenRdap={openIpResultRdap}
+            onRemoveHistory={
+              ipIntelligence.removeHistory
+            }
+            onRemoveResult={
+              ipIntelligence
+                .removeTransientResult
+            }
+            onResultSelect={
+              ipIntelligence.focusResult
+            }
+            onSave={ipIntelligence.saveResult}
+            onVersionFilterChange={
+              ipIntelligence
+                .setVersionFilter
+            }
+          />
+
           <WorkspaceMapMarkerPanel
             activeCaseName={
               activeCase?.name ?? null
@@ -2768,7 +4498,21 @@ export function WorldGlobeMap({
               mapWorkspaceView
                 .hiddenMarkerCategories
             }
+            hiddenOperationalLayers={
+              mapWorkspaceView
+                .hiddenOperationalLayers
+            }
+            ipIntelligenceVisible={
+              mapWorkspaceView
+                .ipIntelligenceVisible
+            }
+            ipResults={
+              ipIntelligence.allResults
+            }
             markers={profileMarkers}
+            operationalLayers={
+              operationalLayers
+            }
             open={
               mapWorkspaceView
                 .layerManagerOpen
@@ -2787,6 +4531,12 @@ export function WorldGlobeMap({
             }
             onToggleCategory={
               toggleCategory
+            }
+            onToggleIpIntelligence={
+              toggleIpIntelligence
+            }
+            onToggleOperationalLayer={
+              toggleOperationalLayer
             }
           />
         </div>
@@ -2873,14 +4623,60 @@ export function WorldGlobeMap({
                 : 'Ativar preto e branco'
             }
             aria-pressed={monochromeMode}
-            onClick={() => {
-              setMonochromeMode(
-                (enabled) =>
-                  !enabled,
-              );
-            }}
+            onClick={toggleMonochromeMode}
           >
             P/B
+          </button>
+
+          <label
+            className="mapBasemapStyleControl"
+            title="Layout do mapa"
+          >
+            <span className="srOnly">
+              Layout do mapa
+            </span>
+            <select
+              aria-label="Layout do mapa"
+              value={basemapStyle}
+              onChange={(event) => {
+                setBasemapStyle(
+                  event.currentTarget
+                    .value as MapBasemapStyle,
+                );
+              }}
+            >
+              <option value="tactical">
+                Tactical
+              </option>
+              <option value="streets-dark">
+                Streets Dark
+              </option>
+              <option value="streets-light">
+                Streets Light
+              </option>
+            </select>
+          </label>
+
+          <button
+            className="ipGeolocationToggle"
+            type="button"
+            aria-controls="ip-geolocation-panel"
+            aria-expanded={
+              ipIntelligence.open
+            }
+            aria-label={
+              ipIntelligence.open
+                ? 'Minimizar IP Intelligence'
+                : 'Abrir IP Intelligence'
+            }
+            title="IP Intelligence"
+            onClick={
+              ipIntelligence.open
+                ? ipIntelligence.close
+                : ipIntelligence.openPanel
+            }
+          >
+            <span aria-hidden="true">IP</span>
           </button>
 
           <button

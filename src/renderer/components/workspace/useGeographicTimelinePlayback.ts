@@ -7,7 +7,7 @@ import {
 
 import type {
   GeographicTimelineEvent,
-} from './map-marker-activities';
+} from './geographic-timeline-activities';
 
 export const GEOGRAPHIC_PLAYBACK_SPEEDS = [
   0.5,

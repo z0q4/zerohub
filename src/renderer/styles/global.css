@@ -26,8 +26,8 @@
   --text: #f5f7fb;
   --text-secondary: #858e9f;
   --text-muted: #626b7d;
-  --primary: #6677ff;
-  --primary-soft: #1b2347;
+  --primary: #ff0000;
+  --primary-soft: #3a0000;
   --success: #51dd87;
   --danger: #ff6778;
 }
@@ -74,7 +74,7 @@ textarea:focus-visible {
   background:
     radial-gradient(
       circle at 80% 0%,
-      rgb(72 88 210 / 13%),
+      rgb(255 0 0 / 11%),
       transparent 32%
     ),
     var(--background);
@@ -93,18 +93,18 @@ textarea:focus-visible {
 }
 
 .brandLogo {
-  border: 1px solid #6574ff;
+  border: 1px solid #ff3030;
   border-radius: 10px;
 
   background:
     linear-gradient(
       145deg,
-      #5365ff,
-      #29359f
+      #ff0000,
+      #940000
     );
 
   box-shadow:
-    0 7px 24px rgb(61 78 214 / 25%);
+    0 7px 24px rgb(255 0 0 / 30%);
 
   font-size: 17px;
   font-weight: 800;
@@ -230,7 +230,7 @@ textarea:focus-visible {
 
 .eyebrow,
 .toolCategory {
-  color: #7485ff;
+  color: var(--primary);
   font-size: 10px;
   font-weight: 800;
   letter-spacing: 0.16em;
@@ -333,16 +333,16 @@ textarea:focus-visible {
 }
 
 .moduleAvailable {
-  border-color: rgb(102 119 255 / 25%);
+  border-color: rgb(255 0 0 / 28%);
 }
 
 .moduleIcon {
   width: 41px;
   height: 41px;
 
-  border: 1px solid #3c4983;
+  border: 1px solid rgb(255 0 0 / 38%);
 
-  color: #b5beff;
+  color: #ff8a8a;
   background: var(--primary-soft);
 
   font-size: 11px;
@@ -393,13 +393,13 @@ textarea:focus-visible {
 }
 
 .moduleButton:not(:disabled) {
-  border-color: rgb(102 119 255 / 35%);
-  color: #c3caff;
-  background: rgb(102 119 255 / 10%);
+  border-color: rgb(255 0 0 / 38%);
+  color: #ff9b9b;
+  background: rgb(255 0 0 / 11%);
 }
 
 .moduleButton:not(:disabled):hover {
-  background: rgb(102 119 255 / 18%);
+  background: rgb(255 0 0 / 19%);
 }
 
 .emptyState {
@@ -645,17 +645,17 @@ textarea:focus-visible {
 }
 
 .primaryButton {
-  border-color: #6171f1;
+  border-color: #ff3030;
   color: #ffffff;
   background:
     linear-gradient(
       145deg,
-      #6173ff,
-      #4051d6
+      #ff0000,
+      #940000
     );
 
   box-shadow:
-    0 7px 20px rgb(65 82 218 / 20%);
+    0 7px 20px rgb(255 0 0 / 25%);
 }
 
 .primaryButton:hover {
@@ -741,8 +741,8 @@ textarea:focus-visible {
 }
 
 .toolSelectorButton.active {
-  border-color: rgb(102 119 255 / 30%);
-  background: rgb(102 119 255 / 9%);
+  border-color: rgb(255 0 0 / 33%);
+  background: rgb(255 0 0 / 10%);
 }
 
 .toolSelectorIcon {
@@ -752,10 +752,10 @@ textarea:focus-visible {
   flex: 0 0 auto;
   place-items: center;
 
-  border: 1px solid #3c4983;
+  border: 1px solid rgb(255 0 0 / 38%);
   border-radius: 8px;
 
-  color: #b5beff;
+  color: #ff8a8a;
   background: var(--primary-soft);
 
   font-family: monospace;
@@ -1492,17 +1492,18 @@ textarea:focus-visible {
 /* === ZEROHUB SETTINGS === */
 
 :root {
-  --primary-deep: #29359f;
+  --primary-deep: #940000;
   --primary-glow:
-    rgb(61 78 214 / 25%);
+    rgb(255 0 0 / 34%);
 }
 
+:root[data-accent="red"],
 :root[data-accent="blue"] {
-  --primary: #6677ff;
-  --primary-soft: #1b2347;
-  --primary-deep: #29359f;
+  --primary: #ff0000;
+  --primary-soft: #3a0000;
+  --primary-deep: #940000;
   --primary-glow:
-    rgb(61 78 214 / 25%);
+    rgb(255 0 0 / 34%);
 }
 
 :root[data-accent="violet"] {
@@ -1692,6 +1693,55 @@ textarea:focus-visible {
   font-size: 11px;
 }
 
+.settingsPrivacySection {
+  position: relative;
+  overflow: hidden;
+}
+
+.settingsPrivacySection::before {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 3px;
+  height: 100%;
+  background:
+    linear-gradient(
+      180deg,
+      var(--primary),
+      transparent 86%
+    );
+  content: "";
+}
+
+.settingsPrivacyBadge {
+  padding: 5px 8px;
+  border: 1px solid
+    color-mix(
+      in srgb,
+      var(--primary) 34%,
+      var(--border)
+    );
+  border-radius: 999px;
+  color: var(--text-secondary);
+  background: var(--primary-soft);
+  font-size: 8px;
+  white-space: nowrap;
+}
+
+.settingsPrivacyActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.settingsPrivacyNote {
+  margin: 10px 0 0;
+  color: var(--text-muted);
+  font-size: 8px;
+  line-height: 1.55;
+}
+
 .accentGrid {
   display: grid;
 
@@ -1830,12 +1880,13 @@ textarea:focus-visible {
     );
 }
 
+.accent-red,
 .accent-blue {
   background:
     linear-gradient(
       145deg,
-      #6677ff,
-      #29359f
+      #ff0000,
+      #940000
     );
 }
 

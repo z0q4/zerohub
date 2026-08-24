@@ -3,8 +3,24 @@ import {
 } from './main/ipc/cases.ipc';
 
 import {
+  registerAuthIpcHandlers,
+} from './main/ipc/auth.ipc';
+
+import {
+  registerClipboardIpcHandlers,
+} from './main/ipc/clipboard.ipc';
+
+import {
   registerIocIntelligenceIpcHandlers,
 } from './main/ipc/ioc-intelligence.ipc';
+
+import {
+  registerIpGeolocationIpcHandlers,
+} from './main/ipc/ip-geolocation.ipc';
+
+import {
+  registerGeographicSearchIpcHandlers,
+} from './main/ipc/geographic-search.ipc';
 
 import {
   registerDeveloperToolsIpcHandlers,
@@ -41,6 +57,10 @@ import {
 import {
   app,
   BrowserWindow,
+  Menu,
+  nativeImage,
+  session,
+  Tray,
 } from 'electron';
 
 import path from 'node:path';
@@ -91,8 +111,162 @@ import {
   clearSessionOnExitIfDisabled,
 } from './main/services/session.service';
 
+import {
+  lockAuth,
+} from './main/services/auth.service';
+
 if (started) {
   app.quit();
+}
+
+const PRODUCTION_CONTENT_SECURITY_POLICY = [
+  "default-src 'self'",
+  "script-src 'self'",
+  "style-src 'self' 'unsafe-inline'",
+  "img-src 'self' data: blob:",
+  "font-src 'self' data:",
+  "connect-src 'self' https://tiles.openfreemap.org",
+  "worker-src 'self' blob:",
+  "object-src 'none'",
+  "base-uri 'self'",
+  "frame-ancestors 'none'",
+].join('; ');
+
+let applicationExitRequested =
+  false;
+
+let tray: Tray | null = null;
+
+async function lockWindow(
+  mainWindow: BrowserWindow,
+): Promise<void> {
+  const status = await lockAuth();
+
+  if (
+    !mainWindow
+      .webContents
+      .isDestroyed()
+  ) {
+    mainWindow
+      .webContents
+      .send(
+        'auth:locked',
+        status,
+      );
+  }
+}
+
+function lockWindowSafely(
+  mainWindow: BrowserWindow,
+): void {
+  void lockWindow(mainWindow)
+    .catch((error) => {
+      console.error(
+        'Não foi possível bloquear a sessão local.',
+        error,
+      );
+    });
+}
+
+function createApplicationTray(
+  mainWindow: BrowserWindow,
+): void {
+  if (tray) {
+    return;
+  }
+
+  const iconPath = path.join(
+    app.getAppPath(),
+    'resources',
+    'icons',
+    'zerohub.png',
+  );
+  const icon = nativeImage
+    .createFromPath(iconPath)
+    .resize({
+      width: 18,
+      height: 18,
+    });
+
+  tray = new Tray(icon);
+  tray.setToolTip(
+    'ZeroHub — sessão local',
+  );
+  tray.setContextMenu(
+    Menu.buildFromTemplate([
+      {
+        label: 'Abrir ZeroHub',
+        click: () => {
+          if (
+            mainWindow.isMinimized()
+          ) {
+            mainWindow.restore();
+          }
+
+          mainWindow.show();
+          mainWindow.focus();
+        },
+      },
+      {
+        label: 'Bloquear',
+        click: () => {
+          lockWindowSafely(
+            mainWindow,
+          );
+        },
+      },
+      {
+        type: 'separator',
+      },
+      {
+        label: 'Sair',
+        click: () => {
+          applicationExitRequested =
+            true;
+          app.quit();
+        },
+      },
+    ]),
+  );
+  tray.on('click', () => {
+    if (mainWindow.isMinimized()) {
+      mainWindow.restore();
+    }
+
+    mainWindow.show();
+    mainWindow.focus();
+  });
+}
+
+function configureProductionCsp(): void {
+  if (MAIN_WINDOW_VITE_DEV_SERVER_URL) {
+    return;
+  }
+
+  session.defaultSession.webRequest
+    .onHeadersReceived(
+      (details, callback) => {
+        if (
+          details.resourceType !==
+            'mainFrame'
+        ) {
+          callback({
+            responseHeaders:
+              details.responseHeaders,
+          });
+          return;
+        }
+
+        callback({
+          responseHeaders: {
+            ...details.responseHeaders,
+            'Content-Security-Policy': [
+              PRODUCTION_CONTENT_SECURITY_POLICY,
+            ],
+          },
+        });
+      },
+    );
 }
 
 function createWindow(): void {
@@ -125,6 +299,54 @@ function createWindow(): void {
     },
   );
 
+  createApplicationTray(
+    mainWindow,
+  );
+
+  mainWindow.on(
+    'minimize',
+    () => {
+      mainWindow.hide();
+      lockWindowSafely(
+        mainWindow,
+      );
+    },
+  );
+
+  mainWindow.on(
+    'close',
+    (event) => {
+      if (applicationExitRequested) {
+        return;
+      }
+
+      event.preventDefault();
+      mainWindow.hide();
+      lockWindowSafely(
+        mainWindow,
+      );
+    },
+  );
+
+  mainWindow.webContents.on(
+    'before-input-event',
+    (event, input) => {
+      if (
+        input.type !== 'keyDown' ||
+        input.key !== 'F1' ||
+        input.isAutoRepeat
+      ) {
+        return;
+      }
+
+      event.preventDefault();
+
+      lockWindowSafely(
+        mainWindow,
+      );
+    },
+  );
+
   if (
     MAIN_WINDOW_VITE_DEV_SERVER_URL
   ) {
@@ -141,7 +363,12 @@ function createWindow(): void {
   }
 }
 app.whenReady().then(() => {
+  configureProductionCsp();
+  registerAuthIpcHandlers();
+  registerClipboardIpcHandlers();
+  registerGeographicSearchIpcHandlers();
   registerEncodingIpcHandlers();
+  registerIpGeolocationIpcHandlers();
   registerIocIntelligenceIpcHandlers();
   registerDeveloperToolsIpcHandlers();
   registerNetworkToolkitIpcHandlers();
@@ -169,7 +396,19 @@ app.whenReady().then(() => {
         .length === 0
     ) {
       createWindow();
+      return;
     }
+
+    const [mainWindow] =
+      BrowserWindow
+        .getAllWindows();
+
+    if (mainWindow?.isMinimized()) {
+      mainWindow.restore();
+    }
+
+    mainWindow?.show();
+    mainWindow?.focus();
   });
 });
 
@@ -182,6 +421,8 @@ let sessionCleanupComplete =
 app.on(
   'before-quit',
   (event) => {
+    applicationExitRequested =
+      true;
     pythonService.stop();
 
     if (sessionCleanupComplete) {
@@ -215,10 +456,7 @@ app.on(
 app.on(
   'window-all-closed',
   () => {
-    if (
-      process.platform !==
-      'darwin'
-    ) {
+    if (applicationExitRequested) {
       app.quit();
     }
   },

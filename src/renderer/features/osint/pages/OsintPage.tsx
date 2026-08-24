@@ -18,7 +18,15 @@ import type {
   OsintToolId,
 } from '../osint.registry';
 
-export function OsintPage() {
+type OsintPageProps = {
+  contextDomain?: string | null;
+  contextIp?: string | null;
+};
+
+export function OsintPage({
+  contextDomain = null,
+  contextIp = null,
+}: OsintPageProps) {
   const [
     activeTool,
     setActiveTool,
@@ -30,7 +38,12 @@ export function OsintPage() {
   function renderTool() {
     switch (activeTool) {
       case 'rdap-domain':
-        return <RdapDomainTool />;
+        return (
+          <RdapDomainTool
+            contextDomain={contextDomain}
+            contextIp={contextIp}
+          />
+        );
     }
   }
 

@@ -63,13 +63,22 @@ function normalizeSettings(
 
   const candidate =
     value as Partial<AppSettings>;
+  const rawAccentColor =
+    (
+      value as Record<
+        string,
+        unknown
+      >
+    ).accentColor;
 
   return {
     accentColor:
       isAccentColor(
-        candidate.accentColor,
+        rawAccentColor,
       )
-        ? candidate.accentColor
+        ? rawAccentColor
+        : rawAccentColor === 'blue'
+        ? 'red'
         : DEFAULT_APP_SETTINGS
             .accentColor,
 

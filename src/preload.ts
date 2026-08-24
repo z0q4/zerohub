@@ -19,6 +19,19 @@ import type {
 } from './shared/ioc-intelligence/ioc-intelligence.types';
 
 import type {
+  IpGeolocationLookupRequest,
+  IpGeolocationLookupResponse,
+  IpPublicLookupResponse,
+} from './shared/ip-geolocation/ip-geolocation.types';
+
+import type {
+  GeographicReverseRequest,
+  GeographicReverseResponse,
+  GeographicSearchRequest,
+  GeographicSearchResponse,
+} from './shared/geographic-search/geographic-search.types';
+
+import type {
   DiffResult,
   JsonFormatResult,
   RegexTestResult,
@@ -73,9 +86,8 @@ import type {
 } from './shared/secret-scanner/secret-scanner.types';
 
 import {
-  clipboard,
   contextBridge,
-  ipcRenderer,
+  ipcRenderer as electronIpcRenderer,
 } from 'electron';
 
 import type {
@@ -112,6 +124,15 @@ import type {
 } from './shared/settings/settings.types';
 
 import type {
+  AuthAttemptResult,
+  AuthCredentialsInput,
+  AuthSetupInput,
+  AuthStatus,
+  AuthUnlockInput,
+  AuthUnlockSetupInput,
+} from './shared/auth/auth.types';
+
+import type {
   VirusTotalSecretStatus,
   VirusTotalTargetResult,
 } from './shared/threat-intelligence/threat-intelligence.types';
@@ -121,7 +142,163 @@ import type {
   FileCrackResult,
 } from './shared/file-cracker/file-cracker.types';
 
+const AUTH_IPC_CHANNELS = new Set([
+  'auth:status',
+  'auth:setup',
+  'auth:login',
+  'auth:setup-unlock',
+  'auth:unlock',
+  'auth:lock',
+]);
+
+let rendererAuthLocked = true;
+
+const guardedInvoke:
+  Electron.IpcRenderer['invoke'] = (
+    channel,
+    ...args
+  ) => {
+    if (
+      rendererAuthLocked &&
+      !AUTH_IPC_CHANNELS.has(
+        channel,
+      )
+    ) {
+      return Promise.reject(
+        new Error(
+          'A sessão local está bloqueada.',
+        ),
+      );
+    }
+
+    return electronIpcRenderer.invoke(
+      channel,
+      ...args,
+    );
+  };
+
+const ipcRenderer = {
+  invoke: guardedInvoke,
+};
+
 const zeroHubAPI = {
+  auth: {
+    getStatus: async ():
+      Promise<AuthStatus> => {
+      const status: AuthStatus =
+        await ipcRenderer.invoke(
+        'auth:status',
+        );
+
+      rendererAuthLocked =
+        status.locked;
+
+      return status;
+    },
+
+    setup: async (
+      input: AuthSetupInput,
+    ): Promise<AuthAttemptResult> => {
+      const result:
+        AuthAttemptResult =
+        await ipcRenderer.invoke(
+        'auth:setup',
+        input,
+        );
+
+      rendererAuthLocked =
+        result.status.locked;
+
+      return result;
+    },
+
+    login: async (
+      input: AuthCredentialsInput,
+    ): Promise<AuthAttemptResult> => {
+      const result:
+        AuthAttemptResult =
+        await ipcRenderer.invoke(
+        'auth:login',
+        input,
+        );
+
+      rendererAuthLocked =
+        result.status.locked;
+
+      return result;
+    },
+
+    setupUnlock: async (
+      input: AuthUnlockSetupInput,
+    ): Promise<AuthAttemptResult> => {
+      const result:
+        AuthAttemptResult =
+        await ipcRenderer.invoke(
+          'auth:setup-unlock',
+          input,
+        );
+
+      rendererAuthLocked =
+        result.status.locked;
+
+      return result;
+    },
+
+    unlock: async (
+      input: AuthUnlockInput,
+    ): Promise<AuthAttemptResult> => {
+      const result:
+        AuthAttemptResult =
+        await ipcRenderer.invoke(
+          'auth:unlock',
+          input,
+        );
+
+      rendererAuthLocked =
+        result.status.locked;
+
+      return result;
+    },
+
+    lock: async ():
+      Promise<AuthStatus> => {
+      const status: AuthStatus =
+        await ipcRenderer.invoke(
+        'auth:lock',
+        );
+
+      rendererAuthLocked = true;
+
+      return status;
+    },
+
+    onLocked: (
+      listener: (
+        status: AuthStatus,
+      ) => void,
+    ): (() => void) => {
+      const handleLocked = (
+        _event: Electron.IpcRendererEvent,
+        status: AuthStatus,
+      ): void => {
+        rendererAuthLocked = true;
+        listener(status);
+      };
+
+      electronIpcRenderer.on(
+        'auth:locked',
+        handleLocked,
+      );
+
+      return () => {
+        electronIpcRenderer.removeListener(
+          'auth:locked',
+          handleLocked,
+        );
+      };
+    },
+  },
+
   system: {
     getRuntimeInfo: () => ({
       platform:
@@ -141,7 +318,7 @@ const zeroHubAPI = {
   clipboard: {
     writeText: (
       text: string,
-    ): void => {
+    ): Promise<void> => {
       if (
         typeof text !==
         'string'
@@ -151,8 +328,71 @@ const zeroHubAPI = {
         );
       }
 
-      clipboard.writeText(text);
+      return ipcRenderer.invoke(
+        'clipboard:write-text',
+        text,
+      );
     },
+  },
+
+  geographicSearch: {
+    search: (
+      request:
+        GeographicSearchRequest,
+    ): Promise<GeographicSearchResponse> =>
+      ipcRenderer.invoke(
+        'geographic-search:search',
+        request,
+      ),
+
+    reverse: (
+      request:
+        GeographicReverseRequest,
+    ): Promise<GeographicReverseResponse> =>
+      ipcRenderer.invoke(
+        'geographic-search:reverse',
+        request,
+      ),
+
+    cancel: (
+      requestId: string,
+    ): Promise<boolean> =>
+      ipcRenderer.invoke(
+        'geographic-search:cancel',
+        requestId,
+      ),
+
+    clearCache: (): Promise<boolean> =>
+      ipcRenderer.invoke(
+        'geographic-search:clear-cache',
+      ),
+  },
+
+  ipGeolocation: {
+    lookup: (
+      request:
+        IpGeolocationLookupRequest,
+    ): Promise<IpGeolocationLookupResponse> =>
+      ipcRenderer.invoke(
+        'ip-geolocation:lookup',
+        request,
+      ),
+
+    lookupPublic: (
+      requestId: string,
+    ): Promise<IpPublicLookupResponse> =>
+      ipcRenderer.invoke(
+        'ip-geolocation:lookup-public',
+        requestId,
+      ),
+
+    cancel: (
+      requestId: string,
+    ): Promise<boolean> =>
+      ipcRenderer.invoke(
+        'ip-geolocation:cancel',
+        requestId,
+      ),
   },
 
   encoding: {

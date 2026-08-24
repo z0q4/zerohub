@@ -5,6 +5,7 @@ import {
 
 import {
   MAP_MARKER_CATEGORIES,
+  MAP_OPERATIONAL_LAYER_IDS,
 } from './map-workspace.types';
 
 import type {
@@ -15,6 +16,7 @@ import type {
   GeographicMarker,
   MapLayerColorFilter,
   MapMarkerCategory,
+  MapOperationalLayerId,
   MapWorkspaceViewState,
 } from './map-workspace.types';
 
@@ -37,6 +39,12 @@ type MapMarkerLayers = {
 
   toggleCategory(
     category: MapMarkerCategory,
+  ): void;
+
+  toggleIpIntelligence(): void;
+
+  toggleOperationalLayer(
+    layerId: MapOperationalLayerId,
   ): void;
 
   toggleLayerManager(): void;
@@ -126,6 +134,8 @@ export function useMapMarkerLayers(
         (current) => ({
           ...current,
           hiddenMarkerCategories: [],
+          hiddenOperationalLayers: [],
+          ipIntelligenceVisible: true,
           markerColorFilter: 'all',
         }),
       );
@@ -138,6 +148,10 @@ export function useMapMarkerLayers(
           hiddenMarkerCategories: [
             ...MAP_MARKER_CATEGORIES,
           ],
+          hiddenOperationalLayers: [
+            ...MAP_OPERATIONAL_LAYER_IDS,
+          ],
+          ipIntelligenceVisible: false,
         }),
       );
     }, [setViewState]);
@@ -187,6 +201,52 @@ export function useMapMarkerLayers(
       [setViewState],
     );
 
+  const toggleIpIntelligence =
+    useCallback(() => {
+      setViewState(
+        (current) => ({
+          ...current,
+          ipIntelligenceVisible:
+            !current
+              .ipIntelligenceVisible,
+        }),
+      );
+    }, [setViewState]);
+
+  const toggleOperationalLayer =
+    useCallback(
+      (
+        layerId:
+          MapOperationalLayerId,
+      ) => {
+        setViewState(
+          (current) => {
+            const hidden = new Set(
+              current
+                .hiddenOperationalLayers,
+            );
+
+            if (hidden.has(layerId)) {
+              hidden.delete(layerId);
+            } else {
+              hidden.add(layerId);
+            }
+
+            return {
+              ...current,
+              hiddenOperationalLayers:
+                MAP_OPERATIONAL_LAYER_IDS
+                  .filter(
+                    (item) =>
+                      hidden.has(item),
+                  ),
+            };
+          },
+        );
+      },
+      [setViewState],
+    );
+
   return {
     changeColorFilter,
     closeLayerManager,
@@ -194,7 +254,9 @@ export function useMapMarkerLayers(
     setOperationalHudOpen,
     showAllLayers,
     toggleCategory,
+    toggleIpIntelligence,
     toggleLayerManager,
+    toggleOperationalLayer,
     visibleMarkers,
   };
 }

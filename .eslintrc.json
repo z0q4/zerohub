@@ -18,7 +18,8 @@
       "error",
       {
         "ignore": [
-          "\\.geojson\\?raw$"
+          "\\.geojson\\?raw$",
+          "\\.txt\\?raw$"
         ]
       }
     ]

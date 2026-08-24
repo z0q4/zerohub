@@ -1,5 +1,5 @@
 export type AccentColor =
-  | 'blue'
+  | 'red'
   | 'violet'
   | 'cyan'
   | 'green';
