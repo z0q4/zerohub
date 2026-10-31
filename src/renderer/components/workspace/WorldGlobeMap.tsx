@@ -31,6 +31,14 @@ import {
 import {
   MapLayerManager,
 } from './MapLayerManager';
+import { HierarchicalLocationPanel } from './HierarchicalLocationPanel';
+import { useIbgeMunicipality } from './useIbgeMunicipality';
+import { useRecifeGeometry } from './useRecifeGeometry';
+import { restoredLocationCamera, restoreSavedLocation } from './location-restoration';
+import { LocationSelectionMapLayer } from './LocationSelectionMapLayer';
+import { geometryBounds, ibgeStateForSelection, resolveLocalBoundary } from './location-boundaries';
+import { LOCATION_LEVELS, selectLocationLevel } from './location-selection';
+import type { LocationLevel, LocationSelection } from './location-selection';
 import type {
   MapOperationalLayerSummary,
 } from './MapLayerManager';
@@ -150,6 +158,7 @@ type MapLabel = {
 
 type WorldGlobeMapProps = {
   activeMode: WorkspaceMode;
+  providerVisible: boolean;
   cleanMapMode: boolean;
   focusGeographicActivityId:
     string | null;
@@ -1547,6 +1556,7 @@ function buildLabelData():
 
 export function WorldGlobeMap({
   activeMode,
+  providerVisible,
   cleanMapMode,
   focusGeographicActivityId,
   geographicSearchBusy,
@@ -1567,6 +1577,17 @@ export function WorldGlobeMap({
   resetSignal,
   universalMapCommand,
 }: WorldGlobeMapProps) {
+  const [locationPanelOpen, setLocationPanelOpen] = useState(false);
+  const [locationSelection, setLocationSelection] = useState<LocationSelection>({});
+  const [locationAutoZoom, setLocationAutoZoom] = useState(true);
+  const [locationSaving, setLocationSaving] = useState(false);
+  const [locationFeedback, setLocationFeedback] = useState<string | null>(null);
+  const [locationRestoreRevision, setLocationRestoreRevision] = useState(0);
+  const locationCaseRef = useRef<string | null | undefined>(undefined);
+  const pendingLocationCamera = useRef<LocationSelection | null>(null);
+  const locationRestoreCameraMoving = useRef(false);
+  const locationRestoreCameraCleanup = useRef<(() => void) | null>(null);
+  const locationSavingRef = useRef(false);
   const {
     activeCase,
     addActivity,
@@ -3217,6 +3238,7 @@ export function WorldGlobeMap({
           null;
       }
 
+      locationRestoreCameraCleanup.current?.();
       resizeObserver.disconnect();
       for (
         const view of
@@ -3252,6 +3274,8 @@ export function WorldGlobeMap({
     if (
       !map ||
       !mapReady ||
+      pendingLocationCamera.current !== null ||
+      locationRestoreCameraMoving.current ||
       camerasApproximatelyEqual(
         readMapCamera(map),
         mapWorkspaceView.camera,
@@ -3554,7 +3578,7 @@ export function WorldGlobeMap({
 
   useEffect(() => {
     rotationEnabledRef.current =
-      rotationEnabled;
+      rotationEnabled && providerVisible;
 
     const map = mapRef.current;
 
@@ -3565,7 +3589,7 @@ export function WorldGlobeMap({
       return;
     }
 
-    if (rotationEnabled) {
+    if (rotationEnabled && providerVisible) {
       startAutoRotation();
       return;
     }
@@ -3573,6 +3597,7 @@ export function WorldGlobeMap({
     map.stop();
   }, [
     mapReady,
+    providerVisible,
     rotationEnabled,
     startAutoRotation,
   ]);
@@ -3928,8 +3953,158 @@ export function WorldGlobeMap({
       onReverseGeographicSearch,
     ]);
 
+  useIbgeMunicipality({
+    selection: locationSelection,
+    setSelection: setLocationSelection,
+    onStatus: setLocationFeedback,
+    onBoundary: (geometry) => {
+      const map = mapRef.current;
+      if (!map || !mapReady || !providerVisible || !locationAutoZoom || locationSelection.neighbourhood || locationSelection.street || locationSelection.exact) return;
+      const bounds = geometryBounds(geometry);
+      if (bounds) map.fitBounds(bounds, { padding: 40, maxZoom: 11, duration: reducedMotionRef.current ? 0 : 450 });
+    },
+    onUnavailable: () => {
+      const city = locationSelection.city;
+      if (!city || !mapRef.current || !mapReady || !providerVisible || !locationAutoZoom || locationSelection.neighbourhood || locationSelection.street || locationSelection.exact) return;
+      mapRef.current.flyTo({ center: [city.longitude, city.latitude], zoom: 10, duration: reducedMotionRef.current ? 0 : 450, essential: false });
+    },
+  });
+
+  useRecifeGeometry({
+    selection: locationSelection,
+    setSelection: setLocationSelection,
+    onStatus: setLocationFeedback,
+    onGeometry: (level, geometry) => {
+      const map = mapRef.current;
+      if (!map || !mapReady || !providerVisible || !locationAutoZoom || locationSelection.exact || (level === 'neighbourhood' && locationSelection.street)) return;
+      const bounds = geometryBounds(geometry);
+      if (bounds) map.fitBounds(bounds, { padding: 40, maxZoom: level === 'street' ? 16 : 14, duration: reducedMotionRef.current ? 0 : 450 });
+    },
+    onUnavailable: (level) => {
+      const place = locationSelection[level];
+      if (!place || !mapRef.current || !mapReady || !providerVisible || !locationAutoZoom || locationSelection.exact || (level === 'neighbourhood' && locationSelection.street)) return;
+      mapRef.current.flyTo({ center: [place.longitude, place.latitude], zoom: level === 'street' ? 15 : 12, duration: reducedMotionRef.current ? 0 : 450, essential: false });
+    },
+  });
+
+  function restoreLocationActivity(activityId: string): void {
+    const activity = activeCase?.activities.find((item) => item.id === activityId && item.action === 'hierarchical-location-saved');
+    const restored = activity && restoreSavedLocation(activity.output, countriesData, admin1Data);
+    if (!restored) { setLocationFeedback('Não foi possível restaurar esta localização salva.'); return; }
+    pendingLocationCamera.current = locationAutoZoom ? restored : null;
+    setLocationSelection(restored);
+    setLocationRestoreRevision((value) => value + 1);
+    setLocationFeedback('Localização restaurada; limites disponíveis serão recuperados.');
+  }
+
+  useEffect(() => {
+    if (caseLoading || locationCaseRef.current === activeCaseId) return;
+    const previousCase = locationCaseRef.current;
+    locationCaseRef.current = activeCaseId;
+    const activity = activeCase?.activities.find((item) => item.action === 'hierarchical-location-saved');
+    if (activity) {
+      const restored = restoreSavedLocation(activity.output, countriesData, admin1Data);
+      pendingLocationCamera.current = locationAutoZoom ? restored : null;
+      setLocationSelection(restored ?? {});
+      setLocationFeedback(restored ? 'Localização do case restaurada; recuperando limites disponíveis.' : 'A localização salva é incompatível ou está incompleta.');
+      setLocationRestoreRevision((value) => value + 1);
+    } else if (previousCase) {
+      pendingLocationCamera.current = null;
+      setLocationSelection({});
+      setLocationFeedback(null);
+      setLocationRestoreRevision((value) => value + 1);
+    }
+  }, [activeCase, activeCaseId, caseLoading, locationAutoZoom]);
+
+  useEffect(() => {
+    const restored = pendingLocationCamera.current;
+    if (!restored || LOCATION_LEVELS.some((level) => restored[level]?.id !== locationSelection[level]?.id)) return;
+    if (!locationAutoZoom) { pendingLocationCamera.current = null; return; }
+    const map = mapRef.current;
+    if (!map || !mapReady || !providerVisible) return;
+    pendingLocationCamera.current = null;
+    const camera = restoredLocationCamera(locationSelection);
+    if (!camera) return;
+    locationRestoreCameraCleanup.current?.();
+    map.stop();
+    locationRestoreCameraMoving.current = true;
+    let timer: number | null = window.setTimeout(finish, 2000);
+    function finish(): void {
+      if (timer !== null) window.clearTimeout(timer);
+      timer = null;
+      map?.off('moveend', onMoveEnd);
+      locationRestoreCameraMoving.current = false;
+      if (locationRestoreCameraCleanup.current === finish) locationRestoreCameraCleanup.current = null;
+    }
+    function onMoveEnd(): void {
+      if (timer !== null) window.clearTimeout(timer);
+      timer = window.setTimeout(finish, 100);
+    }
+    locationRestoreCameraCleanup.current = finish;
+    map.on('moveend', onMoveEnd);
+    const duration = reducedMotionRef.current ? 0 : 450;
+    if ('bounds' in camera) map.fitBounds(camera.bounds, { padding: 40, maxZoom: camera.maxZoom, duration });
+    else map.flyTo({ center: camera.center, zoom: camera.zoom, duration, essential: false });
+  }, [locationSelection, locationAutoZoom, mapReady, providerVisible]);
+
+  function selectHierarchicalLocation(level: LocationLevel, result: GeographicSearchResult | null): void {
+    locationRestoreCameraCleanup.current?.();
+    pendingLocationCamera.current = null;
+    const resolved = result ? resolveLocalBoundary(level, result, locationSelection, countriesData, admin1Data) : null;
+    const next = selectLocationLevel(locationSelection, level, resolved);
+    if (next === locationSelection) return;
+    setLocationSelection(next);
+    setLocationFeedback(null);
+    const map = mapRef.current;
+    if (!resolved || !map || !mapReady || !locationAutoZoom) return;
+    if (level === 'city' && !resolved.geometry && ibgeStateForSelection(next)) return;
+    if (!resolved.geometry && next.city?.officialCode === '2611606' && next.city.geometryMetadata?.source === 'IBGE · Malhas municipais' && (level === 'neighbourhood' || (level === 'street' && next.neighbourhood?.officialCode && next.neighbourhood.geometryMetadata?.source === 'Prefeitura do Recife · Bairros'))) return;
+    const bounds = resolved.geometry && geometryBounds(resolved.geometry);
+    const duration = reducedMotionRef.current ? 0 : 450;
+    if (bounds) {
+      map.fitBounds(bounds, { padding: 40, maxZoom: level === 'country' ? 5 : level === 'city' ? 11 : 9, duration });
+    } else {
+      map.flyTo({ center: [resolved.longitude, resolved.latitude], zoom: level === 'city' ? 10 : level === 'exact' ? 15 : 12, duration, essential: false });
+    }
+  }
+
+  function createLocationMarker(): void {
+    const selected = [...LOCATION_LEVELS].reverse().map((level) => locationSelection[level]).find(Boolean);
+    if (!selected) return;
+    const marker = addTransientMarker(selected.latitude, selected.longitude, 'typed');
+    updateTransientMarker(marker.id, { name: selected.name });
+    setLocationFeedback(selected.sourceId === 'user-coordinate' ? 'Marcador criado com a coordenada informada.' : 'Marcador criado com a coordenada aproximada da seleção.');
+  }
+
+  async function saveHierarchicalLocation(): Promise<void> {
+    if (!activeCase || locationSavingRef.current) return;
+    const levels = LOCATION_LEVELS.flatMap((level) => {
+      const item = locationSelection[level];
+      return item ? [{ level, id: item.id, name: item.name, type: item.type, sourceId: item.sourceId, latitude: item.latitude, longitude: item.longitude, source: item.provider, approximate: item.approximate, geometrySource: item.geometryMetadata?.source ?? null, officialCode: item.officialCode ?? null }] : [];
+    });
+    if (!levels.length) return;
+    const locationKey = JSON.stringify(levels.map(({ level, id }) => [level, id]));
+    if (activeCase.activities.some((activity) => activity.action === 'hierarchical-location-saved' && typeof activity.input === 'object' && activity.input !== null && 'locationKey' in activity.input && activity.input.locationKey === locationKey)) {
+      setLocationFeedback('Esta seleção já foi registrada neste case.');
+      return;
+    }
+    locationSavingRef.current = true;
+    setLocationSaving(true);
+    try {
+      await addActivity({ caseId: activeCase.id, moduleId: 'map-workspace', action: 'hierarchical-location-saved', title: `Localização: ${levels.map((item) => item.name).join(' › ')}`.slice(0, 180), status: 'success', input: { locationKey }, output: { levels } });
+      setLocationFeedback('Localização registrada no case.');
+    } catch {
+      setLocationFeedback('Não foi possível registrar a localização.');
+    } finally {
+      locationSavingRef.current = false;
+      setLocationSaving(false);
+    }
+  }
+
   return (
     <div
+      data-panel-open={coordinatePanelOpen || mapWorkspaceView.layerManagerOpen || ipIntelligence.open || locationPanelOpen}
+      data-inspector-open={mapWorkspaceView.operationalHudOpen || Boolean(geographicSearchResult)}
       className={`worldGlobeMap ${
         monochromeMode
           ? 'isMonochrome'
@@ -4046,6 +4221,8 @@ export function WorldGlobeMap({
         }
       />
 
+      <LocationSelectionMapLayer map={mapReady ? mapRef.current : null} selection={locationSelection} />
+
       <div
         className="worldGlobeHud"
         aria-hidden={cleanMapMode}
@@ -4067,47 +4244,6 @@ export function WorldGlobeMap({
             Nenhuma coordenada cadastrada nos cases.
           </div>
         )}
-
-      <MapOperationalHud
-        activeCaseName={
-          activeCase?.name ?? null
-        }
-        map={
-          mapReady
-            ? mapRef.current
-            : null
-        }
-        mode={activeMode}
-        open={
-          mapWorkspaceView
-            .operationalHudOpen
-        }
-        rotationEnabled={
-          rotationEnabled
-        }
-        rotationTemporarilyPaused={
-          rotationEnabled &&
-          timelineCameraMoving
-        }
-        timelinePlayback={
-          timelineHudPlayback
-        }
-        totalIpResults={
-          ipIntelligence.allResults.length
-        }
-        totalMarkers={
-          profileMarkers.length
-        }
-        visibleIpResults={
-          visibleIpResults.length
-        }
-        visibleMarkers={
-          visibleMarkers.length
-        }
-        onOpenChange={
-          setOperationalHudOpen
-        }
-      />
 
       <GeographicTimelinePanel
         currentEvent={
@@ -4154,35 +4290,6 @@ export function WorldGlobeMap({
         }
         onSpeedChange={
           geographicTimeline.setSpeed
-        }
-      />
-
-      <GeographicSearchResultPanel
-        busy={geographicSearchBusy}
-        copied={
-          geographicSearchResult !== null &&
-          copiedTarget ===
-            `geographic-search:${geographicSearchResult.id}`
-        }
-        favorite={
-          geographicSearchResultFavorite
-        }
-        result={geographicSearchResult}
-        onCenter={
-          centerGeographicSearchResult
-        }
-        onClear={onClearGeographicSearch}
-        onCopy={
-          copyGeographicSearchResult
-        }
-        onReverse={
-          reverseGeographicSearchResult
-        }
-        onSaveMarker={
-          saveGeographicSearchResult
-        }
-        onToggleFavorite={
-          onToggleGeographicFavorite
         }
       />
 
@@ -4321,12 +4428,86 @@ export function WorldGlobeMap({
           />
         )}
 
+      <aside className="worldGlobeInspector" aria-label="Informações do mapa" aria-hidden={cleanMapMode} inert={cleanMapMode}>
+      <MapOperationalHud
+        activeCaseName={
+          activeCase?.name ?? null
+        }
+        map={
+          mapReady
+            ? mapRef.current
+            : null
+        }
+        mode={activeMode}
+        open={
+          mapWorkspaceView
+            .operationalHudOpen
+        }
+        rotationEnabled={
+          rotationEnabled
+        }
+        rotationTemporarilyPaused={
+          rotationEnabled &&
+          timelineCameraMoving
+        }
+        timelinePlayback={
+          timelineHudPlayback
+        }
+        totalIpResults={
+          ipIntelligence.allResults.length
+        }
+        totalMarkers={
+          profileMarkers.length
+        }
+        visibleIpResults={
+          visibleIpResults.length
+        }
+        visibleMarkers={
+          visibleMarkers.length
+        }
+        onOpenChange={
+          setOperationalHudOpen
+        }
+      />
+
+      <GeographicSearchResultPanel
+        busy={geographicSearchBusy}
+        copied={
+          geographicSearchResult !== null &&
+          copiedTarget ===
+            `geographic-search:${geographicSearchResult.id}`
+        }
+        favorite={
+          geographicSearchResultFavorite
+        }
+        result={geographicSearchResult}
+        onCenter={
+          centerGeographicSearchResult
+        }
+        onClear={onClearGeographicSearch}
+        onCopy={
+          copyGeographicSearchResult
+        }
+        onReverse={
+          reverseGeographicSearchResult
+        }
+        onSaveMarker={
+          saveGeographicSearchResult
+        }
+        onToggleFavorite={
+          onToggleGeographicFavorite
+        }
+      />
+
+      </aside>
+
       <div
         className="worldGlobeTools"
         aria-hidden={cleanMapMode}
         inert={cleanMapMode}
       >
         <div className="worldGlobePanels">
+          <HierarchicalLocationPanel key={locationRestoreRevision} open={locationPanelOpen} active={providerVisible && !cleanMapMode} selection={locationSelection} countries={countriesData} regions={admin1Data} autoZoom={locationAutoZoom} caseName={activeCase?.name ?? null} savedLocations={(activeCase?.activities ?? []).filter((item) => item.action === 'hierarchical-location-saved').map((item) => ({ id: item.id, title: item.title }))} busy={locationSaving || caseLoading || caseMutating} feedback={locationFeedback} onClose={() => setLocationPanelOpen(false)} onSelect={selectHierarchicalLocation} onClear={() => { pendingLocationCamera.current = null; setLocationSelection({}); setLocationFeedback(null); }} onAutoZoom={setLocationAutoZoom} onSave={() => { void saveHierarchicalLocation(); }} onRestore={restoreLocationActivity} onMarker={createLocationMarker} />
           <IpGeolocationPanel
             activeCaseName={
               activeCase?.name ?? null
@@ -4545,6 +4726,7 @@ export function WorldGlobeMap({
           className="worldGlobeControls"
           aria-label="Controles do mapa"
         >
+          <button type="button" aria-label={locationPanelOpen ? 'Recolher localização hierárquica' : 'Abrir localização hierárquica'} title="Localização hierárquica" aria-expanded={locationPanelOpen} onClick={() => setLocationPanelOpen((open) => !open)}>⌖</button>
           <button
             type="button"
             aria-label="Aproximar mapa"

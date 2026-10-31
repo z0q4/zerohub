@@ -19,8 +19,14 @@ import {
 } from './main/ipc/ip-geolocation.ipc';
 
 import {
+  registerMapProvidersIpcHandlers,
+} from './main/ipc/map-providers.ipc';
+
+import {
   registerGeographicSearchIpcHandlers,
 } from './main/ipc/geographic-search.ipc';
+import { registerIbgeBoundariesIpcHandlers } from './main/ipc/ibge-boundaries.ipc';
+import { registerRecifeGeometryIpcHandlers } from './main/ipc/recife-geometry.ipc';
 
 import {
   registerDeveloperToolsIpcHandlers,
@@ -127,8 +133,10 @@ const PRODUCTION_CONTENT_SECURITY_POLICY = [
   "font-src 'self' data:",
   "connect-src 'self' https://tiles.openfreemap.org",
   "worker-src 'self' blob:",
+  "frame-src https://www.google.com",
   "object-src 'none'",
   "base-uri 'self'",
+  "form-action 'self'",
   "frame-ancestors 'none'",
 ].join('; ');
 
@@ -299,6 +307,22 @@ function createWindow(): void {
     },
   );
 
+  mainWindow.webContents
+    .setWindowOpenHandler(() => ({
+      action: 'deny',
+    }));
+
+  mainWindow.webContents.on('will-navigate', (event) => {
+    event.preventDefault();
+  });
+
+  mainWindow.webContents.session
+    .setPermissionRequestHandler(
+      (_webContents, _permission, callback) => {
+        callback(false);
+      },
+    );
+
   createApplicationTray(
     mainWindow,
   );
@@ -367,8 +391,11 @@ app.whenReady().then(() => {
   registerAuthIpcHandlers();
   registerClipboardIpcHandlers();
   registerGeographicSearchIpcHandlers();
+  registerIbgeBoundariesIpcHandlers();
+  registerRecifeGeometryIpcHandlers();
   registerEncodingIpcHandlers();
   registerIpGeolocationIpcHandlers();
+  registerMapProvidersIpcHandlers();
   registerIocIntelligenceIpcHandlers();
   registerDeveloperToolsIpcHandlers();
   registerNetworkToolkitIpcHandlers();

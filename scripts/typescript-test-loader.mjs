@@ -9,6 +9,7 @@ import {
 } from 'node:url';
 
 const electronStub = `
+export const app = { getPath() { throw new Error('Caminho Electron não foi injetado no teste.'); } };
 export const ipcMain = { handle() {} };
 export const clipboard = { writeText() {} };
 export const net = {

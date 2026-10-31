@@ -41,6 +41,8 @@
 .mapWorkspaceShell[data-clean-map-mode="true"]
   > .compactModuleRail,
 .mapWorkspaceShell[data-clean-map-mode="true"]
+  > .workspaceTopbar,
+.mapWorkspaceShell[data-clean-map-mode="true"]
   > .workspaceSearch,
 .mapWorkspaceShell[data-clean-map-mode="true"]
   > .topRightControls,
@@ -50,11 +52,251 @@
   > .moduleWorkbenchDrawer,
 .mapWorkspaceShell[data-clean-map-mode="true"]
   > .workspaceModeNavigation,
+.mapWorkspaceShell[data-clean-map-mode="true"]
+  > .mapProviderSelector,
+.mapWorkspaceShell[data-clean-map-mode="true"]
+  .googleEmbedToolbar,
 .worldGlobeMap.isCleanMapMode
   .worldGlobeHud,
 .worldGlobeMap.isCleanMapMode
   .worldGlobeTools {
   display: none;
+}
+
+.mapProviderHost,
+.mapProviderMapLibreView,
+.googleEmbedView {
+  position: absolute;
+  inset: 0;
+}
+
+.mapProviderMapLibreView[aria-hidden="true"] {
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.mapProviderSelector {
+  position: absolute;
+  z-index: 62;
+  top: 18px;
+  left: 50%;
+
+  display: flex;
+  align-items: center;
+  gap: 6px;
+
+  max-width: calc(100vw - 520px);
+  padding: 4px;
+
+  border: 1px solid rgb(255 255 255 / 10%);
+  border-radius: 8px;
+
+  background: rgb(5 5 5 / 88%);
+  box-shadow: 0 12px 32px rgb(0 0 0 / 38%);
+  backdrop-filter: blur(14px);
+
+  transform: translateX(-50%);
+}
+
+.mapProviderSelectorOptions {
+  display: flex;
+  gap: 3px;
+}
+
+.mapProviderSelectorOptions button,
+.mapProviderConfigureButton {
+  min-height: 34px;
+  padding: 5px 9px;
+
+  border: 1px solid transparent;
+  border-radius: 5px;
+
+  color: #aaa;
+  background: transparent;
+
+  cursor: pointer;
+}
+
+.mapProviderSelectorOptions button {
+  display: grid;
+  gap: 1px;
+  text-align: left;
+}
+
+.mapProviderSelectorOptions button:hover,
+.mapProviderSelectorOptions button.active {
+  border-color: rgb(255 255 255 / 14%);
+  color: #fff;
+  background: rgb(255 255 255 / 8%);
+}
+
+.mapProviderSelectorOptions button.active {
+  box-shadow: inset 0 -2px 0 var(--primary);
+}
+
+.mapProviderSelectorOptions span {
+  font-size: 9px;
+  font-weight: 750;
+}
+
+.mapProviderSelectorOptions small {
+  color: #777;
+  font-size: 6px;
+  letter-spacing: 0.08em;
+}
+
+.mapProviderConfigureButton {
+  border-color: rgb(255 93 104 / 26%);
+  color: #ff9299;
+  font-size: 8px;
+}
+
+.googleEmbedView {
+  z-index: 1;
+  overflow: hidden;
+  background: #080808;
+}
+
+.googleEmbedFrame {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  background: #111;
+}
+
+.googleEmbedToolbar {
+  position: absolute;
+  z-index: 4;
+  top: 76px;
+  left: 74px;
+
+  display: flex;
+  align-items: center;
+  gap: 16px;
+
+  max-width: calc(100vw - 148px);
+  padding: 8px 10px;
+
+  border: 1px solid rgb(255 255 255 / 12%);
+  border-radius: 7px;
+  color: #eee;
+  background: rgb(5 5 5 / 88%);
+  box-shadow: 0 10px 30px rgb(0 0 0 / 38%);
+  backdrop-filter: blur(12px);
+}
+
+.googleEmbedToolbar > div {
+  display: grid;
+  gap: 2px;
+  min-width: 190px;
+}
+
+.googleEmbedToolbar strong {
+  font-size: 9px;
+  letter-spacing: 0.08em;
+}
+
+.googleEmbedToolbar span {
+  color: #888;
+  font-size: 7px;
+}
+
+.googleEmbedToolbar form {
+  display: flex;
+  align-items: end;
+  gap: 5px;
+}
+
+.googleEmbedToolbar label {
+  display: grid;
+  gap: 2px;
+}
+
+.googleEmbedToolbar input {
+  width: 98px;
+  padding: 5px 6px;
+  border: 1px solid rgb(255 255 255 / 14%);
+  border-radius: 4px;
+  color: #eee;
+  background: #111;
+  font: inherit;
+  font-size: 8px;
+}
+
+.googleEmbedToolbar button,
+.googleEmbedState button {
+  min-height: 27px;
+  padding: 5px 9px;
+  border: 1px solid rgb(255 255 255 / 16%);
+  border-radius: 4px;
+  color: #eee;
+  background: #191919;
+  font-size: 8px;
+  cursor: pointer;
+}
+
+.googleEmbedToolbar button:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.googleEmbedState {
+  position: absolute;
+  z-index: 3;
+  top: 50%;
+  left: 50%;
+
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+
+  width: min(440px, calc(100vw - 96px));
+  padding: 28px;
+
+  border: 1px solid rgb(255 255 255 / 12%);
+  border-radius: 10px;
+  background: #101010;
+  box-shadow: 0 20px 60px rgb(0 0 0 / 55%);
+  text-align: center;
+  transform: translate(-50%, -50%);
+}
+
+.googleEmbedState strong {
+  font-size: 14px;
+}
+
+.googleEmbedState p {
+  margin: 0;
+  color: #999;
+  font-size: 10px;
+  line-height: 1.6;
+}
+
+.googleEmbedState.error {
+  border-color: rgb(255 93 104 / 32%);
+}
+
+.googleEmbedLoading,
+.googleEmbedNotice {
+  position: absolute;
+  z-index: 3;
+  left: 50%;
+  padding: 5px 8px;
+  border-radius: 4px;
+  color: #aaa;
+  background: rgb(0 0 0 / 78%);
+  font-size: 7px;
+  transform: translateX(-50%);
+}
+
+.googleEmbedLoading {
+  top: 50%;
+}
+
+.googleEmbedNotice {
+  bottom: 10px;
+  max-width: calc(100vw - 180px);
+  text-align: center;
 }
 
 .cleanMapModeAnnouncement {
@@ -4479,4 +4721,359 @@ form {
   .mapOperationalHud dl {
     gap: 5px 8px;
   }
+}
+
+/* The workspace chrome owns its space; external map controls remain inside
+   the provider viewport and do not compete with the application toolbar. */
+.workspaceTopbar {
+  position: absolute;
+  z-index: 62;
+  inset: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 60px;
+  padding: 6px 12px;
+  border-bottom: 1px solid rgb(255 255 255 / 9%);
+  background: #101216;
+}
+
+.workspaceTopbarBrand {
+  flex: 0 0 auto;
+  color: var(--primary);
+  font-size: 11px;
+  letter-spacing: .12em;
+}
+
+.workspaceTopbar .workspaceSearch,
+.workspaceTopbar .mapProviderSelector,
+.workspaceTopbar .topRightControls,
+.workspaceTopbar .workspaceModeSwitcher {
+  position: static;
+  transform: none;
+  box-shadow: none;
+  backdrop-filter: none;
+}
+
+.workspaceTopbar .workspaceSearch {
+  order: 1;
+  flex: 1 1 220px;
+  width: auto;
+  min-width: 120px;
+}
+
+.workspaceTopbar .mapProviderSelector {
+  order: 2;
+  flex: 0 0 auto;
+  max-width: none;
+}
+
+.workspaceTopbar .topRightControls {
+  order: 3;
+  flex: 0 0 auto;
+}
+
+.workspaceTopbar .workspaceModeSwitcher {
+  order: 4;
+  flex: 0 0 144px;
+  width: 144px;
+  height: 38px;
+}
+
+.mapWorkspaceShell > .compactModuleRail {
+  top: 68px;
+  bottom: 8px;
+}
+
+.mapWorkspaceShell > .moduleWorkbenchDrawer {
+  top: 68px;
+}
+
+.mapWorkspaceShell .mapProviderHost {
+  inset: 60px 0 0 80px;
+}
+
+.mapWorkspaceShell[data-clean-map-mode="true"] .mapProviderHost {
+  inset: 0;
+}
+
+.googleEmbedView {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+}
+
+.googleEmbedToolbar {
+  position: static;
+  grid-row: 1;
+  max-width: none;
+  border: 0;
+  border-bottom: 1px solid rgb(255 255 255 / 10%);
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.googleEmbedFrame {
+  grid-row: 2;
+  min-height: 0;
+}
+
+.googleEmbedNotice {
+  position: static;
+  grid-row: 3;
+  max-width: none;
+  border-radius: 0;
+  transform: none;
+}
+
+@media (max-width: 1250px) {
+  .workspaceTopbarBrand,
+  .workspaceTopbar .mapProviderSelectorOptions small {
+    display: none;
+  }
+
+  .workspaceTopbar {
+    gap: 5px;
+  }
+
+  .workspaceTopbar .topRightControls {
+    gap: 4px;
+  }
+}
+
+@media (max-width: 1050px) {
+  .workspaceTopbar {
+    overflow-x: auto;
+  }
+
+  .workspaceTopbar .workspaceSearch {
+    flex-basis: 160px;
+  }
+}
+
+/* Workspace regions occupy separate tracks instead of competing overlays. */
+.mapWorkspaceShell {
+  display: grid;
+  grid-template-columns: 80px minmax(0, 1fr);
+  grid-template-rows: 60px minmax(0, 1fr) 26px;
+  grid-template-areas: "top top" "rail map" "status status";
+}
+
+.mapWorkspaceShell > .workspaceTopbar {
+  position: relative;
+  grid-area: top;
+  inset: auto;
+  min-width: 0;
+}
+
+.mapWorkspaceShell > .compactModuleRail {
+  position: relative;
+  grid-area: rail;
+  inset: auto;
+  align-self: stretch;
+  margin: 8px 12px;
+  min-height: 0;
+}
+
+.mapWorkspaceShell .mapProviderHost {
+  position: relative;
+  grid-area: map;
+  inset: auto;
+  min-width: 0;
+  min-height: 0;
+}
+
+.workspaceStatusBar {
+  grid-area: status;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  min-width: 0;
+  padding: 0 12px;
+  overflow: auto hidden;
+  border-top: 1px solid rgb(255 255 255 / 9%);
+  color: #a0a8ad;
+  background: #101216;
+  font-size: 10px;
+  white-space: nowrap;
+}
+
+.mapWorkspaceShell[data-clean-map-mode="true"] {
+  display: block;
+}
+
+.mapWorkspaceShell[data-clean-map-mode="true"] .mapProviderHost {
+  position: absolute;
+  inset: 0;
+}
+
+.mapWorkspaceShell[data-clean-map-mode="true"] > .workspaceStatusBar {
+  display: none;
+}
+
+.worldGlobeMap {
+  --inspector-width: 48px;
+  --panel-width: 0px;
+  display: grid;
+  grid-template-columns: var(--panel-width) minmax(0, 1fr) var(--inspector-width) 52px;
+  grid-template-rows: minmax(0, 1fr);
+}
+
+.worldGlobeMap[data-panel-open="true"] {
+  --panel-width: 280px;
+}
+
+.worldGlobeMap[data-inspector-open="true"] {
+  --inspector-width: 240px;
+}
+
+.worldGlobeMapCanvas {
+  position: relative;
+  grid-column: 2;
+  grid-row: 1;
+  inset: auto;
+  min-width: 0;
+  min-height: 0;
+}
+
+.worldGlobeTools {
+  display: contents;
+}
+
+.worldGlobePanels {
+  grid-column: 1;
+  grid-row: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 8px;
+  min-width: 0;
+  max-width: none;
+  padding: 8px;
+  overflow: auto;
+  background: #101216;
+  border-right: 1px solid rgb(255 255 255 / 9%);
+}
+
+.worldGlobeMap[data-panel-open="false"] .worldGlobePanels {
+  display: none;
+}
+
+.worldGlobePanels > .workspaceMapMarkerPanel,
+.worldGlobePanels > .mapLayerManager,
+.worldGlobePanels > .ipGeolocationPanel,
+.worldGlobePanels > .hierarchicalLocationPanel {
+  flex: 0 0 auto;
+  width: 100%;
+  max-height: none;
+}
+
+.hierarchicalLocationPanel {
+  display: grid;
+  gap: 10px;
+  padding: 10px;
+  border: 1px solid rgb(255 255 255 / 10%);
+  border-radius: 8px;
+  background: #0b0e11;
+  color: #e7eff1;
+  font-size: 11px;
+}
+
+.hierarchicalLocationPanel[hidden] { display: none; }
+.hierarchicalLocationPanel header { display: flex; justify-content: space-between; align-items: start; }
+.hierarchicalLocationPanel header div { display: grid; gap: 3px; }
+.hierarchicalLocationPanel header span { color: var(--primary); font-size: 9px; letter-spacing: .1em; }
+.hierarchicalLocationPanel p, .hierarchicalLocationPanel small { margin: 0; color: #a1aeb3; font-size: 10px; line-height: 1.4; }
+.locationBreadcrumb { overflow-wrap: anywhere; color: var(--primary); line-height: 1.4; }
+.locationField { display: grid; gap: 4px; }
+.locationSaved { display: grid; gap: 4px; }
+.locationSaved select { width: 100%; min-width: 0; padding: 7px; border: 1px solid #39454a; border-radius: 5px; color: #eee; background: #12191c; font: inherit; }
+.locationField > div { display: flex; gap: 4px; min-width: 0; }
+.locationField input { width: 100%; min-width: 0; padding: 7px; border: 1px solid #39454a; border-radius: 5px; color: #eee; background: #12191c; font: inherit; }
+.locationField input:disabled { opacity: .5; }
+.locationSuggestions { display: grid; gap: 2px; max-height: 140px; overflow-y: auto; }
+.locationSuggestions button { text-align: left; overflow-wrap: anywhere; }
+.hierarchicalLocationPanel button { padding: 5px 8px; border: 1px solid #39454a; border-radius: 5px; color: #ddd; background: #151b1e; cursor: pointer; }
+.hierarchicalLocationPanel button:disabled { opacity: .4; cursor: default; }
+.hierarchicalLocationPanel :focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+
+.worldGlobeInspector {
+  grid-column: 3;
+  grid-row: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+  padding: 8px;
+  overflow: auto;
+  border-left: 1px solid rgb(255 255 255 / 9%);
+  background: #101216;
+}
+
+.worldGlobeInspector .mapOperationalHud,
+.worldGlobeInspector .geographicSearchResultPanel {
+  position: static;
+  width: 100%;
+  max-width: none;
+  flex: 0 0 auto;
+}
+
+.worldGlobeControls {
+  grid-column: 4;
+  grid-row: 1;
+  align-content: start;
+  justify-items: center;
+  min-height: 0;
+  padding: 8px 3px;
+  overflow-y: auto;
+  background: #101216;
+}
+
+.worldGlobeControls .mapBasemapStyleControl select {
+  max-width: 44px;
+  text-indent: -9999px;
+}
+
+.worldGlobeControls .mapBasemapStyleControl {
+  position: relative;
+}
+
+.worldGlobeControls .mapBasemapStyleControl::before {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: #ddd;
+  content: "MAPA";
+  font-size: 8px;
+  pointer-events: none;
+}
+
+.worldGlobeHud .geographicTimelinePanel,
+.worldGlobeHud .worldMapEmptyState {
+  left: calc(var(--panel-width) + 12px);
+}
+
+.worldGlobeHud .mapMeasurementToggle,
+.worldGlobeHud .mapGeoJsonToggle,
+.worldGlobeHud .mapComparisonToggle {
+  right: calc(var(--inspector-width) + 58px);
+}
+
+.worldGlobeHud .mapMeasurementPanel,
+.worldGlobeHud .mapGeoJsonPanel,
+.worldGlobeHud .mapComparisonPanel {
+  right: calc(var(--inspector-width) + 100px);
+}
+
+.worldGlobeMap.isCleanMapMode {
+  display: block;
+}
+
+.worldGlobeMap.isCleanMapMode .worldGlobeMapCanvas {
+  position: absolute;
+  inset: 0;
+}
+
+.worldGlobeMap.isCleanMapMode .worldGlobeInspector {
+  display: none;
 }

@@ -1,3 +1,5 @@
+import type { IbgeBoundary, IbgeMunicipality } from '../municipal-boundaries/municipal-boundaries.types';
+import type { RecifeNeighborhood, RecifeStreet } from '../recife-geometry/recife-geometry.types';
 import type {
   CaseActivity,
   CaseActivityCreateInput,
@@ -30,6 +32,12 @@ import type {
   GeographicSearchRequest,
   GeographicSearchResponse,
 } from '../geographic-search/geographic-search.types';
+
+import type {
+  GoogleEmbedRequest,
+  GoogleEmbedSession,
+  MapProviderKeyStatus,
+} from '../map-providers/map-providers.types';
 
 import type {
   DiffResult,
@@ -202,6 +210,18 @@ type ZeroHubAPI = {
     ): Promise<boolean>;
 
     clearCache(): Promise<boolean>;
+  };
+
+  ibgeBoundaries: {
+    list(state: string, requestId: string): Promise<IbgeMunicipality[]>;
+    geometry(state: string, code: string, requestId: string): Promise<IbgeBoundary>;
+    cancel(requestId: string): Promise<boolean>;
+  };
+
+  recifeGeometry: {
+    neighborhood(city: string, name: string, requestId: string, savedCode?: string): Promise<RecifeNeighborhood | null>;
+    street(city: string, neighborhood: string, name: string, requestId: string, savedCode?: string): Promise<RecifeStreet | null>;
+    cancel(requestId: string): Promise<boolean>;
   };
 
   ipGeolocation: {
@@ -531,6 +551,22 @@ type ZeroHubAPI = {
     save(
       settings: AppSettings,
     ): Promise<AppSettings>;
+  };
+
+  mapProviders: {
+    getGoogleKeyStatus():
+      Promise<MapProviderKeyStatus>;
+
+    saveGoogleApiKey(
+      apiKey: string,
+    ): Promise<MapProviderKeyStatus>;
+
+    removeGoogleApiKey():
+      Promise<MapProviderKeyStatus>;
+
+    createGoogleEmbed(
+      request: GoogleEmbedRequest,
+    ): Promise<GoogleEmbedSession>;
   };
 };
 

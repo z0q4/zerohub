@@ -18,6 +18,12 @@ import {
   ModuleWorkbenchDrawer,
 } from './ModuleWorkbenchDrawer';
 import {
+  GoogleEmbedView,
+} from './GoogleEmbedView';
+import {
+  MapProviderSelector,
+} from './MapProviderSelector';
+import {
   TopRightControls,
 } from './TopRightControls';
 import {
@@ -39,6 +45,10 @@ import {
 import type {
   InvestigationCase,
 } from '../../../shared/cases/cases.types';
+import type {
+  MapProviderKeyStatus,
+  MapProviderViewId,
+} from '../../../shared/map-providers/map-providers.types';
 import type {
   ModuleDefinition,
   WorkspaceMode,
@@ -177,6 +187,22 @@ export function MapWorkspaceShell({
     setCleanMapMode,
   ] = useState(false);
   const [
+    activeMapProviderView,
+    setActiveMapProviderView,
+  ] = useState<MapProviderViewId>(
+    'openfreemap-globe',
+  );
+  const [
+    googleKeyStatus,
+    setGoogleKeyStatus,
+  ] = useState<MapProviderKeyStatus | null>(
+    null,
+  );
+  const [
+    googleStatusBusy,
+    setGoogleStatusBusy,
+  ] = useState(true);
+  const [
     cleanMapAnnouncement,
     setCleanMapAnnouncement,
   ] = useState<string | null>(null);
@@ -198,6 +224,52 @@ export function MapWorkspaceShell({
         getWorkspaceModules(mode),
       [mode],
     );
+
+  useEffect(() => {
+    let active = true;
+
+    async function refreshGoogleStatus():
+      Promise<void> {
+      setGoogleStatusBusy(true);
+
+      try {
+        const status =
+          await window.zeroHub
+            .mapProviders
+            .getGoogleKeyStatus();
+
+        if (active) {
+          setGoogleKeyStatus(status);
+        }
+      } catch {
+        if (active) {
+          setGoogleKeyStatus(null);
+        }
+      } finally {
+        if (active) {
+          setGoogleStatusBusy(false);
+        }
+      }
+    }
+
+    function handleStatusChange(): void {
+      void refreshGoogleStatus();
+    }
+
+    void refreshGoogleStatus();
+    window.addEventListener(
+      'zerohub:map-provider-status-changed',
+      handleStatusChange,
+    );
+
+    return () => {
+      active = false;
+      window.removeEventListener(
+        'zerohub:map-provider-status-changed',
+        handleStatusChange,
+      );
+    };
+  }, []);
   useEffect(() => {
     if (
       !modulePanelOpen ||
@@ -383,10 +455,6 @@ export function MapWorkspaceShell({
     };
   }, []);
 
-  const activeModeLabel =
-    mode === 'osint'
-      ? 'OSINT'
-      : 'ATTACK';
   const drawerOpen =
     isDrawerPage(activePage);
 
@@ -400,125 +468,178 @@ export function MapWorkspaceShell({
       ref={shellRef}
     >
       <WorkspaceErrorBoundary>
-        <WorldGlobeMap
-          activeMode={mode}
-          focusGeographicActivityId={
-            focusGeographicActivityId
+        <div
+          className="mapProviderHost"
+          data-provider-view={
+            activeMapProviderView
           }
-          geographicTimelineEvents={
-            geographicTimelineEvents
+        >
+          <div
+            className="mapProviderMapLibreView"
+            aria-hidden={
+              activeMapProviderView !==
+              'openfreemap-globe'
+            }
+            inert={
+              activeMapProviderView !==
+              'openfreemap-globe'
+            }
+          >
+            <WorldGlobeMap
+              activeMode={mode}
+              providerVisible={activeMapProviderView === 'openfreemap-globe'}
+              focusGeographicActivityId={
+                focusGeographicActivityId
+              }
+              geographicTimelineEvents={
+                geographicTimelineEvents
+              }
+              cleanMapMode={cleanMapMode}
+              geographicSearchResult={
+                geographicSearchResult
+              }
+              geographicSearchBusy={
+                geographicSearchBusy
+              }
+              geographicSearchResultFavorite={
+                geographicSearchResultFavorite
+              }
+              mapWorkspaceView={
+                mapWorkspaceView
+              }
+              markerCount={0}
+              modulePanelOpen={
+                modulePanelOpen
+              }
+              resetSignal={resetSignal}
+              onMapWorkspaceViewChange={
+                onMapWorkspaceViewChange
+              }
+              onFocusGeographicActivityHandled={
+                onFocusGeographicActivityHandled
+              }
+              onOpenCaseActivity={
+                onOpenCaseActivity
+              }
+              onClearGeographicSearch={
+                onClearGeographicSearch
+              }
+              onMapViewportChange={
+                onMapViewportChange
+              }
+              onOpenIpRdap={
+                onOpenIpRdap
+              }
+              onReverseGeographicSearch={
+                onReverseGeographicSearch
+              }
+              onToggleGeographicFavorite={
+                onToggleGeographicFavorite
+              }
+              universalMapCommand={
+                universalMapCommand
+              }
+            />
+          </div>
+
+          {activeMapProviderView !==
+            'openfreemap-globe' && (
+            <GoogleEmbedView
+              configured={Boolean(
+                googleKeyStatus
+                  ?.configured,
+              )}
+              initialLatitude={
+                mapWorkspaceView
+                  .camera.latitude
+              }
+              initialLongitude={
+                mapWorkspaceView
+                  .camera.longitude
+              }
+              initialZoom={
+                mapWorkspaceView
+                  .camera.zoom
+              }
+              mode={
+                activeMapProviderView ===
+                'google-map-2d'
+                  ? 'map-2d'
+                  : 'street-360'
+              }
+              onConfigure={() => {
+                onNavigate('settings');
+              }}
+              onReturnToMap={() => setActiveMapProviderView('openfreemap-globe')}
+            />
+          )}
+        </div>
+      </WorkspaceErrorBoundary>
+
+      <header className="workspaceTopbar" aria-label="Controles do workspace">
+        <strong className="workspaceTopbarBrand">ZEROHUB</strong>
+        <MapProviderSelector
+          activeView={
+            activeMapProviderView
           }
-          cleanMapMode={cleanMapMode}
-          geographicSearchResult={
-            geographicSearchResult
+          googleStatus={
+            googleKeyStatus
           }
-          geographicSearchBusy={
-            geographicSearchBusy
+          statusBusy={
+            googleStatusBusy
           }
-          geographicSearchResultFavorite={
-            geographicSearchResultFavorite
+          onConfigure={() => {
+            onNavigate('settings');
+          }}
+          onSelect={
+            setActiveMapProviderView
           }
-          mapWorkspaceView={
-            mapWorkspaceView
-          }
-          markerCount={0}
+        />
+
+        <WorkspaceSearch
+          commandHint={commandHint}
+          mode={mode}
+          onOpen={onOpenCommandPalette}
+        />
+
+        <TopRightControls
+          activeCase={activeCase}
           modulePanelOpen={
             modulePanelOpen
           }
-          resetSignal={resetSignal}
-          onMapWorkspaceViewChange={
-            onMapWorkspaceViewChange
+          modulesButtonRef={
+            modulesButtonRef
           }
-          onFocusGeographicActivityHandled={
-            onFocusGeographicActivityHandled
-          }
-          onOpenCaseActivity={
-            onOpenCaseActivity
-          }
-          onClearGeographicSearch={
-            onClearGeographicSearch
-          }
-          onMapViewportChange={
-            onMapViewportChange
-          }
-          onOpenIpRdap={onOpenIpRdap}
-          onReverseGeographicSearch={
-            onReverseGeographicSearch
-          }
-          onToggleGeographicFavorite={
-            onToggleGeographicFavorite
-          }
-          universalMapCommand={
-            universalMapCommand
-          }
+          onOpenCases={() => {
+            onNavigate('cases');
+          }}
+          onToggleModulePanel={() => {
+            onModulePanelOpenChange(
+              !modulePanelOpen,
+            );
+          }}
+          onOpenSettings={() => {
+            onNavigate('settings');
+          }}
+          onRecenterMap={() => {
+            setResetSignal(
+              (current) =>
+                current + 1,
+            );
+          }}
         />
-      </WorkspaceErrorBoundary>
+
+        <WorkspaceModeSwitcher
+          mode={mode}
+          onChange={onModeChange}
+        />
+      </header>
 
       <CompactModuleRail
         activePage={activePage}
         modules={modulesForMode}
         onNavigate={onNavigate}
       />
-
-      <WorkspaceSearch
-        commandHint={commandHint}
-        mode={mode}
-        onOpen={onOpenCommandPalette}
-      />
-
-      <TopRightControls
-        activeCase={activeCase}
-        modulePanelOpen={
-          modulePanelOpen
-        }
-        modulesButtonRef={
-          modulesButtonRef
-        }
-        onOpenCases={() => {
-          onNavigate('cases');
-        }}
-        onToggleModulePanel={() => {
-          onModulePanelOpenChange(
-            !modulePanelOpen,
-          );
-        }}
-        onOpenSettings={() => {
-          onNavigate('settings');
-        }}
-        onRecenterMap={() => {
-          setResetSignal(
-            (current) =>
-              current + 1,
-          );
-        }}
-      />
-
-      {!drawerOpen && (
-        <section className="workspaceHomeOverlay">
-          <span>
-            ZEROHUB ·{' '}
-            {activeModeLabel}
-          </span>
-
-          <h1>ZeroHub</h1>
-
-          <p>
-            {modulesForMode.length}
-            {' '}
-            módulos disponíveis.
-            {' '}
-            {activeCase
-              ? `Case ativo: ${activeCase.name}.`
-              : 'Nenhum case ativo.'}
-          </p>
-
-          <small>
-            Use a busca ou a rail
-            lateral para abrir uma
-            ferramenta.
-          </small>
-        </section>
-      )}
 
       {drawerOpen && (
         <ModuleWorkbenchDrawer
@@ -548,12 +669,14 @@ export function MapWorkspaceShell({
             onNavigate={onNavigate}
           />
         )}
-
-        <WorkspaceModeSwitcher
-          mode={mode}
-          onChange={onModeChange}
-        />
       </div>
+
+      <footer className="workspaceStatusBar" aria-label="Estado do workspace cartográfico">
+        <span>{mode.toUpperCase()}</span>
+        <span>{activeCase ? `Case: ${activeCase.name}` : 'Sem case ativo'}</span>
+        <span>Centro ZeroHub {mapWorkspaceView.camera.latitude.toFixed(4)}, {mapWorkspaceView.camera.longitude.toFixed(4)}</span>
+        <span>{activeMapProviderView === 'openfreemap-globe' ? 'OpenFreeMap · Natural Earth' : 'Google Embed · câmera independente'}</span>
+      </footer>
 
       {cleanMapAnnouncement && (
         <p

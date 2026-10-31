@@ -1,5 +1,9 @@
 # Contexto Mestre do ZeroHub
 
+> As seções 1 a 14 são a fotografia histórica de `main` no PR #20 e podem
+> não descrever o código desta branch. As seções 15 e 16 registram a integração
+> multi-provider, o HUD e a localização geográfica da branch de trabalho.
+
 ## 1. Referência deste documento
 
 Este documento descreve o estado real da branch `main` após o merge do PR #20.
@@ -303,3 +307,59 @@ O arquivo `AGENTS.md` determina:
 - trabalhar uma etapa por vez;
 - não fazer commit nem push sem autorização explícita;
 - antes de concluir alterações, executar TypeScript, ESLint, testes Python e `git diff --check`.
+
+## 15. Integração cartográfica multi-provider (branch de trabalho)
+
+Na branch `feat/map-providers-google-embed`, a primeira etapa da arquitetura multi-provider adiciona, sem substituir o mapa principal:
+
+- domínio compartilhado em `src/shared/map-providers/`, com provedores, modalidades, capacidades e validação estrita;
+- chave da Google Maps Embed API armazenada fora de `settings.json`, criptografada por `electron.safeStorage`, com arquivo restrito, rotação e remoção;
+- IPC autenticado para consultar o estado da chave e criar sessões Embed validadas, sem endpoint que devolva a chave isoladamente;
+- seletor entre OpenFreeMap, Google Maps 2D e Google Street View 360°;
+- vista Google exclusiva, com entrada validada de coordenadas, timeout, retry e mensagens sobre cobertura, cota, faturamento e restrições;
+- preservação do `WorldGlobeMap` montado e inativo enquanto a vista Google está aberta, mantendo casos, timeline, câmera, marcadores transitórios e camadas;
+- CSP de produção limitada a frames em `https://www.google.com`, bloqueio de novas janelas e negação de permissões web não solicitadas;
+- seção de credenciais em Settings que nunca repopula nem exibe a chave salva e documenta a necessidade de restrições da API e alertas de orçamento.
+
+O Google Maps Embed é uma integração de navegador: durante o uso, a chave restrita aparece no URL do frame. Ela não deve ser tratada como segredo absoluto; deve ser limitada à Maps Embed API no Google Cloud, com cotas, faturamento e alertas apropriados. O conteúdo Google não é combinado com tiles ou overlays do OpenFreeMap, e a câmera do iframe não é apresentada como sincronizada com o mapa principal.
+
+## 16. HUD e localização geográfica (branch de trabalho)
+
+Na branch `feat/map-providers-google-embed`, o workspace cartográfico usa uma
+estrutura Grid/Flex com navegação e busca superiores, rail lateral, área de
+mapa, painéis encaixados, dock de ferramentas e barra de estado. O painel de
+localização permite selecionar país, estado, cidade, bairro, rua e local
+exato, com autocomplete, dependências entre níveis e limpeza de descendentes.
+Coordenadas digitadas pelo usuário são identificadas como tal; sua relação com
+os níveis anteriores não é verificada.
+
+Os destaques no MapLibre utilizam GeoJSON e camadas de preenchimento, contorno,
+linhas e pontos. Países e estados usam limites locais simplificados do Natural
+Earth. Municípios brasileiros são identificados por código e UF no catálogo
+IBGE; suas malhas simplificadas são obtidas sob demanda. Para o município de
+Recife (IBGE 2611606), o aplicativo pode obter limites oficiais de bairros e
+geometrias de vias da Prefeitura do Recife, com associação por código ao
+bairro selecionado. A geometria da via representa a via completa e pode
+atravessar outros bairros. Fora dessa cobertura, a seleção é preservada e a
+ausência de geometria é indicada. Fontes, licenças e limitações estão em
+`src/renderer/assets/map/MAP_DATA_LICENSE.md`.
+
+Os destaques usam a accent color escolhida pelo usuário e são mantidos na
+troca de estilo. A seleção permanece ao alternar para Google Maps ou Street
+View, mas os overlays do ZeroHub são renderizados somente no MapLibre. A
+localização pode ser salva explicitamente no case ativo, restaurada sem
+duplicar atividades e reutilizada para criar marcador. O zoom automático é
+opcional; a restauração recupera as geometrias disponíveis sob demanda.
+
+As consultas usam debounce, cancelamento e caches com prazo de até 24 horas.
+O primeiro carregamento da base de vias do Recife pode baixar cerca de 14 MB;
+os dados públicos de vias também são guardados em cache comprimido na pasta
+de dados do aplicativo, sem gravar geometrias nos cases. A seleção e o cache
+não eliminam a necessidade de rede para as consultas oficiais não armazenadas.
+
+Foram exercitados no Electron Linux o fluxo de Recife com os seis níveis,
+restauração de case e zoom, estilos cartográficos e alternância de provedores
+sem chave Google. A visualização de conteúdo Google com chave válida e um
+perfilamento prolongado de memória permanecem sem validação. Os documentos
+`ZeroHub_Auditoria_HUD_GeoSelecao.md` e `ZeroHub_Plano_Integracao_Mapas.md`
+preservam especificações e propostas históricas, não o estado corrente.

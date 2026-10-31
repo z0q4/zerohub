@@ -1,3 +1,5 @@
+import type { IbgeBoundary, IbgeMunicipality } from './shared/municipal-boundaries/municipal-boundaries.types';
+import type { RecifeNeighborhood, RecifeStreet } from './shared/recife-geometry/recife-geometry.types';
 import type {
   CaseActivity,
   CaseActivityCreateInput,
@@ -30,6 +32,12 @@ import type {
   GeographicSearchRequest,
   GeographicSearchResponse,
 } from './shared/geographic-search/geographic-search.types';
+
+import type {
+  GoogleEmbedRequest,
+  GoogleEmbedSession,
+  MapProviderKeyStatus,
+} from './shared/map-providers/map-providers.types';
 
 import type {
   DiffResult,
@@ -366,6 +374,18 @@ const zeroHubAPI = {
       ipcRenderer.invoke(
         'geographic-search:clear-cache',
       ),
+  },
+
+  ibgeBoundaries: {
+    list: (state: string, requestId: string): Promise<IbgeMunicipality[]> => ipcRenderer.invoke('ibge-boundaries:list', state, requestId),
+    geometry: (state: string, code: string, requestId: string): Promise<IbgeBoundary> => ipcRenderer.invoke('ibge-boundaries:geometry', state, code, requestId),
+    cancel: (requestId: string): Promise<boolean> => ipcRenderer.invoke('ibge-boundaries:cancel', requestId),
+  },
+
+  recifeGeometry: {
+    neighborhood: (city: string, name: string, requestId: string, savedCode?: string): Promise<RecifeNeighborhood | null> => ipcRenderer.invoke('recife-geometry:neighborhood', city, name, requestId, savedCode),
+    street: (city: string, neighborhood: string, name: string, requestId: string, savedCode?: string): Promise<RecifeStreet | null> => ipcRenderer.invoke('recife-geometry:street', city, neighborhood, name, requestId, savedCode),
+    cancel: (requestId: string): Promise<boolean> => ipcRenderer.invoke('recife-geometry:cancel', requestId),
   },
 
   ipGeolocation: {
@@ -941,6 +961,36 @@ const zeroHubAPI = {
       ipcRenderer.invoke(
         'settings:save',
         settings,
+      ),
+  },
+
+  mapProviders: {
+    getGoogleKeyStatus: ():
+      Promise<MapProviderKeyStatus> =>
+      ipcRenderer.invoke(
+        'map-providers:google-key-status',
+      ),
+
+    saveGoogleApiKey: (
+      apiKey: string,
+    ): Promise<MapProviderKeyStatus> =>
+      ipcRenderer.invoke(
+        'map-providers:save-google-key',
+        apiKey,
+      ),
+
+    removeGoogleApiKey: ():
+      Promise<MapProviderKeyStatus> =>
+      ipcRenderer.invoke(
+        'map-providers:remove-google-key',
+      ),
+
+    createGoogleEmbed: (
+      request: GoogleEmbedRequest,
+    ): Promise<GoogleEmbedSession> =>
+      ipcRenderer.invoke(
+        'map-providers:create-google-embed',
+        request,
       ),
   },
 };
