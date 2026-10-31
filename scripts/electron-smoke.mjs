@@ -420,16 +420,17 @@ if (testCleanMap) {
   const hiddenState = await evaluate(`(() => {
     const hiddenSelectors = [
       '.compactModuleRail',
+      '.workspaceTopbar',
       '.workspaceSearch',
       '.topRightControls',
-      '.workspaceHomeOverlay',
       '.workspaceModeNavigation',
       '.worldGlobeHud',
       '.worldGlobeTools',
     ];
     return {
       allChromeHidden: hiddenSelectors.every((selector) => (
-        getComputedStyle(document.querySelector(selector)).display === 'none'
+        document.querySelector(selector) &&
+        document.querySelector(selector).getClientRects().length === 0
       )),
       attributionVisible: getComputedStyle(
         document.querySelector('.detailedBasemapAttribution'),
@@ -437,10 +438,13 @@ if (testCleanMap) {
       canvasCount: document.querySelectorAll('.maplibregl-canvas').length,
     };
   })()`);
-  await clickAt(
-    markerState.centers[0].x,
-    markerState.centers[0].y,
-  );
+  const cleanMarkerCenter = await evaluate(`(() => {
+    const marker = [...document.querySelectorAll('.coordinateLocationMarker')]
+      .find((item) => item.dataset.smokeExisting !== 'true');
+    const bounds = marker.getBoundingClientRect();
+    return { x: bounds.left + bounds.width / 2, y: bounds.top + bounds.height / 2 };
+  })()`);
+  await clickAt(cleanMarkerCenter.x, cleanMarkerCenter.y);
   await waitForSelector('.mapMarkerDetailsPopover');
   const markerPopoverInteractive = await evaluate(
     "getComputedStyle(document.querySelector('.mapMarkerDetailsPopover')).display !== 'none'",

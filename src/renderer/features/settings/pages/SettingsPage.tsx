@@ -18,6 +18,9 @@ import type {
   AppSettings,
   VisualProfile,
 } from '../../../../shared/settings/settings.types';
+import type {
+  MapProviderKeyStatus,
+} from '../../../../shared/map-providers/map-providers.types';
 
 type SettingsPageProps = {
   settings: AppSettings;
@@ -122,6 +125,20 @@ export function SettingsPage({
   ] = useState(false);
   const [privacyBusy, setPrivacyBusy] =
     useState(false);
+  const [
+    googleApiKey,
+    setGoogleApiKey,
+  ] = useState('');
+  const [
+    googleKeyStatus,
+    setGoogleKeyStatus,
+  ] = useState<MapProviderKeyStatus | null>(
+    null,
+  );
+  const [
+    googleKeyBusy,
+    setGoogleKeyBusy,
+  ] = useState(true);
 
   const [
     message,
@@ -191,6 +208,104 @@ export function SettingsPage({
   useEffect(() => {
     setDraft(settings);
   }, [settings]);
+
+  useEffect(() => {
+    let active = true;
+
+    window.zeroHub.mapProviders
+      .getGoogleKeyStatus()
+      .then((status) => {
+        if (active) {
+          setGoogleKeyStatus(status);
+        }
+      })
+      .catch((unknownError: unknown) => {
+        if (active) {
+          setError(
+            unknownError instanceof Error
+              ? unknownError.message
+              : 'Não foi possível verificar a chave do Google Maps.',
+          );
+        }
+      })
+      .finally(() => {
+        if (active) {
+          setGoogleKeyBusy(false);
+        }
+      });
+
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  async function saveGoogleKey():
+    Promise<void> {
+    setGoogleKeyBusy(true);
+    setMessage(null);
+    setError(null);
+
+    try {
+      const status =
+        await window.zeroHub
+          .mapProviders
+          .saveGoogleApiKey(
+            googleApiKey,
+          );
+
+      setGoogleKeyStatus(status);
+      setGoogleApiKey('');
+      setMessage(
+        'Chave do Google Maps protegida e salva.',
+      );
+      window.dispatchEvent(
+        new Event(
+          'zerohub:map-provider-status-changed',
+        ),
+      );
+    } catch (unknownError) {
+      setError(
+        unknownError instanceof Error
+          ? unknownError.message
+          : 'Não foi possível salvar a chave do Google Maps.',
+      );
+    } finally {
+      setGoogleKeyBusy(false);
+    }
+  }
+
+  async function removeGoogleKey():
+    Promise<void> {
+    setGoogleKeyBusy(true);
+    setMessage(null);
+    setError(null);
+
+    try {
+      const status =
+        await window.zeroHub
+          .mapProviders
+          .removeGoogleApiKey();
+
+      setGoogleKeyStatus(status);
+      setGoogleApiKey('');
+      setMessage(
+        'Chave do Google Maps removida.',
+      );
+      window.dispatchEvent(
+        new Event(
+          'zerohub:map-provider-status-changed',
+        ),
+      );
+    } catch (unknownError) {
+      setError(
+        unknownError instanceof Error
+          ? unknownError.message
+          : 'Não foi possível remover a chave do Google Maps.',
+      );
+    } finally {
+      setGoogleKeyBusy(false);
+    }
+  }
 
   async function saveChanges():
     Promise<void> {
@@ -520,6 +635,115 @@ export function SettingsPage({
                 <span />
               </span>
             </label>
+          </div>
+
+          <div className="settingsSection settingsMapProvidersSection">
+            <div className="settingsSectionHeader">
+              <div>
+                <span>FONTES DO MAPA</span>
+
+                <h2>Google Maps Embed</h2>
+
+                <p>
+                  Habilita as vistas isoladas Google Maps 2D e Street View 360°.
+                </p>
+              </div>
+
+              <span
+                className={`settingsMapProviderBadge ${
+                  googleKeyStatus
+                    ?.configured
+                    ? 'active'
+                    : ''
+                }`}
+              >
+                {googleKeyBusy
+                  ? 'Verificando…'
+                  : googleKeyStatus
+                      ?.configured
+                    ? 'Chave configurada'
+                    : 'Não configurado'}
+              </span>
+            </div>
+
+            <div className="settingsMapProviderGrid">
+              <label>
+                <span>
+                  Chave da Maps Embed API
+                </span>
+                <input
+                  type="password"
+                  autoComplete="off"
+                  spellCheck={false}
+                  value={googleApiKey}
+                  placeholder={
+                    googleKeyStatus
+                      ?.configured
+                      ? '••••••••••••••••••••••••'
+                      : 'Cole uma chave restrita à API'
+                  }
+                  onChange={(event) => {
+                    setGoogleApiKey(
+                      event.target.value,
+                    );
+                    setMessage(null);
+                    setError(null);
+                  }}
+                />
+              </label>
+
+              <div className="settingsMapProviderActions">
+                <button
+                  className="primaryButton"
+                  type="button"
+                  disabled={
+                    googleKeyBusy ||
+                    !googleApiKey.trim()
+                  }
+                  onClick={() => {
+                    void saveGoogleKey();
+                  }}
+                >
+                  {googleKeyStatus
+                    ?.configured
+                    ? 'Rotacionar chave'
+                    : 'Salvar chave'}
+                </button>
+
+                <button
+                  className="secondaryButton"
+                  type="button"
+                  disabled={
+                    googleKeyBusy ||
+                    !googleKeyStatus
+                      ?.configured
+                  }
+                  onClick={() => {
+                    void removeGoogleKey();
+                  }}
+                >
+                  Remover
+                </button>
+              </div>
+            </div>
+
+            <div className="settingsMapProviderSecurity">
+              <strong>
+                {googleKeyStatus
+                  ?.protectedByOs
+                  ? 'Protegida pelo sistema operacional'
+                  : 'Proteção do sistema indisponível'}
+              </strong>
+              <span>
+                {googleKeyStatus
+                  ?.storageBackend ??
+                  'backend não identificado'}
+              </span>
+            </div>
+
+            <p className="settingsMapProviderNote">
+              A chave não entra em settings.json nem localStorage e nunca é exibida após salvar. Como a Embed API funciona no navegador, ela é usada no URL do frame durante a sessão: restrinja-a somente à Maps Embed API, defina cotas e alertas de orçamento. Conta de faturamento pode ser exigida pelo Google.
+            </p>
           </div>
 
           <div className="settingsSection settingsPrivacySection">

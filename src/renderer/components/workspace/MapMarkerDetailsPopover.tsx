@@ -419,10 +419,12 @@ export const MapMarkerDetailsPopover =
               },
             );
 
+          const parentBounds = popover.offsetParent
+            ?.getBoundingClientRect();
           popover.style.left =
-            `${bestCandidate.left}px`;
+            `${bestCandidate.left + viewportBounds.left - (parentBounds?.left ?? viewportBounds.left)}px`;
           popover.style.top =
-            `${bestCandidate.top}px`;
+            `${bestCandidate.top + viewportBounds.top - (parentBounds?.top ?? viewportBounds.top)}px`;
         };
         const schedulePosition = () => {
           if (positionFrame !== null) {

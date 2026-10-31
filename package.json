@@ -16,6 +16,7 @@
     "test:geo": "node --experimental-transform-types --experimental-loader ./scripts/typescript-test-loader.mjs --test ./tests/geographic-search.test.ts",
     "test:session": "node --experimental-transform-types --experimental-loader ./scripts/typescript-test-loader.mjs --test ./tests/session-persistence.test.ts",
     "test:auth": "node --experimental-transform-types --experimental-loader ./scripts/typescript-test-loader.mjs --test ./tests/auth-validation.test.ts",
+    "test:map-providers": "node --experimental-transform-types --experimental-loader ./scripts/typescript-test-loader.mjs --test ./tests/map-providers.test.ts",
     "release:linux": "npm run check && electron-forge make --platform=linux --arch=x64"
   },
   "keywords": [],
