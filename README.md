@@ -13,21 +13,21 @@ A modern, minimal hub for managing projects and resources with zero complexity.
 ## Installation
 
 ```bash
-Execute o comando de instalação (PowerShell - admin):
+#Execute o comando de instalação (PowerShell - admin):
 
 winget install --id Git.Git -e --source winget
 
-Feche este terminal do PowerShell e abra uma nova janela.
+#Feche este terminal do PowerShell e abra uma nova janela.
 
 cd C:\Users\ENTER_YOUR_USER\Documents
 git clone https://github.com/z0q4/zerohub.git
 
-Feche esta janela do PowerShell e abra uma nova janela.
+#Feche esta janela do PowerShell e abra uma nova janela.
 
 cd C:\Users\ENTER_YOUR_USER\Documents\zerohub
 winget install --id OpenJS.NodeJS.LTS -e --source winget
 
-Feche esta janela do PowerShell e abra uma nova janela.
+#Feche esta janela do PowerShell e abra uma nova janela.
 
 cd C:\Users\ENTER_YOUR_USER\Documents\zerohub
 
