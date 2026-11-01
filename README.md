@@ -19,17 +19,17 @@ winget install --id Git.Git -e --source winget
 
 Feche este terminal do PowerShell e abra uma nova janela.
 
-cd C:\Users\???\Documents
+cd C:\Users\ENTER_YOUR_USER\Documents
 git clone https://github.com/z0q4/zerohub.git
 
 Feche esta janela do PowerShell e abra uma nova janela.
 
-cd C:\Users\???\Documents\zerohub
+cd C:\Users\ENTER_YOUR_USER\Documents\zerohub
 winget install --id OpenJS.NodeJS.LTS -e --source winget
 
 Feche esta janela do PowerShell e abra uma nova janela.
 
-cd C:\Users\???\Documents\zerohub
+cd C:\Users\ENTER_YOUR_USER\Documents\zerohub
 
 npm install
 
