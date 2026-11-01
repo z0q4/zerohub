@@ -411,9 +411,26 @@
   outline: none;
 }
 
-.worldGlobeMapCanvas .maplibregl-control-container,
 .worldGlobeMapCanvas .maplibregl-ctrl-attrib {
   display: none;
+}
+
+.worldGlobeMapCanvas .maplibregl-ctrl-scale {
+  margin: 0 0 10px 10px;
+  padding: 1px 5px;
+  border: 2px solid #d7e3e3;
+  border-top: 0;
+  color: #eef4f4;
+  background: rgb(12 17 20 / 88%);
+  font: 10px/1.4 sans-serif;
+  text-align: center;
+  pointer-events: none;
+}
+
+.worldGlobeMap.isStreetsLight .maplibregl-ctrl-scale {
+  border-color: #34464b;
+  color: #223238;
+  background: rgb(248 250 249 / 92%);
 }
 
 .worldGlobeMapCanvas .maplibregl-canvas-container {
@@ -5076,4 +5093,211 @@ form {
 
 .worldGlobeMap.isCleanMapMode .worldGlobeInspector {
   display: none;
+}
+
+/* Shared workspace surfaces and interaction states. Accent comes from settings. */
+.mapWorkspaceShell {
+  --ws-surface: #101419;
+  --ws-surface-raised: #151b20;
+  --ws-surface-hover: #1c252b;
+  --ws-border: rgb(189 212 218 / 12%);
+  --ws-text: #e9f0f1;
+  --ws-muted: #a0afb3;
+  --ws-radius: 8px;
+  --ws-gap: 8px;
+  color: var(--ws-text);
+  background: #090d0f;
+}
+
+.mapWorkspaceShell :is(.workspaceTopbar, .workspaceStatusBar, .worldGlobePanels, .worldGlobeInspector, .worldGlobeControls) {
+  background: var(--ws-surface);
+  border-color: var(--ws-border);
+}
+
+.mapWorkspaceShell :is(.mapLayerManager, .hierarchicalLocationPanel, .ipGeolocationPanel, .workspaceMapMarkerPanel, .mapOperationalHud:not(.isMinimized), .geographicSearchResultPanel) {
+  border: 1px solid var(--ws-border);
+  border-radius: var(--ws-radius);
+  background: #0c1114;
+  box-shadow: none;
+}
+
+.mapWorkspaceShell :is(button, input, select, textarea):focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+.mapWorkspaceShell :is(button, input, select, textarea) {
+  transition: border-color 140ms ease, background-color 140ms ease, color 140ms ease;
+}
+
+.mapWorkspaceShell :is(.worldGlobePanels, .worldGlobeInspector, .worldGlobeControls, .compactRailModules, .locationSuggestions) {
+  scrollbar-color: #536267 transparent;
+  scrollbar-width: thin;
+}
+
+.mapWorkspaceShell :is(.worldGlobePanels, .worldGlobeInspector, .worldGlobeControls, .compactRailModules, .locationSuggestions)::-webkit-scrollbar { width: 5px; }
+.mapWorkspaceShell :is(.worldGlobePanels, .worldGlobeInspector, .worldGlobeControls, .compactRailModules, .locationSuggestions)::-webkit-scrollbar-thumb { background: #536267; border-radius: 8px; }
+
+.workspaceTopbar { gap: 8px; padding-inline: 12px; }
+.workspaceTopbarBrand { color: var(--ws-text); font-size: 12px; letter-spacing: .09em; }
+.workspaceTopbarBrand::first-letter { color: var(--primary); }
+.workspaceTopbar :is(.workspaceSearch, .mapProviderSelector, .topRightControls button, .workspaceModeSwitcher) { border-color: var(--ws-border); background: #0c1114; }
+.workspaceTopbar .workspaceSearch { color: var(--ws-muted); }
+.workspaceTopbar .mapProviderSelectorOptions button { min-height: 34px; border-radius: 5px; }
+.workspaceTopbar .mapProviderSelectorOptions span { font-size: 10px; }
+.workspaceTopbar .mapProviderSelectorOptions small { font-size: 7px; color: var(--ws-muted); }
+.workspaceTopbar .mapProviderSelectorOptions button[aria-pressed="true"] { color: var(--ws-text); background: var(--ws-surface-hover); }
+.workspaceTopbar .mapProviderConfigureButton { border-color: var(--ws-border); color: var(--ws-muted); }
+.workspaceTopbar :is(.mapProviderSelectorOptions button, .topRightControls button):hover { background: var(--ws-surface-hover); color: var(--ws-text); }
+
+.compactModuleRail { border-color: var(--ws-border); background: #0c1114; box-shadow: none; }
+.compactRailBrand { color: var(--primary); }
+.compactRailButton { color: var(--ws-muted); }
+.compactRailButton:hover, .compactRailButton.active { color: var(--ws-text); background: var(--ws-surface-hover); }
+.compactRailButton.active { box-shadow: inset 2px 0 var(--primary); }
+
+.worldGlobePanels { gap: var(--ws-gap); }
+.worldGlobePanels[data-active="layers"] > .mapLayerManager,
+.worldGlobePanels[data-active="location"] > .hierarchicalLocationPanel,
+.worldGlobePanels[data-active="ip"] > .ipGeolocationPanel,
+.worldGlobePanels[data-active="markers"] > .workspaceMapMarkerPanel { order: -1; }
+
+.mapWorkspaceShell :is(.mapLayerManager, .hierarchicalLocationPanel, .ipGeolocationPanel, .workspaceMapMarkerPanel) { color: var(--ws-text); }
+.mapWorkspaceShell :is(.mapLayerManager, .hierarchicalLocationPanel, .ipGeolocationPanel, .workspaceMapMarkerPanel) :is(button, select, input, textarea) { border-color: var(--ws-border); background-color: var(--ws-surface-raised); color: var(--ws-text); }
+.mapWorkspaceShell :is(.mapLayerManager, .hierarchicalLocationPanel, .ipGeolocationPanel, .workspaceMapMarkerPanel) button:hover:not(:disabled) { border-color: color-mix(in srgb, var(--primary) 45%, transparent); background-color: var(--ws-surface-hover); }
+.mapWorkspaceShell :is(.mapLayerManager, .hierarchicalLocationPanel, .ipGeolocationPanel, .workspaceMapMarkerPanel) :is(button, input, select):disabled { opacity: .5; }
+.mapWorkspaceShell :is(.mapLayerManager, .hierarchicalLocationPanel, .mapOperationalHud) header strong { font-size: 12px; }
+.mapWorkspaceShell :is(.mapLayerManager, .hierarchicalLocationPanel, .mapOperationalHud) header span { color: var(--ws-muted); font-size: 9px; letter-spacing: .09em; }
+.mapWorkspaceShell :is(.mapLayerManager, .hierarchicalLocationPanel, .mapOperationalHud) small { color: var(--ws-muted); }
+
+.worldGlobeControls { gap: 5px; }
+.workspaceIcon { display: block; width: 17px; height: 17px; flex: none; }
+.worldGlobeControls button, .worldGlobeControls .mapBasemapStyleControl select { width: 36px; min-width: 36px; height: 36px; padding-inline: 0; border-color: var(--ws-border); border-radius: 7px; background: #0c1114; color: var(--ws-muted); }
+.worldGlobeControls .mapBasemapStyleControl select { appearance: none; }
+.worldGlobeControls button:hover, .worldGlobeControls button[aria-pressed="true"], .worldGlobeControls button[aria-expanded="true"] { border-color: color-mix(in srgb, var(--primary) 55%, transparent); background: var(--ws-surface-hover); color: var(--ws-text); }
+.worldGlobeControls button:is([aria-pressed="true"], [aria-expanded="true"]) { box-shadow: inset 2px 0 var(--primary); }
+.worldGlobeControls :is(.mapBasemapStyleControl, .ipGeolocationToggle) { margin-top: 6px; box-shadow: 0 -6px 0 -5px rgb(189 212 218 / 24%); }
+.mapOperationalHud dt { color: var(--ws-muted); }
+.mapOperationalHud dd { color: var(--ws-text); font-size: 10px; }
+.workspaceStatusBar { color: var(--ws-muted); font-size: 10px; }
+.workspaceStatusBar { gap: 10px; }
+.mapCoordinateStatus { display: inline-flex; align-items: center; gap: 7px; flex: none; font-variant-numeric: tabular-nums; }
+.mapCoordinateCenter { color: var(--ws-muted); }
+.mapCoordinateCursor { color: var(--ws-text); }
+.mapCoordinateStatus button { padding: 2px 5px; border: 1px solid var(--ws-border); border-radius: 4px; background: var(--ws-surface-raised); color: var(--ws-text); font: inherit; cursor: pointer; }
+.mapCoordinateStatus button:hover { border-color: var(--primary); background: var(--ws-surface-hover); }
+.mapCoordinateFeedback { color: var(--ws-muted); }
+.mapCoordinateFeedback:empty { display: none; }
+.workspaceNetworkStatus::before { content: ""; display: inline-block; width: 6px; height: 6px; margin-right: 6px; border-radius: 50%; background: #70c992; vertical-align: middle; }
+.workspaceNetworkStatus[data-online="false"]::before { background: #e4a36f; }
+
+.mapLayerManager .mapLayerSummary { margin: 0 0 8px; color: var(--ws-muted); font-size: 10px; }
+.mapLayerSearch { display: block; margin-bottom: 8px; }
+.mapLayerSearch input { width: 100%; min-width: 0; padding: 8px; border: 1px solid var(--ws-border); border-radius: 5px; font: inherit; font-size: 11px; }
+.mapLayerSearch input::placeholder { color: #a0afb3; opacity: 1; }
+.mapLayerColorFilter > span { color: var(--ws-muted); font-size: 10px; }
+.mapLayerManager :is(.mapLayerBulkActions button, .mapLayerColorFilter select) { font-size: 10px; }
+.mapLayerSection { min-width: 0; border-top: 1px solid var(--ws-border); }
+.mapLayerSection > summary { display: flex; justify-content: space-between; padding: 10px 4px 8px; border-radius: 4px; color: var(--ws-muted); font-size: 10px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; cursor: pointer; }
+.mapLayerSection > summary:hover, .mapLayerDetails > summary:hover { color: var(--ws-text); background: var(--ws-surface-hover); }
+.mapLayerManager summary:focus-visible { outline: 2px solid var(--primary); outline-offset: -2px; }
+.mapLayerSection > summary::after { content: "−"; margin-left: 6px; }
+.mapLayerSection:not([open]) > summary::after { content: "+"; }
+.mapLayerSection > summary span { margin-left: auto; font-variant-numeric: tabular-nums; }
+.mapLayerRow { min-width: 0; }
+.mapLayerManager .mapLayerCategory { width: 100%; min-height: 32px; margin: 1px 0; padding: 7px 6px; border-color: transparent; background: transparent; text-align: left; }
+.mapLayerManager .mapLayerCategory:hover { border-color: var(--ws-border); }
+.mapLayerManager .mapLayerCategory[aria-pressed="true"] .mapLayerVisibility { color: var(--primary); }
+.mapLayerManager .mapLayerCategory[aria-pressed="false"] .mapLayerVisibility { color: var(--ws-muted); }
+.mapLayerCategoryName { font-size: 11px; }
+.mapLayerManager .mapLayerCategory small { font-size: 9px; line-height: 1.35; }
+.mapLayerDetails { margin: 0 4px 5px 19px; color: var(--ws-muted); font-size: 10px; }
+.mapLayerDetails > summary { padding: 4px 0; cursor: pointer; }
+.mapLayerDetails label { display: grid; grid-template-columns: 1fr auto; gap: 5px; align-items: center; margin: 5px 0; }
+.mapLayerDetails input[type="range"] { grid-column: 1 / -1; width: 100%; accent-color: var(--primary); }
+.mapLayerDetails small { display: block; margin-top: 5px; line-height: 1.4; }
+.mapLayerDetailActions { display: flex; gap: 4px; }
+.mapLayerDetailActions button { min-height: 27px; padding: 3px 8px; font-size: 10px; }
+.mapLayerEmpty { margin: 6px 2px; color: var(--ws-muted); font-size: 10px; }
+.mapLayerStatus { display: block; margin: 2px 5px 6px 19px; color: var(--ws-muted); font-size: 9px; line-height: 1.4; }
+.mapLayerStatus[data-kind="error"] { color: #efaa9c; }
+.mapLayerManager .mapLayerLegend { display: flex; flex-wrap: wrap; gap: 5px 10px; margin: 9px 0 0; color: var(--ws-muted); font-size: 9px; }
+.mapLayerLegend span { display: inline-flex; align-items: center; gap: 4px; }
+.mapLayerLegend i { width: 7px; height: 7px; border-radius: 50%; }
+.hierarchicalLocationPanel :is(.locationField, .locationSaved) { gap: 5px; }
+.hierarchicalLocationPanel :is(.locationField, .locationSaved) > span { color: var(--ws-text); font-size: 10px; font-weight: 650; }
+.hierarchicalLocationPanel :is(input, select) { font-size: 11px; }
+.hierarchicalLocationPanel .locationBreadcrumb { padding: 8px; border: 1px solid var(--ws-border); border-radius: 5px; background: var(--ws-surface-raised); }
+.mapContextInspector { flex: 0 0 auto; min-width: 0; padding: 12px; border: 1px solid var(--ws-border); border-radius: var(--ws-radius); background: #0c1114; }
+.mapContextInspector header { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
+.mapContextInspector header div { display: grid; gap: 3px; }
+.mapContextInspector header span { color: var(--ws-muted); font-size: 9px; letter-spacing: .09em; }
+.mapContextInspector header strong { font-size: 12px; }
+.mapContextInspector header button, .mapContextReopen { min-width: 28px; min-height: 28px; border: 1px solid var(--ws-border); border-radius: 6px; background: var(--ws-surface-raised); color: var(--ws-text); }
+.mapContextInspector h2 { margin: 12px 0 6px; overflow-wrap: anywhere; font-size: 13px; line-height: 1.35; }
+.mapContextInspector p { margin: 0 0 10px; color: var(--ws-muted); font-size: 10px; line-height: 1.45; overflow-wrap: anywhere; }
+.mapContextInspector dl { display: grid; gap: 0; margin: 0; }
+.mapContextInspector dl div { display: grid; gap: 4px; padding: 8px 0; border-top: 1px solid var(--ws-border); }
+.mapContextInspector dl div:first-child { margin: 2px 0 4px; padding: 9px; border: 1px solid var(--ws-border); border-left: 2px solid var(--primary); border-radius: 5px; background: var(--ws-surface-raised); }
+.mapContextInspector dt { color: var(--ws-muted); font-size: 10px; }
+.mapContextInspector dd { margin: 0; color: var(--ws-text); font-size: 11px; line-height: 1.45; overflow-wrap: anywhere; }
+.mapContextInspector dl div:first-child dd { font-variant-numeric: tabular-nums; letter-spacing: .02em; }
+.mapInspectorCoordinates { display: flex; align-items: center; justify-content: space-between; gap: 5px; }
+.mapInspectorCoordinates button { flex: none; padding: 4px 6px; border: 1px solid var(--ws-border); border-radius: 4px; background: #0c1114; color: var(--ws-muted); font: inherit; cursor: pointer; }
+.mapInspectorCoordinates button:hover { border-color: var(--primary); color: var(--ws-text); }
+.mapInspectorCopyFeedback { color: var(--ws-muted); font-size: 10px; }
+.mapInspectorCopyFeedback:empty { display: none; }
+
+.signalLabToggle { position: absolute; z-index: 21; right: calc(var(--inspector-width) + 58px); bottom: 166px; width: 34px; height: 34px; border: 1px solid color-mix(in srgb, var(--primary) 48%, transparent); border-radius: 7px; color: var(--primary); background: #0c1114; font-size: 9px; font-weight: 800; cursor: pointer; }
+.signalLabToggle[aria-expanded="true"] { background: var(--ws-surface-hover); box-shadow: inset 2px 0 var(--primary); }
+.signalLabPanel { position: absolute; z-index: 26; right: calc(var(--inspector-width) + 100px); bottom: 46px; width: min(340px, calc(100vw - 190px)); max-height: calc(100% - 70px); padding: 12px; overflow-y: auto; border: 1px solid var(--ws-border); border-radius: 8px; color: var(--ws-text); background: #0c1114; box-shadow: 0 12px 35px rgb(0 0 0 / 35%); font-size: 10px; }
+.signalLabPanel header { display: flex; align-items: start; justify-content: space-between; gap: 8px; }
+.signalLabPanel header div { display: grid; gap: 3px; }
+.signalLabPanel header small { color: var(--primary); letter-spacing: .08em; }
+.signalLabPanel header strong { font-size: 14px; }
+.signalLabPanel p { margin: 8px 0; color: var(--ws-muted); line-height: 1.45; }
+.signalLabPanel :is(button, input) { min-width: 0; border: 1px solid var(--ws-border); border-radius: 5px; background: var(--ws-surface-raised); color: var(--ws-text); font: inherit; }
+.signalLabPanel button { padding: 6px 8px; cursor: pointer; }
+.signalLabPanel button:hover:not(:disabled), .signalLabPanel button[aria-pressed="true"] { border-color: var(--primary); background: var(--ws-surface-hover); }
+.signalLabPanel button:disabled { opacity: .45; cursor: default; }
+.signalLabModes, .signalLabActions { display: flex; flex-wrap: wrap; gap: 5px; margin: 8px 0; }
+.signalLabModes button { flex: 1; }
+.signalLabPanel .signalLabNotice { padding: 7px; border-left: 2px solid var(--primary); background: var(--ws-surface-raised); color: var(--ws-text); }
+.signalLabStations { display: grid; gap: 6px; }
+.signalLabStations fieldset { position: relative; min-width: 0; margin: 0; padding: 7px; border: 1px solid var(--ws-border); border-radius: 5px; }
+.signalLabStations legend { padding: 0 4px; color: var(--ws-text); font-weight: 700; }
+.signalLabPanel .signalLabRemove { position: absolute; top: -12px; right: 5px; padding: 1px 5px; }
+.signalLabFields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; }
+.signalLabFields label { display: grid; gap: 3px; color: var(--ws-muted); }
+.signalLabFields input { width: 100%; padding: 5px; font-variant-numeric: tabular-nums; }
+.signalLabFields input[aria-invalid="true"] { border-color: #b9855c; }
+.signalLabResult { display: grid; gap: 5px; padding: 9px; border: 1px solid var(--ws-border); border-left: 2px solid var(--primary); border-radius: 5px; color: var(--ws-text); line-height: 1.4; }
+.signalLabResult small { color: var(--ws-muted); }
+.signalLabPanel { width: min(320px, calc(100vw - 190px)); scrollbar-width: thin; scrollbar-color: #536267 transparent; }
+.signalLabPanel header { padding-bottom: 8px; border-bottom: 1px solid var(--ws-border); }
+.signalLabHeaderStatus { color: var(--ws-muted); font-size: 10px; font-weight: 500; }
+.signalLabPanel .signalLabActions { gap: 5px; }
+.signalLabResult { margin-top: 9px; background: var(--ws-surface-raised); }
+.signalLabResultCoordinates { font-size: 12px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.signalLabResult .signalLabWarning { color: #e4b07d; }
+.signalLabLegend { display: flex; flex-wrap: wrap; gap: 5px 10px; padding: 9px 0; color: var(--ws-muted); font-size: 9px; }
+.signalLabLegend span { display: inline-flex; align-items: center; gap: 4px; }
+.signalLabLegend i { width: 9px; height: 9px; border: 1px solid var(--primary); border-radius: 50%; }
+.signalLabLegend span:nth-child(2) i { height: 0; border-radius: 0; border-width: 1px 0 0; }
+.signalLabLegend span:nth-child(3) i { background: color-mix(in srgb, var(--primary) 25%, transparent); }
+.signalLabPanel .signalLabEmpty { padding: 10px; border: 1px dashed var(--ws-border); border-radius: 6px; }
+.signalLabStations { gap: 8px; }
+.signalLabStations fieldset { padding: 9px; background: #10161a; transition: border-color 140ms ease, background-color 140ms ease; }
+.signalLabStations fieldset[data-selected="true"] { border-color: color-mix(in srgb, var(--primary) 65%, transparent); background: var(--ws-surface-raised); }
+.signalLabStations legend button { padding: 2px 5px; background: #10161a; font-weight: 700; }
+.signalStationState { display: block; margin-bottom: 7px; color: #e4b07d; font-size: 9px; }
+.signalStationState[data-valid="true"] { color: var(--ws-muted); }
+.signalStationResidual { display: block; margin-top: 7px; color: var(--ws-muted); font-variant-numeric: tabular-nums; }
+.signalStationMarker { display: grid; width: 24px; height: 24px; padding: 0; place-items: center; border: 1px solid var(--primary); border-radius: 50%; color: var(--ws-text); background: #10161a; box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 25%, transparent); font: 700 10px/1 sans-serif; cursor: pointer; }
+.signalStationMarker:hover, .signalStationMarker[aria-pressed="true"] { border-width: 2px; box-shadow: 0 0 0 5px color-mix(in srgb, var(--primary) 32%, transparent); }
+.signalStationMarker:focus-visible { outline: 2px solid var(--primary); outline-offset: 4px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .mapWorkspaceShell :is(button, input, select, textarea) { transition: none; }
+  .signalLabStations fieldset { transition: none; }
 }

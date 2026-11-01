@@ -119,6 +119,7 @@ export const MAP_OPERATIONAL_LAYER_IDS = [
   'geographic-timeline',
   'measurements',
   'imported-geojson',
+  'location-selection',
   'comparison',
 ] as const;
 
@@ -141,6 +142,8 @@ export const MAP_BASEMAP_STYLES = [
 
 export type MapBasemapStyle =
   typeof MAP_BASEMAP_STYLES[number];
+
+export type DetailedBasemapStatus = 'available' | 'local' | 'loading' | 'unavailable';
 
 export type MapWorkspaceViewState = {
   basemapStyle: MapBasemapStyle;

@@ -32,12 +32,17 @@ import {
   MapLayerManager,
 } from './MapLayerManager';
 import { HierarchicalLocationPanel } from './HierarchicalLocationPanel';
+import { WorkspaceIcon } from './WorkspaceIcon';
+import { MapContextInspector } from './MapContextInspector';
+import { MapLayerPresentation } from './MapLayerPresentation';
+import { SignalLab } from './signal-lab/SignalLab';
+import type { VisualLayerId, VisualLayerSettings } from './map-layer-presentation';
 import { useIbgeMunicipality } from './useIbgeMunicipality';
 import { useRecifeGeometry } from './useRecifeGeometry';
 import { restoredLocationCamera, restoreSavedLocation } from './location-restoration';
 import { LocationSelectionMapLayer } from './LocationSelectionMapLayer';
 import { geometryBounds, ibgeStateForSelection, resolveLocalBoundary } from './location-boundaries';
-import { LOCATION_LEVELS, selectLocationLevel } from './location-selection';
+import { LOCATION_LEVELS, selectLocationLevel, selectionFeatures } from './location-selection';
 import type { LocationLevel, LocationSelection } from './location-selection';
 import type {
   MapOperationalLayerSummary,
@@ -106,6 +111,7 @@ import {
 } from './useIpGeolocationIntelligence';
 
 import type {
+  DetailedBasemapStatus,
   GeographicMarker,
   MapBasemapStyle,
   MapCameraState,
@@ -158,6 +164,8 @@ type MapLabel = {
 
 type WorldGlobeMapProps = {
   activeMode: WorkspaceMode;
+  onBasemapStatusChange(status: DetailedBasemapStatus): void;
+  onMapInstanceChange(map: MapLibreMap | null): void;
   providerVisible: boolean;
   cleanMapMode: boolean;
   focusGeographicActivityId:
@@ -237,6 +245,7 @@ const INITIAL_CENTER: [number, number] = [
   -20,
   0,
 ];
+const EMPTY_LOCATION_SELECTION: LocationSelection = {};
 const INITIAL_ZOOM = 0.7;
 const LOCATION_ZOOM = 5.2;
 const ROTATION_DEGREES_PER_SECOND = 4.5;
@@ -764,11 +773,11 @@ function createMapStyle(
             ['linear'],
             ['zoom'],
             6,
-            0.7,
+            ['match', ['get', 'class'], 'motorway', 1.2, 'trunk', 1, 'primary', 0.85, 0.35],
             12,
-            3,
+            ['match', ['get', 'class'], 'motorway', 4.2, 'trunk', 3.8, 'primary', 3.3, 'secondary', 2.7, 1.5],
             18,
-            12,
+            ['match', ['get', 'class'], 'motorway', 15, 'trunk', 13, 'primary', 11, 'secondary', 9, 6],
           ],
           'line-opacity': 0.8,
         },
@@ -800,13 +809,13 @@ function createMapStyle(
             ['linear'],
             ['zoom'],
             6,
-            0.35,
+            ['match', ['get', 'class'], 'motorway', 0.7, 'trunk', 0.6, 'primary', 0.5, 0.2],
             12,
-            1.8,
+            ['match', ['get', 'class'], 'motorway', 2.8, 'trunk', 2.5, 'primary', 2.1, 'secondary', 1.6, 0.8],
             18,
-            8,
+            ['match', ['get', 'class'], 'motorway', 11, 'trunk', 9.5, 'primary', 8, 'secondary', 6.5, 4],
           ],
-          'line-opacity': 0.92,
+          'line-opacity': ['interpolate', ['linear'], ['zoom'], 6, ['match', ['get', 'class'], 'motorway', 0.9, 'trunk', 0.85, 'primary', 0.75, 0.22], 12, 0.9],
         },
       },
       {
@@ -837,6 +846,7 @@ function createMapStyle(
             12,
           ],
           'text-max-width': 12,
+          'symbol-sort-key': ['coalesce', ['get', 'rank'], 99],
           'text-allow-overlap': false,
         },
         paint: {
@@ -1097,7 +1107,7 @@ function applyDetailedBasemapColors(
     'detailed-water',
     'fill-color',
     basemapStyle === 'tactical'
-      ? '#080808'
+      ? '#0b171b'
       : basemapStyle === 'streets-light'
       ? '#cfe5ee'
       : '#08161d',
@@ -1143,10 +1153,15 @@ function applyDetailedBasemapColors(
       : '#242728',
   );
   map.setPaintProperty(
+    'detailed-buildings',
+    'fill-outline-color',
+    basemapStyle === 'streets-light' ? 'rgba(104,111,110,0.22)' : 'rgba(205,220,220,0.12)',
+  );
+  map.setPaintProperty(
     'detailed-roads',
     'line-color',
     basemapStyle === 'tactical'
-      ? '#4a4a4a'
+      ? ['match', ['get', 'class'], 'motorway', '#788887', 'trunk', '#657675', 'primary', '#586966', 'secondary', '#475552', '#343e3d']
       : basemapStyle === 'streets-light'
       ? [
         'match',
@@ -1556,6 +1571,8 @@ function buildLabelData():
 
 export function WorldGlobeMap({
   activeMode,
+  onBasemapStatusChange,
+  onMapInstanceChange,
   providerVisible,
   cleanMapMode,
   focusGeographicActivityId,
@@ -1578,6 +1595,10 @@ export function WorldGlobeMap({
   universalMapCommand,
 }: WorldGlobeMapProps) {
   const [locationPanelOpen, setLocationPanelOpen] = useState(false);
+  const [inspectorDetailsOpen, setInspectorDetailsOpen] = useState(true);
+  const [activeWorkspacePanel, setActiveWorkspacePanel] = useState<'location' | 'layers' | 'ip' | 'markers'>('layers');
+  const [visualLayerSettings, setVisualLayerSettings] = useState<VisualLayerSettings>({ opacity: { 'location-selection': 1, 'imported-geojson': 1 }, order: ['location-selection', 'imported-geojson'] });
+  const [importedGeoJsonBounds, setImportedGeoJsonBounds] = useState<[[number, number], [number, number]] | null>(null);
   const [locationSelection, setLocationSelection] = useState<LocationSelection>({});
   const [locationAutoZoom, setLocationAutoZoom] = useState(true);
   const [locationSaving, setLocationSaving] = useState(false);
@@ -1750,12 +1771,8 @@ export function WorldGlobeMap({
   const [
     detailedBasemapStatus,
     setDetailedBasemapStatus,
-  ] = useState<
-    'available' |
-    'local' |
-    'loading' |
-    'unavailable'
-  >('local');
+  ] = useState<DetailedBasemapStatus>('local');
+  useEffect(() => { onBasemapStatusChange(detailedBasemapStatus); }, [detailedBasemapStatus, onBasemapStatusChange]);
   const [
     measurementPointCount,
     setMeasurementPointCount,
@@ -1854,6 +1871,7 @@ export function WorldGlobeMap({
           .hiddenOperationalLayers,
       ],
     );
+  const selectionGeometryCount = useMemo(() => selectionFeatures(locationSelection).features.length, [locationSelection]);
   const operationalLayers = useMemo(
     (): MapOperationalLayerSummary[] => [
       {
@@ -1864,6 +1882,7 @@ export function WorldGlobeMap({
             ? 1
             : 0,
         detail: 'resultado ativo',
+        status: geographicSearchBusy ? { kind: 'loading', message: 'Pesquisando localização…' } : undefined,
       },
       {
         id: 'geographic-timeline',
@@ -1885,6 +1904,13 @@ export function WorldGlobeMap({
         detail: 'features transitórias',
       },
       {
+        id: 'location-selection',
+        label: 'Seleção geográfica',
+        total: selectionGeometryCount,
+        detail: 'níveis com geometria',
+        status: locationFeedback?.startsWith('Consultando') ? { kind: 'loading', message: locationFeedback } : locationFeedback && /indisponível|não encontrado|sem correspondência|incompatível/i.test(locationFeedback) ? { kind: 'error', message: locationFeedback } : undefined,
+      },
+      {
         id: 'comparison',
         label: 'Comparação',
         total: comparisonSelectionCount,
@@ -1894,11 +1920,38 @@ export function WorldGlobeMap({
     [
       comparisonSelectionCount,
       geographicSearchResult,
+      geographicSearchBusy,
       geographicTimeline.events.length,
       importedGeoJsonCount,
+      selectionGeometryCount,
+      locationFeedback,
       measurementPointCount,
     ],
   );
+  const zoomableVisualLayers = useMemo<VisualLayerId[]>(() => [
+    ...(locationSelection.country ? ['location-selection' as const] : []),
+    ...(importedGeoJsonBounds ? ['imported-geojson' as const] : []),
+  ], [locationSelection.country, importedGeoJsonBounds]);
+  const changeVisualOpacity = useCallback((id: VisualLayerId, opacity: number) => {
+    setVisualLayerSettings((current) => ({ ...current, opacity: { ...current.opacity, [id]: Math.max(0, Math.min(1, opacity)) } }));
+  }, []);
+  const moveVisualLayer = useCallback((id: VisualLayerId, direction: -1 | 1) => {
+    setVisualLayerSettings((current) => {
+      const order = [...current.order]; const index = order.indexOf(id); const target = index + direction;
+      if (index < 0 || target < 0 || target >= order.length) return current;
+      [order[index], order[target]] = [order[target], order[index]];
+      return { ...current, order };
+    });
+  }, []);
+  const zoomVisualLayer = useCallback((id: VisualLayerId) => {
+    const map = mapRef.current;
+    if (!map) return;
+    const camera = id === 'location-selection' ? restoredLocationCamera(locationSelection) : importedGeoJsonBounds ? { bounds: importedGeoJsonBounds, maxZoom: 15 } : null;
+    if (!camera) return;
+    const duration = reducedMotionRef.current ? 0 : 450;
+    if ('bounds' in camera) map.fitBounds(camera.bounds, { padding: 40, maxZoom: camera.maxZoom, duration });
+    else map.flyTo({ center: camera.center, zoom: camera.zoom, duration, essential: false });
+  }, [importedGeoJsonBounds, locationSelection]);
   const visibleIpResults =
     useMemo(() => {
       if (
@@ -2078,6 +2131,8 @@ export function WorldGlobeMap({
         profileMarkers,
       ],
     );
+  const inspectorSelectionId = selectedMarker?.id ?? [...LOCATION_LEVELS].reverse().map((level) => locationSelection[level]?.id).find(Boolean);
+  useEffect(() => { if (inspectorSelectionId) setInspectorDetailsOpen(true); }, [inspectorSelectionId]);
   const popoverMarker =
     useMemo(
       () =>
@@ -2948,6 +3003,8 @@ export function WorldGlobeMap({
       });
 
     mapRef.current = map;
+    const scaleControl = new maplibregl.ScaleControl({ maxWidth: 90, unit: 'metric' });
+    map.addControl(scaleControl, 'bottom-left');
 
     const scheduleViewportUpdate = () => {
       if (
@@ -3054,6 +3111,7 @@ export function WorldGlobeMap({
       updateMarkerVisualScale(map);
       mapReadyRef.current = true;
       setMapReady(true);
+      onMapInstanceChange(map);
       scheduleViewportUpdate();
       emitViewport();
       activateDetailedBasemap();
@@ -3262,9 +3320,11 @@ export function WorldGlobeMap({
       map.off('error', handleMapError);
       detailedBasemapRetryRef.current =
         () => undefined;
+      map.removeControl(scaleControl);
       map.remove();
       mapReadyRef.current = false;
       mapRef.current = null;
+      onMapInstanceChange(null);
     };
   }, []);
 
@@ -3655,7 +3715,7 @@ export function WorldGlobeMap({
       'background',
       'background-color',
       basemapStyle === 'tactical'
-        ? '#000000'
+        ? '#081116'
         : basemapStyle ===
           'streets-light'
         ? '#dbe3e7'
@@ -3665,7 +3725,7 @@ export function WorldGlobeMap({
       'countries-fill',
       'fill-color',
       basemapStyle === 'tactical'
-        ? '#0f0f0f'
+        ? '#202827'
         : basemapStyle ===
           'streets-light'
         ? '#e7e3da'
@@ -3683,7 +3743,7 @@ export function WorldGlobeMap({
       'countries-border',
       'line-color',
       basemapStyle === 'tactical'
-        ? 'rgba(255,255,255,0.24)'
+        ? 'rgba(220,235,233,0.34)'
         : basemapStyle ===
           'streets-light'
         ? 'rgba(49,58,63,0.32)'
@@ -3693,7 +3753,7 @@ export function WorldGlobeMap({
       'admin1-border',
       'line-color',
       basemapStyle === 'tactical'
-        ? 'rgba(255,255,255,0.14)'
+        ? 'rgba(220,235,233,0.22)'
         : basemapStyle ===
           'streets-light'
         ? 'rgba(49,58,63,0.2)'
@@ -3717,10 +3777,10 @@ export function WorldGlobeMap({
           'match',
           ['get', 'kind'],
           'country',
-          'rgba(255,255,255,0.82)',
+          'rgba(255,255,255,0.88)',
           'admin1',
-          'rgba(255,255,255,0.62)',
-          'rgba(255,255,255,0.74)',
+          'rgba(255,255,255,0.72)',
+          'rgba(255,255,255,0.8)',
         ]
         : basemapStyle ===
           'streets-light'
@@ -3991,6 +4051,8 @@ export function WorldGlobeMap({
     const activity = activeCase?.activities.find((item) => item.id === activityId && item.action === 'hierarchical-location-saved');
     const restored = activity && restoreSavedLocation(activity.output, countriesData, admin1Data);
     if (!restored) { setLocationFeedback('Não foi possível restaurar esta localização salva.'); return; }
+    setSelectedMarkerId(null);
+    setPopoverMarkerId(null);
     pendingLocationCamera.current = locationAutoZoom ? restored : null;
     setLocationSelection(restored);
     setLocationRestoreRevision((value) => value + 1);
@@ -4004,6 +4066,7 @@ export function WorldGlobeMap({
     const activity = activeCase?.activities.find((item) => item.action === 'hierarchical-location-saved');
     if (activity) {
       const restored = restoreSavedLocation(activity.output, countriesData, admin1Data);
+      if (restored) { setSelectedMarkerId(null); setPopoverMarkerId(null); }
       pendingLocationCamera.current = locationAutoZoom ? restored : null;
       setLocationSelection(restored ?? {});
       setLocationFeedback(restored ? 'Localização do case restaurada; recuperando limites disponíveis.' : 'A localização salva é incompatível ou está incompleta.');
@@ -4053,6 +4116,7 @@ export function WorldGlobeMap({
     const resolved = result ? resolveLocalBoundary(level, result, locationSelection, countriesData, admin1Data) : null;
     const next = selectLocationLevel(locationSelection, level, resolved);
     if (next === locationSelection) return;
+    if (resolved) { setSelectedMarkerId(null); setPopoverMarkerId(null); }
     setLocationSelection(next);
     setLocationFeedback(null);
     const map = mapRef.current;
@@ -4104,7 +4168,7 @@ export function WorldGlobeMap({
   return (
     <div
       data-panel-open={coordinatePanelOpen || mapWorkspaceView.layerManagerOpen || ipIntelligence.open || locationPanelOpen}
-      data-inspector-open={mapWorkspaceView.operationalHudOpen || Boolean(geographicSearchResult)}
+      data-inspector-open={mapWorkspaceView.operationalHudOpen || Boolean(geographicSearchResult) || Boolean(inspectorSelectionId && inspectorDetailsOpen)}
       className={`worldGlobeMap ${
         monochromeMode
           ? 'isMonochrome'
@@ -4221,7 +4285,7 @@ export function WorldGlobeMap({
         }
       />
 
-      <LocationSelectionMapLayer map={mapReady ? mapRef.current : null} selection={locationSelection} />
+      <LocationSelectionMapLayer map={mapReady ? mapRef.current : null} selection={hiddenOperationalLayerSet.has('location-selection') ? EMPTY_LOCATION_SELECTION : locationSelection} />
 
       <div
         className="worldGlobeHud"
@@ -4293,6 +4357,8 @@ export function WorldGlobeMap({
         }
       />
 
+      <SignalLab map={mapReady ? mapRef.current : null} active={providerVisible && !cleanMapMode} />
+
       <MapMeasurementTools
         activeCaseName={activeCase?.name ?? null}
         map={
@@ -4345,6 +4411,7 @@ export function WorldGlobeMap({
         onCountChange={
           setImportedGeoJsonCount
         }
+        onBoundsChange={setImportedGeoJsonBounds}
         onSaveToCase={activeCase
           ? async (data) => {
             await addActivity({
@@ -4358,6 +4425,8 @@ export function WorldGlobeMap({
           }
           : undefined}
       />
+
+      <MapLayerPresentation map={mapReady ? mapRef.current : null} settings={visualLayerSettings} />
 
       <MapComparisonPanel
         items={comparisonItems}
@@ -4429,6 +4498,7 @@ export function WorldGlobeMap({
         )}
 
       <aside className="worldGlobeInspector" aria-label="Informações do mapa" aria-hidden={cleanMapMode} inert={cleanMapMode}>
+      {inspectorSelectionId && (inspectorDetailsOpen ? <MapContextInspector marker={selectedMarker ?? null} selection={locationSelection} caseName={activeCase?.name ?? null} onClose={() => setInspectorDetailsOpen(false)} /> : <button className="mapContextReopen" type="button" aria-label="Mostrar detalhes da seleção" title="Mostrar detalhes da seleção" onClick={() => setInspectorDetailsOpen(true)}>i</button>)}
       <MapOperationalHud
         activeCaseName={
           activeCase?.name ?? null
@@ -4506,7 +4576,7 @@ export function WorldGlobeMap({
         aria-hidden={cleanMapMode}
         inert={cleanMapMode}
       >
-        <div className="worldGlobePanels">
+        <div className="worldGlobePanels" data-active={activeWorkspacePanel}>
           <HierarchicalLocationPanel key={locationRestoreRevision} open={locationPanelOpen} active={providerVisible && !cleanMapMode} selection={locationSelection} countries={countriesData} regions={admin1Data} autoZoom={locationAutoZoom} caseName={activeCase?.name ?? null} savedLocations={(activeCase?.activities ?? []).filter((item) => item.action === 'hierarchical-location-saved').map((item) => ({ id: item.id, title: item.title }))} busy={locationSaving || caseLoading || caseMutating} feedback={locationFeedback} onClose={() => setLocationPanelOpen(false)} onSelect={selectHierarchicalLocation} onClear={() => { pendingLocationCamera.current = null; setLocationSelection({}); setLocationFeedback(null); }} onAutoZoom={setLocationAutoZoom} onSave={() => { void saveHierarchicalLocation(); }} onRestore={restoreLocationActivity} onMarker={createLocationMarker} />
           <IpGeolocationPanel
             activeCaseName={
@@ -4694,6 +4764,11 @@ export function WorldGlobeMap({
             operationalLayers={
               operationalLayers
             }
+            visualSettings={visualLayerSettings}
+            zoomableLayers={zoomableVisualLayers}
+            onOpacityChange={changeVisualOpacity}
+            onMoveLayer={moveVisualLayer}
+            onZoomLayer={zoomVisualLayer}
             open={
               mapWorkspaceView
                 .layerManagerOpen
@@ -4726,10 +4801,11 @@ export function WorldGlobeMap({
           className="worldGlobeControls"
           aria-label="Controles do mapa"
         >
-          <button type="button" aria-label={locationPanelOpen ? 'Recolher localização hierárquica' : 'Abrir localização hierárquica'} title="Localização hierárquica" aria-expanded={locationPanelOpen} onClick={() => setLocationPanelOpen((open) => !open)}>⌖</button>
+          <button type="button" aria-label={locationPanelOpen && activeWorkspacePanel === 'location' ? 'Recolher localização hierárquica' : 'Abrir localização hierárquica'} title={locationPanelOpen && activeWorkspacePanel === 'location' ? 'Recolher localização hierárquica' : 'Abrir localização hierárquica'} aria-expanded={locationPanelOpen} onClick={() => { if (!locationPanelOpen || activeWorkspacePanel === 'location') setLocationPanelOpen((open) => !open); setActiveWorkspacePanel('location'); }}><WorkspaceIcon name="location" /></button>
           <button
             type="button"
             aria-label="Aproximar mapa"
+            title="Aproximar mapa"
             onClick={() => {
               mapRef.current?.zoomIn({
                 duration:
@@ -4739,12 +4815,13 @@ export function WorldGlobeMap({
               });
             }}
           >
-            +
+            <WorkspaceIcon name="plus" />
           </button>
 
           <button
             type="button"
             aria-label="Afastar mapa"
+            title="Afastar mapa"
             onClick={() => {
               mapRef.current?.zoomOut({
                 duration:
@@ -4754,15 +4831,16 @@ export function WorldGlobeMap({
               });
             }}
           >
-            −
+            <WorkspaceIcon name="minus" />
           </button>
 
           <button
             type="button"
             aria-label="Recentralizar globo"
+            title="Recentralizar globo"
             onClick={recenterMap}
           >
-            ⊙
+            <WorkspaceIcon name="target" />
           </button>
 
           <button
@@ -4782,6 +4860,7 @@ export function WorldGlobeMap({
                 : 'Iniciar rotação automática'
             }
             aria-pressed={rotationEnabled}
+            title={rotationEnabled && timelineCameraMoving ? 'Desativar rotação automática pausada pela Timeline Geográfica' : rotationEnabled ? 'Pausar rotação automática' : 'Iniciar rotação automática'}
             onClick={() => {
               setRotationEnabled(
                 (current) =>
@@ -4792,9 +4871,7 @@ export function WorldGlobeMap({
             {rotationEnabled &&
             timelineCameraMoving
               ? '…'
-              : rotationEnabled
-              ? 'Ⅱ'
-              : '▶'}
+              : <WorkspaceIcon name={rotationEnabled ? 'pause' : 'play'} />}
           </button>
 
           <button
@@ -4805,6 +4882,7 @@ export function WorldGlobeMap({
                 : 'Ativar preto e branco'
             }
             aria-pressed={monochromeMode}
+            title={monochromeMode ? 'Desativar preto e branco' : 'Ativar preto e branco'}
             onClick={toggleMonochromeMode}
           >
             P/B
@@ -4812,7 +4890,7 @@ export function WorldGlobeMap({
 
           <label
             className="mapBasemapStyleControl"
-            title="Layout do mapa"
+            title="Escolher estilo cartográfico"
           >
             <span className="srOnly">
               Layout do mapa
@@ -4847,16 +4925,12 @@ export function WorldGlobeMap({
               ipIntelligence.open
             }
             aria-label={
-              ipIntelligence.open
+              ipIntelligence.open && activeWorkspacePanel === 'ip'
                 ? 'Minimizar IP Intelligence'
                 : 'Abrir IP Intelligence'
             }
-            title="IP Intelligence"
-            onClick={
-              ipIntelligence.open
-                ? ipIntelligence.close
-                : ipIntelligence.openPanel
-            }
+            title={ipIntelligence.open && activeWorkspacePanel === 'ip' ? 'Minimizar IP Intelligence' : 'Abrir IP Intelligence'}
+            onClick={() => { if (!ipIntelligence.open) ipIntelligence.openPanel(); else if (activeWorkspacePanel === 'ip') ipIntelligence.close(); setActiveWorkspacePanel('ip'); }}
           >
             <span aria-hidden="true">IP</span>
           </button>
@@ -4870,17 +4944,14 @@ export function WorldGlobeMap({
                 .layerManagerOpen
             }
             aria-label={
-              mapWorkspaceView
-                .layerManagerOpen
+              mapWorkspaceView.layerManagerOpen && activeWorkspacePanel === 'layers'
                 ? 'Ocultar gerenciador de camadas'
                 : 'Mostrar gerenciador de camadas'
             }
-            title="Gerenciador de camadas"
-            onClick={toggleLayerManager}
+            title={mapWorkspaceView.layerManagerOpen && activeWorkspacePanel === 'layers' ? 'Ocultar gerenciador de camadas' : 'Mostrar gerenciador de camadas'}
+            onClick={() => { if (!mapWorkspaceView.layerManagerOpen || activeWorkspacePanel === 'layers') toggleLayerManager(); setActiveWorkspacePanel('layers'); }}
           >
-            <span aria-hidden="true">
-              ◫
-            </span>
+            <WorkspaceIcon name="layers" />
           </button>
 
           <button
@@ -4891,24 +4962,21 @@ export function WorldGlobeMap({
               coordinatePanelOpen
             }
             aria-label={
-              coordinatePanelOpen
+              coordinatePanelOpen && activeWorkspacePanel === 'markers'
                 ? 'Ocultar painel de coordenadas'
                 : 'Mostrar painel de coordenadas'
             }
             title={
-              coordinatePanelOpen
+              coordinatePanelOpen && activeWorkspacePanel === 'markers'
                 ? 'Ocultar painel de coordenadas'
                 : 'Mostrar painel de coordenadas'
             }
             onClick={() => {
-              setCoordinatePanelOpen(
-                (open) => !open,
-              );
+              if (!coordinatePanelOpen || activeWorkspacePanel === 'markers') setCoordinatePanelOpen((open) => !open);
+              setActiveWorkspacePanel('markers');
             }}
           >
-            <span aria-hidden="true">
-              □
-            </span>
+            <WorkspaceIcon name="marker" />
           </button>
         </div>
       </div>

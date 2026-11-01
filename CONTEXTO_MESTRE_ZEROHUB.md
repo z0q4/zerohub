@@ -2,7 +2,8 @@
 
 > As seções 1 a 14 são a fotografia histórica de `main` no PR #20 e podem
 > não descrever o código desta branch. As seções 15 e 16 registram a integração
-> multi-provider, o HUD e a localização geográfica da branch de trabalho.
+> multi-provider, o HUD e a localização geográfica; as seções 17 e 18 registram
+> o refinamento visual e o Signal Lab desenvolvidos na branch de trabalho.
 
 ## 1. Referência deste documento
 
@@ -363,3 +364,45 @@ sem chave Google. A visualização de conteúdo Google com chave válida e um
 perfilamento prolongado de memória permanecem sem validação. Os documentos
 `ZeroHub_Auditoria_HUD_GeoSelecao.md` e `ZeroHub_Plano_Integracao_Mapas.md`
 preservam especificações e propostas históricas, não o estado corrente.
+
+## 17. Visual Excellence e workspace cartográfico
+
+Na branch `feat/visual-polish-aftergeo`, o HUD mantém a estrutura Grid/Flex
+existente e usa superfícies e estados de interação compartilhados, com a cor
+de destaque configurada pelo usuário. O gerenciador de camadas oferece busca,
+categorias, contagens, visibilidade e legenda; seleção geográfica e GeoJSON
+importado também permitem ajustar opacidade, ordem relativa e enquadramento
+quando seus dados possuem limites. Esses ajustes visuais são da sessão e não
+alteram os dados originais.
+
+O inspector apresenta dados disponíveis do marcador ou localização, fonte,
+precisão e coordenadas, com cópia por ação explícita. A barra inferior mostra
+o centro do ZeroHub e, no MapLibre, coordenadas do cursor em DD ou DMS, com
+cópia da última posição e precisão original. As vistas Google têm câmera
+independente e não exibem coordenadas do cursor simuladas. A escala métrica
+nativa do MapLibre acompanha a câmera; os três estilos preservam seus dados e
+atribuições existentes. Fontes e camadas importadas e de seleção podem ser
+restauradas quando o estilo MapLibre é substituído.
+
+## 18. GEOINT Signal Lab
+
+O botão GEO abre o Signal Lab no mapa existente. O módulo aceita de três a
+oito estações para trilateração por distâncias ou triangulação por azimutes,
+com incerteza 1σ informada para cada medição. Estações A–H são selecionáveis
+no mapa e nos cards; coordenadas e medições podem ser editadas explicitamente.
+O painel mostra validação, resíduos, consistência, resultado, região de
+incerteza e aviso de região ampla; também permite enquadrar as estações.
+Medições permanecem somente na memória da sessão e não alteram cases.
+
+Os cálculos usam geodésia esférica e ajuste local ponderado. A região aproximada
+de 95% depende das incertezas informadas, da aproximação linear e das hipóteses
+de erros independentes normais; não comprova uma posição. O MVP limita o alcance
+local a 100 km e as latitudes a 85°; geometrias que cruzam o antimeridiano são
+omitidas do desenho com aviso. O modo demonstrativo usa dados sintéticos e
+revela as geometrias progressivamente, respeitando movimento reduzido. As
+hipóteses e limitações estão em `src/renderer/components/workspace/signal-lab/README.md`.
+
+Foram exercitados no Electron com perfil temporário os dois métodos, seleção e
+edição de estação, pausa e reinício, remoção e recriação de camadas, troca de
+estilos e layouts de 1920×1080 e 1280×720. Os testes com perfil temporário sem
+chave não demonstram o estado ou o funcionamento da chave no perfil habitual.

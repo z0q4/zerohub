@@ -34,7 +34,9 @@ import { mkdtemp, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import type { FeatureCollection } from 'geojson';
-import { geometryBounds, resolveLocalBoundary, searchLocalBoundaries } from '../src/renderer/components/workspace/location-boundaries';
+import type { Map as MapLibreMap } from 'maplibre-gl';
+import { applyLayerPresentation } from '../src/renderer/components/workspace/map-layer-presentation';
+import { featureCollectionBounds, geometryBounds, resolveLocalBoundary, searchLocalBoundaries } from '../src/renderer/components/workspace/location-boundaries';
 import { IbgeBoundaryService } from '../src/main/services/ibge-boundaries.service';
 import { ibgeStateCode, matchIbgeMunicipality } from '../src/shared/municipal-boundaries/municipal-boundaries.types';
 import { restoredLocationCamera, restoreSavedLocation } from '../src/renderer/components/workspace/location-restoration';
@@ -206,6 +208,46 @@ test('bounds tratam Polygon, MultiPolygon e antimeridiano', () => {
   assert.deepEqual(geometryBounds({ type: 'Polygon', coordinates: [[[1, 2], [3, 2], [3, 4], [1, 2]]] }), [[1, 2], [3, 4]]);
   assert.deepEqual(geometryBounds({ type: 'MultiPolygon', coordinates: [[[[179, -1], [180, -1], [180, 1], [179, -1]]], [[[-180, -1], [-179, -1], [-179, 1], [-180, -1]]]] }), [[179, -1], [181, 1]]);
   assert.equal(geometryBounds({ type: 'Polygon', coordinates: [] }), null);
+});
+
+test('limites de camadas importadas incluem coleções e respeitam o antimeridiano', () => {
+  assert.deepEqual(featureCollectionBounds({ type: 'FeatureCollection', features: [
+    { type: 'Feature', properties: {}, geometry: { type: 'Point', coordinates: [179, -1] } },
+    { type: 'Feature', properties: {}, geometry: { type: 'GeometryCollection', geometries: [{ type: 'LineString', coordinates: [[-179, 1], [-178, 2]] }] } },
+  ] }), [[179, -1], [182, 2]]);
+  assert.equal(featureCollectionBounds({ type: 'FeatureCollection', features: [] }), null);
+});
+
+test('apresentação de camadas preserva base, ordem e opacidade ao reaplicar', () => {
+  const layers = [
+    { id: 'background', type: 'background' },
+    { id: 'zerohub-location-fill', type: 'fill' },
+    { id: 'imported-geojson-fills', type: 'fill' },
+    { id: 'labels', type: 'symbol' },
+  ];
+  const paint = new Map<string, unknown>();
+  let moves = 0;
+  const map = {
+    getStyle: () => ({ layers }),
+    getLayer: (id: string) => layers.find((layer) => layer.id === id),
+    setPaintProperty: (id: string, property: string, value: unknown) => paint.set(`${id}:${property}`, value),
+    moveLayer: (id: string, before?: string) => {
+      moves += 1;
+      const index = layers.findIndex((layer) => layer.id === id);
+      const [layer] = layers.splice(index, 1);
+      const target = before ? layers.findIndex((item) => item.id === before) : -1;
+      layers.splice(target < 0 ? layers.length : target, 0, layer);
+    },
+  } as unknown as MapLibreMap;
+  const settings = { opacity: { 'location-selection': 1, 'imported-geojson': 0.5 }, order: ['imported-geojson', 'location-selection'] as const };
+  applyLayerPresentation(map, { ...settings, order: [...settings.order] }, true);
+  assert.equal(paint.get('imported-geojson-fills:fill-opacity'), 0.08);
+  assert.deepEqual(paint.get('imported-geojson-fills:fill-opacity-transition'), { duration: 0 });
+  assert.deepEqual(layers.map((layer) => layer.id), ['background', 'imported-geojson-fills', 'zerohub-location-fill', 'labels']);
+  applyLayerPresentation(map, { ...settings, order: [...settings.order] }, true, false);
+  assert.equal(paint.get('imported-geojson-fills:fill-opacity'), 0.08);
+  assert.equal(moves, 2);
+  assert.equal(paint.has('background:fill-opacity'), false);
 });
 
 test('geometrias aceitas mantêm a semântica de linha, ponto e área', () => {
