@@ -2,7 +2,8 @@
 
 > As seções 1 a 14 são a fotografia histórica de `main` no PR #20 e podem
 > não descrever o código desta branch. As seções 15 e 16 registram a integração
-> multi-provider, o HUD e a localização geográfica da branch de trabalho.
+> multi-provider, o HUD e a localização geográfica; as seções 17 e 18 registram
+> o refinamento visual e o Signal Lab desenvolvidos na branch de trabalho.
 
 ## 1. Referência deste documento
 
@@ -363,3 +364,80 @@ sem chave Google. A visualização de conteúdo Google com chave válida e um
 perfilamento prolongado de memória permanecem sem validação. Os documentos
 `ZeroHub_Auditoria_HUD_GeoSelecao.md` e `ZeroHub_Plano_Integracao_Mapas.md`
 preservam especificações e propostas históricas, não o estado corrente.
+
+## 17. Visual Excellence e workspace cartográfico
+
+Na branch `feat/visual-polish-aftergeo`, o HUD mantém a estrutura Grid/Flex
+existente e usa superfícies e estados de interação compartilhados, com a cor
+de destaque configurada pelo usuário. O gerenciador de camadas oferece busca,
+categorias, contagens, visibilidade e legenda; seleção geográfica e GeoJSON
+importado também permitem ajustar opacidade, ordem relativa e enquadramento
+quando seus dados possuem limites. Esses ajustes visuais são da sessão e não
+alteram os dados originais.
+
+O inspector apresenta dados disponíveis do marcador ou localização, fonte,
+precisão e coordenadas, com cópia por ação explícita. A barra inferior mostra
+o centro do ZeroHub e, no MapLibre, coordenadas do cursor em DD ou DMS, com
+cópia da última posição e precisão original. As vistas Google têm câmera
+independente e não exibem coordenadas do cursor simuladas. A escala métrica
+nativa do MapLibre acompanha a câmera; os três estilos preservam seus dados e
+atribuições existentes. Fontes e camadas importadas e de seleção podem ser
+restauradas quando o estilo MapLibre é substituído.
+
+## 18. GEOINT Signal Lab
+
+O botão GEO abre o Signal Lab no mapa existente. O módulo aceita de três a
+oito estações para trilateração por distâncias ou triangulação por azimutes,
+com incerteza 1σ informada para cada medição. Estações A–H são selecionáveis
+no mapa e nos cards; coordenadas e medições podem ser editadas explicitamente.
+O painel mostra validação, resíduos, consistência, resultado, região de
+incerteza e aviso de região ampla; também permite enquadrar as estações.
+Medições permanecem somente na memória da sessão e não alteram cases.
+
+Os cálculos usam geodésia esférica e ajuste local ponderado. A região aproximada
+de 95% depende das incertezas informadas, da aproximação linear e das hipóteses
+de erros independentes normais; não comprova uma posição. O MVP limita o alcance
+local a 100 km e as latitudes a 85°; geometrias que cruzam o antimeridiano são
+omitidas do desenho com aviso. O modo demonstrativo usa dados sintéticos e
+revela as geometrias progressivamente, respeitando movimento reduzido. As
+hipóteses e limitações estão em `src/renderer/components/workspace/signal-lab/README.md`.
+
+Foram exercitados no Electron com perfil temporário os dois métodos, seleção e
+edição de estação, pausa e reinício, remoção e recriação de camadas, troca de
+estilos e layouts de 1920×1080 e 1280×720. Os testes com perfil temporário sem
+chave não demonstram o estado ou o funcionamento da chave no perfil habitual.
+
+## 19. Intelligence Layers v1
+
+Na branch `feat/intelligence-layers`, o workspace contém o painel Intelligence
+Layers para consultar pontos públicos do OpenStreetMap dentro da menor região
+hierárquica selecionada que possua geometria. O painel oferece categorias de
+saúde, educação, transporte e infraestrutura/serviços, busca por nome,
+contagens reais, estado de carregamento, filtros e atribuição ODbL. O resultado
+é renderizado na instância MapLibre existente com fonte GeoJSON, clustering,
+seleção, inspector, criação explícita de marcador e registro confirmado no case
+ativo sem duplicar a atividade do mesmo identificador OSM.
+
+O processo principal usa o provider modular Overpass com endpoint fixo da
+Private.coffee, IPC autenticado e validações de entrada. As consultas enviam
+somente a caixa envolvente e categorias permitidas; o renderer filtra os pontos
+pela geometria Polygon/MultiPolygon selecionada, incluindo buracos. Há uma
+consulta por vez, cancelamento, timeout, cache em memória de 30 minutos,
+limites de área, volume e objetos, intervalo mínimo e espera progressiva para
+timeout, falha de conexão ou HTTP 5xx. HTTP 429/406 respeita `Retry-After` e
+impõe espera mínima. Para ways e relations, o centro retornado pelo Overpass é
+explicitamente indicado como aproximado; não há alegação de interseção exata
+da geometria completa. Registros com `access=private` ou `access=no` são
+descartados e as tags expostas são restritas.
+
+O funcionamento visual, a limpeza das camadas e listeners, o clustering, os
+filtros, o inspector, a criação de marcador, o registro em case fictício e a
+restauração após troca de estilo foram exercitados no Electron com dados
+sintéticos claramente identificados. A validação com pontos reais de Recife
+permanece pendente: DNS e TLS da Private.coffee responderam, mas uma consulta
+pequena expirou sem resposta HTTP; a consulta equivalente na `overpass-api.de`
+retornou HTTP 502 por capacidade esgotada. A segunda instância não foi adotada
+como fallback devido à política de uso de suas instâncias públicas. A cobertura
+OSM não é completa, e uso frequente ou de grande escala requer extratos locais
+ou infraestrutura própria. As limitações e atribuições constam em
+`src/renderer/components/workspace/intelligence-layers/README.md`.

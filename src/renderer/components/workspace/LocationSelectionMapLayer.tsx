@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import type { GeoJSONSource, Map as MapLibreMap } from 'maplibre-gl';
 import { selectionFeatures } from './location-selection';
+import { LOCATION_FILL_OPACITY } from './map-layer-presentation';
 import type { LocationSelection } from './location-selection';
 
 const SOURCE = 'zerohub-location-selection';
@@ -18,7 +19,7 @@ export function LocationSelectionMapLayer({ map, selection }: { map: MapLibreMap
         if (!map.getSource(SOURCE)) map.addSource(SOURCE, { type: 'geojson', data: selectionFeatures(selectionRef.current) });
         const before = map.getStyle().layers?.find((layer) => layer.type === 'symbol')?.id;
         const color = accent();
-        if (!map.getLayer(IDS[0])) map.addLayer({ id: IDS[0], type: 'fill', source: SOURCE, filter: ['==', ['geometry-type'], 'Polygon'], paint: { 'fill-color': color, 'fill-opacity': ['match', ['get', 'depth'], 0, 0.025, 1, 0.04, 2, 0.065, 3, 0.1, 0.1], 'fill-opacity-transition': { duration: 300 } } }, before);
+        if (!map.getLayer(IDS[0])) map.addLayer({ id: IDS[0], type: 'fill', source: SOURCE, filter: ['==', ['geometry-type'], 'Polygon'], paint: { 'fill-color': color, 'fill-opacity': LOCATION_FILL_OPACITY, 'fill-opacity-transition': { duration: 300 } } }, before);
         if (!map.getLayer(IDS[1])) map.addLayer({ id: IDS[1], type: 'line', source: SOURCE, filter: ['any', ['==', ['geometry-type'], 'Polygon'], ['==', ['geometry-type'], 'LineString']], paint: { 'line-color': '#111111', 'line-opacity': 0.8, 'line-width': ['case', ['==', ['geometry-type'], 'LineString'], 5, 3.5], 'line-opacity-transition': { duration: 300 } } }, before);
         if (!map.getLayer(IDS[2])) map.addLayer({ id: IDS[2], type: 'line', source: SOURCE, filter: ['any', ['==', ['geometry-type'], 'Polygon'], ['==', ['geometry-type'], 'LineString']], paint: { 'line-color': color, 'line-opacity': 0.95, 'line-width': ['case', ['==', ['geometry-type'], 'LineString'], 3, ['match', ['get', 'depth'], 0, 1.2, 1, 1.5, 2, 2, 2.5]], 'line-opacity-transition': { duration: 300 } } }, before);
         if (!map.getLayer(IDS[3])) map.addLayer({ id: IDS[3], type: 'circle', source: SOURCE, filter: ['==', ['geometry-type'], 'Point'], paint: { 'circle-color': color, 'circle-radius': 13, 'circle-opacity': 0.25, 'circle-stroke-color': color, 'circle-stroke-opacity': 0.65, 'circle-stroke-width': 1 } }, before);

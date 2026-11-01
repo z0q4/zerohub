@@ -93,3 +93,20 @@ export function geometryBounds(geometry: Geometry): [[number, number], [number, 
   for (const point of points) { south = Math.min(south, point[1]); north = Math.max(north, point[1]); }
   return [[west, south], [east, north]];
 }
+
+/** Bounds are derived only from real coordinates, including geometry collections. */
+export function featureCollectionBounds(collection: FeatureCollection): [[number, number], [number, number]] | null {
+  const points: number[][] = [];
+  function visit(value: unknown): void {
+    if (!Array.isArray(value)) return;
+    if (typeof value[0] === 'number' && typeof value[1] === 'number') points.push([value[0], value[1]]);
+    else value.forEach(visit);
+  }
+  function geometry(value: Geometry | null): void {
+    if (!value) return;
+    if (value.type === 'GeometryCollection') value.geometries.forEach(geometry);
+    else visit(value.coordinates);
+  }
+  collection.features.forEach((feature) => geometry(feature.geometry));
+  return geometryBounds({ type: 'MultiPoint', coordinates: points });
+}

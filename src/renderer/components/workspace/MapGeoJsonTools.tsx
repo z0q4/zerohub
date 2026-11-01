@@ -2,6 +2,7 @@ import {
   useCallback,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from 'react';
 
@@ -21,6 +22,7 @@ import {
 import {
   useScopedWorkspaceState,
 } from './useScopedWorkspaceState';
+import { featureCollectionBounds } from './location-boundaries';
 import type {
   GeoJsonImportPreview,
 } from './geojson-import';
@@ -33,6 +35,7 @@ type MapGeoJsonToolsProps = {
   visible: boolean;
 
   onCountChange(count: number): void;
+  onBoundsChange(bounds: [[number, number], [number, number]] | null): void;
   onSaveToCase?(
     data: FeatureCollection,
   ): Promise<void>;
@@ -74,6 +77,7 @@ export function MapGeoJsonTools({
   exportData,
   map,
   onCountChange,
+  onBoundsChange,
   onSaveToCase,
   scopeId,
   visible,
@@ -107,6 +111,9 @@ export function MapGeoJsonTools({
       scopeId,
       EXPORT_KIND_OPTIONS.map((option) => option.id),
     );
+  useEffect(() => {
+    onBoundsChange(featureCollectionBounds(imported));
+  }, [imported, onBoundsChange]);
   const [saving, setSaving] = useState(false);
   const pointData = useMemo(
     (): FeatureCollection<Point> => ({
@@ -137,6 +144,8 @@ export function MapGeoJsonTools({
   const visibleShapeData = visible
     ? shapeData
     : EMPTY_COLLECTION;
+  const visibleDataRef = useRef({ points: visiblePointData, shapes: visibleShapeData });
+  visibleDataRef.current = { points: visiblePointData, shapes: visibleShapeData };
   const selectedExportData = useMemo(
     (): FeatureCollection => ({
       type: 'FeatureCollection',
@@ -234,102 +243,107 @@ export function MapGeoJsonTools({
       }
     };
 
-    try {
-      map.addSource(POINT_SOURCE_ID, {
-        type: 'geojson',
-        data: visiblePointData,
-        cluster: true,
-        clusterMaxZoom: 14,
-        clusterRadius: 46,
-      });
-      map.addSource(SHAPE_SOURCE_ID, {
-        type: 'geojson',
-        data: visibleShapeData,
-      });
-      map.addLayer({
-        id: 'imported-geojson-fills',
-        type: 'fill',
-        source: SHAPE_SOURCE_ID,
-        filter: ['==', '$type', 'Polygon'],
-        paint: {
-          'fill-color': '#b77cff',
-          'fill-opacity': 0.16,
-        },
-      });
-      map.addLayer({
-        id: 'imported-geojson-lines',
-        type: 'line',
-        source: SHAPE_SOURCE_ID,
-        paint: {
-          'line-color': '#b77cff',
-          'line-width': 2,
-        },
-      });
-      map.addLayer({
-        id: 'imported-geojson-points',
-        type: 'circle',
-        source: POINT_SOURCE_ID,
-        filter: ['!', ['has', 'point_count']],
-        paint: {
-          'circle-color': '#b77cff',
-          'circle-radius': 6,
-          'circle-stroke-color': '#f1e8ff',
-          'circle-stroke-width': 1,
-        },
-      });
-      map.addLayer({
-        id: 'imported-geojson-clusters',
-        type: 'circle',
-        source: POINT_SOURCE_ID,
-        filter: ['has', 'point_count'],
-        paint: {
-          'circle-color': [
-            'step',
-            ['get', 'point_count'],
-            '#52e5ff',
-            20,
-            '#ffe45c',
-            75,
-            '#ff5d68',
-          ],
-          'circle-radius': [
-            'step',
-            ['get', 'point_count'],
-            14,
-            20,
-            18,
-            75,
-            23,
-          ],
-        },
-      });
-      map.addLayer({
-        id: 'imported-geojson-cluster-count',
-        type: 'symbol',
-        source: POINT_SOURCE_ID,
-        filter: ['has', 'point_count'],
-        layout: {
-          'text-field': '{point_count_abbreviated}',
-          'text-size': 10,
-        },
-        paint: {
-          'text-color': '#050505',
-        },
-      });
-      map.on(
-        'click',
-        'imported-geojson-clusters',
-        handleClusterClick,
-      );
-    } catch (unknownError) {
-      console.error(
-        '[GeoJSON] Falha ao montar camadas.',
-        unknownError,
-      );
+    const mount = () => {
       cleanup();
-    }
+      try {
+        map.addSource(POINT_SOURCE_ID, {
+          type: 'geojson',
+          data: visibleDataRef.current.points,
+          cluster: true,
+          clusterMaxZoom: 14,
+          clusterRadius: 46,
+        });
+        map.addSource(SHAPE_SOURCE_ID, {
+          type: 'geojson',
+          data: visibleDataRef.current.shapes,
+        });
+        map.addLayer({
+          id: 'imported-geojson-fills',
+          type: 'fill',
+          source: SHAPE_SOURCE_ID,
+          filter: ['==', '$type', 'Polygon'],
+          paint: {
+            'fill-color': '#b77cff',
+            'fill-opacity': 0.16,
+          },
+        });
+        map.addLayer({
+          id: 'imported-geojson-lines',
+          type: 'line',
+          source: SHAPE_SOURCE_ID,
+          paint: {
+            'line-color': '#b77cff',
+            'line-width': 2,
+          },
+        });
+        map.addLayer({
+          id: 'imported-geojson-points',
+          type: 'circle',
+          source: POINT_SOURCE_ID,
+          filter: ['!', ['has', 'point_count']],
+          paint: {
+            'circle-color': '#b77cff',
+            'circle-radius': 6,
+            'circle-stroke-color': '#f1e8ff',
+            'circle-stroke-width': 1,
+          },
+        });
+        map.addLayer({
+          id: 'imported-geojson-clusters',
+          type: 'circle',
+          source: POINT_SOURCE_ID,
+          filter: ['has', 'point_count'],
+          paint: {
+            'circle-color': [
+              'step',
+              ['get', 'point_count'],
+              '#52e5ff',
+              20,
+              '#ffe45c',
+              75,
+              '#ff5d68',
+            ],
+            'circle-radius': [
+              'step',
+              ['get', 'point_count'],
+              14,
+              20,
+              18,
+              75,
+              23,
+            ],
+          },
+        });
+        map.addLayer({
+          id: 'imported-geojson-cluster-count',
+          type: 'symbol',
+          source: POINT_SOURCE_ID,
+          filter: ['has', 'point_count'],
+          layout: {
+            'text-field': '{point_count_abbreviated}',
+            'text-size': 10,
+          },
+          paint: {
+            'text-color': '#050505',
+          },
+        });
+        map.on(
+          'click',
+          'imported-geojson-clusters',
+          handleClusterClick,
+        );
+      } catch (unknownError) {
+        console.error(
+          '[GeoJSON] Falha ao montar camadas.',
+          unknownError,
+        );
+        cleanup();
+      }
+    };
+    map.on('style.load', mount);
+    mount();
 
-    return cleanup;
+    return () => { map.off('style.load', mount); cleanup(); };
   }, [map]);
 
   useEffect(() => {

@@ -23,6 +23,7 @@ import {
 import {
   MapProviderSelector,
 } from './MapProviderSelector';
+import { MapCoordinateStatus } from './MapCoordinateStatus';
 import {
   TopRightControls,
 } from './TopRightControls';
@@ -45,6 +46,7 @@ import {
 import type {
   InvestigationCase,
 } from '../../../shared/cases/cases.types';
+import type { Map as MapLibreMap } from 'maplibre-gl';
 import type {
   MapProviderKeyStatus,
   MapProviderViewId,
@@ -57,6 +59,7 @@ import type {
   PageId,
 } from '../../app/types';
 import type {
+  DetailedBasemapStatus,
   MapWorkspaceViewState,
 } from './map-workspace.types';
 import type {
@@ -178,6 +181,15 @@ export function MapWorkspaceShell({
   onOpenCommandPalette,
   universalMapCommand,
 }: MapWorkspaceShellProps) {
+  const [networkOnline, setNetworkOnline] = useState(() => navigator.onLine);
+  const [basemapStatus, setBasemapStatus] = useState<DetailedBasemapStatus>('local');
+  const [mapInstance, setMapInstance] = useState<MapLibreMap | null>(null);
+  useEffect(() => {
+    const update = () => setNetworkOnline(navigator.onLine);
+    window.addEventListener('online', update);
+    window.addEventListener('offline', update);
+    return () => { window.removeEventListener('online', update); window.removeEventListener('offline', update); };
+  }, []);
   const [
     resetSignal,
     setResetSignal,
@@ -487,6 +499,8 @@ export function MapWorkspaceShell({
           >
             <WorldGlobeMap
               activeMode={mode}
+              onBasemapStatusChange={setBasemapStatus}
+              onMapInstanceChange={setMapInstance}
               providerVisible={activeMapProviderView === 'openfreemap-globe'}
               focusGeographicActivityId={
                 focusGeographicActivityId
@@ -674,8 +688,10 @@ export function MapWorkspaceShell({
       <footer className="workspaceStatusBar" aria-label="Estado do workspace cartográfico">
         <span>{mode.toUpperCase()}</span>
         <span>{activeCase ? `Case: ${activeCase.name}` : 'Sem case ativo'}</span>
-        <span>Centro ZeroHub {mapWorkspaceView.camera.latitude.toFixed(4)}, {mapWorkspaceView.camera.longitude.toFixed(4)}</span>
+        <MapCoordinateStatus map={mapInstance} active={activeMapProviderView === 'openfreemap-globe'} fallbackCenter={mapWorkspaceView.camera} />
         <span>{activeMapProviderView === 'openfreemap-globe' ? 'OpenFreeMap · Natural Earth' : 'Google Embed · câmera independente'}</span>
+        {activeMapProviderView === 'openfreemap-globe' && <span role="status" data-map-status={basemapStatus}>{basemapStatus === 'available' ? 'Detalhes online disponíveis' : basemapStatus === 'loading' ? 'Carregando detalhes…' : basemapStatus === 'unavailable' ? 'Detalhes online indisponíveis' : 'Mapa local'}</span>}
+        <span className="workspaceNetworkStatus" data-online={networkOnline}>{networkOnline ? 'Rede disponível (sistema)' : 'Rede indisponível (sistema)'}</span>
       </footer>
 
       {cleanMapAnnouncement && (

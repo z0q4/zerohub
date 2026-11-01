@@ -1,5 +1,6 @@
 import type { IbgeBoundary, IbgeMunicipality } from '../municipal-boundaries/municipal-boundaries.types';
 import type { RecifeNeighborhood, RecifeStreet } from '../recife-geometry/recife-geometry.types';
+import type { IntelligenceQuery, IntelligenceResponse } from '../intelligence-layers/intelligence-types';
 import type {
   CaseActivity,
   CaseActivityCreateInput,
@@ -215,6 +216,11 @@ type ZeroHubAPI = {
   ibgeBoundaries: {
     list(state: string, requestId: string): Promise<IbgeMunicipality[]>;
     geometry(state: string, code: string, requestId: string): Promise<IbgeBoundary>;
+    cancel(requestId: string): Promise<boolean>;
+  };
+
+  intelligenceLayers: {
+    query(request: IntelligenceQuery): Promise<IntelligenceResponse>;
     cancel(requestId: string): Promise<boolean>;
   };
 
