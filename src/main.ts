@@ -27,6 +27,7 @@ import {
 } from './main/ipc/geographic-search.ipc';
 import { registerIbgeBoundariesIpcHandlers } from './main/ipc/ibge-boundaries.ipc';
 import { registerRecifeGeometryIpcHandlers } from './main/ipc/recife-geometry.ipc';
+import { registerIntelligenceLayersIpcHandlers } from './main/ipc/intelligence-layers.ipc';
 
 import {
   registerDeveloperToolsIpcHandlers,
@@ -393,6 +394,7 @@ app.whenReady().then(() => {
   registerGeographicSearchIpcHandlers();
   registerIbgeBoundariesIpcHandlers();
   registerRecifeGeometryIpcHandlers();
+  registerIntelligenceLayersIpcHandlers();
   registerEncodingIpcHandlers();
   registerIpGeolocationIpcHandlers();
   registerMapProvidersIpcHandlers();

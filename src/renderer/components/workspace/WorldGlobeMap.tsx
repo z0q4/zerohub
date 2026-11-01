@@ -36,6 +36,7 @@ import { WorkspaceIcon } from './WorkspaceIcon';
 import { MapContextInspector } from './MapContextInspector';
 import { MapLayerPresentation } from './MapLayerPresentation';
 import { SignalLab } from './signal-lab/SignalLab';
+import { IntelligenceLayers } from './intelligence-layers/IntelligenceLayers';
 import type { VisualLayerId, VisualLayerSettings } from './map-layer-presentation';
 import { useIbgeMunicipality } from './useIbgeMunicipality';
 import { useRecifeGeometry } from './useRecifeGeometry';
@@ -1595,8 +1596,11 @@ export function WorldGlobeMap({
   universalMapCommand,
 }: WorldGlobeMapProps) {
   const [locationPanelOpen, setLocationPanelOpen] = useState(false);
+  const [intelligenceOpen, setIntelligenceOpen] = useState(false);
+  const [intelligenceInspectorOpen, setIntelligenceInspectorOpen] = useState(false);
+  const [intelligenceCount, setIntelligenceCount] = useState(0);
   const [inspectorDetailsOpen, setInspectorDetailsOpen] = useState(true);
-  const [activeWorkspacePanel, setActiveWorkspacePanel] = useState<'location' | 'layers' | 'ip' | 'markers'>('layers');
+  const [activeWorkspacePanel, setActiveWorkspacePanel] = useState<'location' | 'layers' | 'ip' | 'markers' | 'intelligence'>('layers');
   const [visualLayerSettings, setVisualLayerSettings] = useState<VisualLayerSettings>({ opacity: { 'location-selection': 1, 'imported-geojson': 1 }, order: ['location-selection', 'imported-geojson'] });
   const [importedGeoJsonBounds, setImportedGeoJsonBounds] = useState<[[number, number], [number, number]] | null>(null);
   const [locationSelection, setLocationSelection] = useState<LocationSelection>({});
@@ -1916,6 +1920,7 @@ export function WorldGlobeMap({
         total: comparisonSelectionCount,
         detail: 'locais selecionados',
       },
+      { id: 'intelligence-poi', label: 'Inteligência territorial', total: intelligenceCount, detail: 'pontos dentro da região' },
     ],
     [
       comparisonSelectionCount,
@@ -1925,6 +1930,7 @@ export function WorldGlobeMap({
       importedGeoJsonCount,
       selectionGeometryCount,
       locationFeedback,
+      intelligenceCount,
       measurementPointCount,
     ],
   );
@@ -4167,8 +4173,8 @@ export function WorldGlobeMap({
 
   return (
     <div
-      data-panel-open={coordinatePanelOpen || mapWorkspaceView.layerManagerOpen || ipIntelligence.open || locationPanelOpen}
-      data-inspector-open={mapWorkspaceView.operationalHudOpen || Boolean(geographicSearchResult) || Boolean(inspectorSelectionId && inspectorDetailsOpen)}
+      data-panel-open={coordinatePanelOpen || mapWorkspaceView.layerManagerOpen || ipIntelligence.open || locationPanelOpen || intelligenceOpen}
+      data-inspector-open={mapWorkspaceView.operationalHudOpen || Boolean(geographicSearchResult) || Boolean(inspectorSelectionId && inspectorDetailsOpen) || intelligenceInspectorOpen}
       className={`worldGlobeMap ${
         monochromeMode
           ? 'isMonochrome'
@@ -4498,7 +4504,7 @@ export function WorldGlobeMap({
         )}
 
       <aside className="worldGlobeInspector" aria-label="Informações do mapa" aria-hidden={cleanMapMode} inert={cleanMapMode}>
-      {inspectorSelectionId && (inspectorDetailsOpen ? <MapContextInspector marker={selectedMarker ?? null} selection={locationSelection} caseName={activeCase?.name ?? null} onClose={() => setInspectorDetailsOpen(false)} /> : <button className="mapContextReopen" type="button" aria-label="Mostrar detalhes da seleção" title="Mostrar detalhes da seleção" onClick={() => setInspectorDetailsOpen(true)}>i</button>)}
+      {!intelligenceInspectorOpen && inspectorSelectionId && (inspectorDetailsOpen ? <MapContextInspector marker={selectedMarker ?? null} selection={locationSelection} caseName={activeCase?.name ?? null} onClose={() => setInspectorDetailsOpen(false)} /> : <button className="mapContextReopen" type="button" aria-label="Mostrar detalhes da seleção" title="Mostrar detalhes da seleção" onClick={() => setInspectorDetailsOpen(true)}>i</button>)}
       <MapOperationalHud
         activeCaseName={
           activeCase?.name ?? null
@@ -4577,6 +4583,7 @@ export function WorldGlobeMap({
         inert={cleanMapMode}
       >
         <div className="worldGlobePanels" data-active={activeWorkspacePanel}>
+          <IntelligenceLayers map={mapReady ? mapRef.current : null} active={providerVisible && !cleanMapMode} open={intelligenceOpen} visible={!hiddenOperationalLayerSet.has('intelligence-poi')} selection={locationSelection} activeCase={activeCase} caseBusy={caseLoading || caseMutating} onClose={() => setIntelligenceOpen(false)} onInspectorChange={(open) => { setIntelligenceInspectorOpen(open); if (open) { setSelectedMarkerId(null); setPopoverMarkerId(null); } }} onCountChange={setIntelligenceCount} onCreateMarker={(point) => { const marker = addTransientMarker(point.latitude, point.longitude, 'typed'); updateTransientMarker(marker.id, { name: point.name ?? `OSM ${point.id}`, category: 'Infraestrutura' }); setSelectedMarkerId(null); }} addActivity={addActivity} />
           <HierarchicalLocationPanel key={locationRestoreRevision} open={locationPanelOpen} active={providerVisible && !cleanMapMode} selection={locationSelection} countries={countriesData} regions={admin1Data} autoZoom={locationAutoZoom} caseName={activeCase?.name ?? null} savedLocations={(activeCase?.activities ?? []).filter((item) => item.action === 'hierarchical-location-saved').map((item) => ({ id: item.id, title: item.title }))} busy={locationSaving || caseLoading || caseMutating} feedback={locationFeedback} onClose={() => setLocationPanelOpen(false)} onSelect={selectHierarchicalLocation} onClear={() => { pendingLocationCamera.current = null; setLocationSelection({}); setLocationFeedback(null); }} onAutoZoom={setLocationAutoZoom} onSave={() => { void saveHierarchicalLocation(); }} onRestore={restoreLocationActivity} onMarker={createLocationMarker} />
           <IpGeolocationPanel
             activeCaseName={
@@ -4801,6 +4808,7 @@ export function WorldGlobeMap({
           className="worldGlobeControls"
           aria-label="Controles do mapa"
         >
+          <button type="button" aria-label={intelligenceOpen && activeWorkspacePanel === 'intelligence' ? 'Recolher Intelligence Layers' : 'Abrir Intelligence Layers'} title="Intelligence Layers · pontos públicos" aria-expanded={intelligenceOpen} aria-controls="intelligence-layers-panel" onClick={() => { if (!intelligenceOpen || activeWorkspacePanel === 'intelligence') setIntelligenceOpen((open) => !open); setActiveWorkspacePanel('intelligence'); }}><WorkspaceIcon name="intelligence" /></button>
           <button type="button" aria-label={locationPanelOpen && activeWorkspacePanel === 'location' ? 'Recolher localização hierárquica' : 'Abrir localização hierárquica'} title={locationPanelOpen && activeWorkspacePanel === 'location' ? 'Recolher localização hierárquica' : 'Abrir localização hierárquica'} aria-expanded={locationPanelOpen} onClick={() => { if (!locationPanelOpen || activeWorkspacePanel === 'location') setLocationPanelOpen((open) => !open); setActiveWorkspacePanel('location'); }}><WorkspaceIcon name="location" /></button>
           <button
             type="button"

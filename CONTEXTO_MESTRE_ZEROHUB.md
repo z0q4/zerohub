@@ -406,3 +406,38 @@ Foram exercitados no Electron com perfil temporário os dois métodos, seleção
 edição de estação, pausa e reinício, remoção e recriação de camadas, troca de
 estilos e layouts de 1920×1080 e 1280×720. Os testes com perfil temporário sem
 chave não demonstram o estado ou o funcionamento da chave no perfil habitual.
+
+## 19. Intelligence Layers v1
+
+Na branch `feat/intelligence-layers`, o workspace contém o painel Intelligence
+Layers para consultar pontos públicos do OpenStreetMap dentro da menor região
+hierárquica selecionada que possua geometria. O painel oferece categorias de
+saúde, educação, transporte e infraestrutura/serviços, busca por nome,
+contagens reais, estado de carregamento, filtros e atribuição ODbL. O resultado
+é renderizado na instância MapLibre existente com fonte GeoJSON, clustering,
+seleção, inspector, criação explícita de marcador e registro confirmado no case
+ativo sem duplicar a atividade do mesmo identificador OSM.
+
+O processo principal usa o provider modular Overpass com endpoint fixo da
+Private.coffee, IPC autenticado e validações de entrada. As consultas enviam
+somente a caixa envolvente e categorias permitidas; o renderer filtra os pontos
+pela geometria Polygon/MultiPolygon selecionada, incluindo buracos. Há uma
+consulta por vez, cancelamento, timeout, cache em memória de 30 minutos,
+limites de área, volume e objetos, intervalo mínimo e espera progressiva para
+timeout, falha de conexão ou HTTP 5xx. HTTP 429/406 respeita `Retry-After` e
+impõe espera mínima. Para ways e relations, o centro retornado pelo Overpass é
+explicitamente indicado como aproximado; não há alegação de interseção exata
+da geometria completa. Registros com `access=private` ou `access=no` são
+descartados e as tags expostas são restritas.
+
+O funcionamento visual, a limpeza das camadas e listeners, o clustering, os
+filtros, o inspector, a criação de marcador, o registro em case fictício e a
+restauração após troca de estilo foram exercitados no Electron com dados
+sintéticos claramente identificados. A validação com pontos reais de Recife
+permanece pendente: DNS e TLS da Private.coffee responderam, mas uma consulta
+pequena expirou sem resposta HTTP; a consulta equivalente na `overpass-api.de`
+retornou HTTP 502 por capacidade esgotada. A segunda instância não foi adotada
+como fallback devido à política de uso de suas instâncias públicas. A cobertura
+OSM não é completa, e uso frequente ou de grande escala requer extratos locais
+ou infraestrutura própria. As limitações e atribuições constam em
+`src/renderer/components/workspace/intelligence-layers/README.md`.

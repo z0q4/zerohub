@@ -120,6 +120,7 @@ export const MAP_OPERATIONAL_LAYER_IDS = [
   'measurements',
   'imported-geojson',
   'location-selection',
+  'intelligence-poi',
   'comparison',
 ] as const;
 
