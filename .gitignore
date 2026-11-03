@@ -18,3 +18,9 @@ __pycache__/
 *.py[cod]
 .venv/
 venv/
+
+# Contextos e Documentação Interna
+CONTEXTO_*
+ZeroHub_*
+AGENTS.md
+ROADMAP_ZEROHUB.md
